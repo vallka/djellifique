@@ -1,0 +1,287 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block extrahead %}{{ block.super }}
+<!-- link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css" -->
+<link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+
+<style>
+.editor-preview {
+    max-width: 610px !important;
+    text-align: center !important;
+    background-color: white !important;
+    padding: 1rem !important;
+    margin: auto !important;
+        margin-top: auto !important;
+        margin-bottom: auto !important;
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
+}
+
+@media (min-width: 768px){
+  .editor-preview {
+    border-radius: 5px !important;
+  }
+}
+
+.blog_post .blog_header {
+    background-color: #fdc5dc !important;
+    border-radius: 5px !important;
+    padding-top: 0.5rem !important;
+}
+
+.editor-preview {
+    text-align: center !important;
+}
+
+.editor-preview img {
+    max-width: 100% !important;
+}
+
+.editor-preview .header {
+    max-width: 642px !important;
+    margin: 0 auto !important;
+}
+
+.editor-preview h1, .editor-preview h2, .editor-preview h3 {
+    margin-top: 0 !important;
+    margin-bottom: .5rem !important;
+    font-family: inherit !important;
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+    color: #d73672 !important;
+    text-transform: initial !important;
+    letter-spacing: initial !important;
+}
+
+.editor-preview .h1, .editor-preview h1 {
+    font-size: 1.375rem !important;
+    margin-bottom: 1.563rem !important;
+    padding-bottom: 0.5rem !important;
+    color: black !important;
+}
+
+.editor-preview .h2, .editor-preview h2 {
+  color: #d73672 !important;
+}
+.editor-preview .h3, .editor-preview h3 {
+  color: #1a1a1a !important;
+}
+
+.editor-preview hr {
+    box-sizing: content-box !important;
+    height: 0 !important;
+    overflow: visible !important;
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
+    border: 0 !important;
+    border-top-color: currentcolor !important;
+    border-top-style: none !important;
+    border-top-width: 0px !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.editor-preview a {
+    color: #1a1a1a !important;
+    text-decoration: none !important;
+    background-color: transparent !important;
+}
+
+.editor-preview h4, .editor-preview h5, .editor-preview h6 {
+    text-transform: initial !important;
+    letter-spacing: initial !important;
+    font-size: 1rem !important;
+    color: white !important;
+}
+
+.editor-preview h4 a, .editor-preview h5 a, .editor-preview h6 a {
+    color: white !important;
+}
+
+.editor-preview h4:hover, .editor-preview h5:hover, .editor-preview h6:hover {
+  background-color: #f766a2 !important;
+  color: #fff !important;
+  text-decoration: none !important;
+}
+
+.editor-preview h4 a:hover, .editor-preview h5 a:hover, .editor-preview h6 a:hover {
+  color: #fff !important;
+  text-decoration: none !important;
+}
+
+.editor-preview h4, .editor-preview h5, .editor-preview h6 {
+    text-transform: initial !important;
+    letter-spacing: initial !important;
+    font-size: 1rem !important;
+    background-color: #d73672 !important;
+    color: white !important;
+    display: inline-block !important;
+    padding: 1rem !important;
+    border-radius: 5px !important;
+}
+
+</style>
+
+
+{% endblock %}
+
+
+{% block submit_buttons_bottom %}
+<hr>
+{{ block.super }}
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+<script>var 
+jQuery = django.jQuery; // for spectrum
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.css">
+
+<!-- script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script -->
+<script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+<script>
+var simplemde = new EasyMDE({
+    forceSync: true,
+    promptURLs: true,
+    uploadImage: true,
+    imageUploadEndpoint: "/markdownx/upload-em/",
+    imageCSRFToken: django.jQuery('input[name=csrfmiddlewaretoken]').val(),
+    toolbar: [
+        "bold",
+        "italic",
+        "heading-2",
+        "heading-3",
+        "heading-smaller",
+        "heading-bigger",
+        "unordered-list",
+        "ordered-list",
+        "code",
+        "quote",
+        "clean-block",
+        "link",
+        "image",
+        "table",
+        "horizontal-rule",
+        "preview",
+        "|",
+        "guide"
+],
+
+});
+
+django.jQuery(function(){
+    django.jQuery('.submit-row').append('<input type="button" value="Preview" id="btn-preview">')
+    django.jQuery('.submit-row').append('<input type="button" value="Send Test" id="btn-send-test">')
+    django.jQuery('.submit-row').append('<input type="button" value="Stats" id="btn-stats">')
+    django.jQuery('#btn-preview').click(function(){
+        window.open('/blog/'+django.jQuery('#id_slug').val())
+    });
+
+    django.jQuery('#btn-stats').click(function(e){
+        const slug = django.jQuery('#id_slug').val()
+        const token = getCookie('csrftoken');
+        console.info('sending:' + slug );
+
+        django.jQuery.ajax({
+            url: '/blog/newsletter/stats/'+slug,
+            type: 'post',
+            headers: {
+                "X-CSRFToken": token
+            },
+            dataType: 'json',
+            success: function (gooddata) {
+                console.info(gooddata);
+
+                if (gooddata['result']=='ok') {
+                    const n0 = gooddata['data'][0];
+                    const n1 = gooddata['data'][1];
+                    const n2 = gooddata['data'][2];
+                    const n3 = gooddata['data'][3];
+
+                    django.jQuery('#stats-row').remove()
+                    django.jQuery('.submit-row').after('<div id="stats-row">Sent:'+n0+
+                                    ' &bull; Received:'+n1+' &bull; Opened:'+n2+' &bull; Clicked:'+n3+'</div>')                    
+                }
+                else {
+                    alert(gooddata['error'])
+                }
+            },
+            error:  function (errdata) {
+                console.info('error');
+                console.info(errdata);
+                alert(errdata.statusText)
+            },
+        });
+    });
+        
+
+    django.jQuery('#btn-send-test').click(function(e){
+        if (!confirm("Are you sure to do this?"))
+            return;
+
+        const slug = django.jQuery('#id_slug').val()
+        const token = getCookie('csrftoken');
+        console.info('sending:' + slug );
+
+        django.jQuery.ajax({
+            url: '/blog/newsletter/sendtest/'+slug,
+            type: 'post',
+            headers: {
+                "X-CSRFToken": token
+            },
+            dataType: 'json',
+            success: function (gooddata) {
+                console.info(gooddata);
+
+                if (gooddata['result']=='ok') {
+                    alert('ok')
+                }
+                else {
+                    alert(gooddata['error'])
+                }
+            },
+            error:  function (errdata) {
+                console.info('error');
+                console.info(errdata);
+                alert(errdata.statusText)
+            },
+        });
+    });
+
+    django.jQuery('#id_title_color').spectrum({
+        type: "component",
+        showInput: "true",
+        showInitial: "true"
+    });
+    django.jQuery('#id_title_bgcolor').spectrum({
+        type: "component",
+        showInput: "true",
+        showInitial: "true"
+    });
+
+});
+
+function getCookie(name) {
+var cookieValue = null;
+if (document.cookie && document.cookie !== '') {
+var cookies = document.cookie.split(';');
+for (var i = 0; i < cookies.length; i++) {
+var cookie = cookies[i].trim();
+// Does this cookie string begin with the name we want?
+if (cookie.substring(0, name.length + 1) === (name + '=')) {
+    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+    break;
+}
+}
+}
+return cookieValue;
+}
+
+</script>
+
+{% endblock %}

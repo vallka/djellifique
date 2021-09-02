@@ -1,0 +1,79 @@
+{% extends 'base_skinned.html' %}
+
+{% block description %}{{post.description}}{% endblock %}
+{% block keywords %}{{post.keywords}}{% endblock %}
+
+{% block title %}{{meta_title}} - Blog - {{post.title}}{% endblock %}
+
+{% block json_ld %}
+{{post.json_ld|safe}}
+{% endblock json_ld %}
+
+{% block breadcrumb %}
+<nav data-depth="3" class="breadcrumb hidden-sm-down">
+  <ol itemscope="" itemtype="http://schema.org/BreadcrumbList">
+          
+        <li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+          <a itemprop="item" href="{% url 'blog:list' %}">
+            <span itemprop="name">Blog</span>
+          </a>
+          <meta itemprop="position" content="1">
+        </li>
+      
+          
+        <li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+          <a itemprop="item" href="{{ post.get_absolute_url() }}">
+            <span itemprop="name">{{ breadcrumb }}</span>
+          </a>
+          <meta itemprop="position" content="2">
+        </li>
+    
+  </ol>
+</nav>
+{% endblock breadcrumb %}
+
+
+{% block content %}
+{% if post %}
+  {% if post.title_color %}
+    <style>
+      .blog_post .blog_header, .blog_post .blog_header a {
+        color: {{post.title_color}} !important;
+      }
+      .blog_post p a {
+          border-bottom-color: {{post.title_bgcolor}} !important;
+      }
+    </style>
+  {% endif %}
+  {% if post.title_bgcolor %}
+    <style>
+      .blog_post .blog_header {
+        background-color: {{post.title_bgcolor}} !important;
+      }
+    </style>
+  {% endif %}
+    <div class="blog_post">
+      <div class="blog_header">
+        <h1><a href="{% url 'blog:post' post.slug %}">{{post.title}}</a></h1>
+        <div class="blog_date">
+          Published {{ post.blog_start_dt }}
+        </div>
+      </div>
+      <div class="blog_body">
+        {{post.formatted_markdown|safe}}
+      </div>
+    </div>
+    <div class="divider div-transparent div-dot"></div>
+
+    <div class="blog_post">
+      {% if prev%}
+        <h4><a href="{% url 'blog:post' prev %}"> < Earlier </a></h4>
+      {% endif %}     
+
+      <h4><a href="{% url 'blog:list' %}">Blog Index</a></h4>
+      {% if next%}
+        <h4><a href="{% url 'blog:post' next %}"> Later > </a></h4>
+      {% endif %}     
+    </div>
+    {% endif %}     
+{% endblock content %}

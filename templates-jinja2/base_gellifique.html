@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% set meta_title = 'GellifiQue' %}
+
+{% block css %}
+<link rel="stylesheet" href="https://use.typekit.net/oki2ljd.css">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+{% endblock css %}
+
+
+{% block skin_css %}
+<link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+<link rel="stylesheet" href="{% static 'css/base_gellifique.css' %}">
+{% endblock skin_css %}
+
+{% block ga %}
+<script type="text/javascript">
+(window.gaDevIds=window.gaDevIds||[]).push('d6YPbH');
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-79412809-1', 'auto');
+ga('set', 'anonymizeIp', true);
+ga('send', 'pageview');
+ga('require', 'ec');
+</script>
+{% endblock ga %}
+
+{% block header %} 
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="https://www.gellifique.co.uk/en/"><img src="{% static 'images/logo-professional-263.png' %}"></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarColor01">
+      {% block header_nav %} 
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'blog:list' %}">Latest</a>
+        </li>
+        {% for cat in categories %}
+          {% if cat.category[0]!='_' %}
+            <a class="nav-link" href="{% url 'blog:post-by-cat' cat.slug%}">{{cat.category}}</a>
+          {% endif %}
+        {% endfor %}
+      </ul>
+      {% endblock header_nav %} 
+      {#}
+      <form class="form-inline my-2 my-lg-0">
+        <input class="form-control mr-sm-2" type="text" placeholder="Search">
+        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+      </form>
+      #}
+    </div>
+  </nav>
+
+
+{% block breadcrumb %}
+{% endblock breadcrumb %}
+{% endblock header %} 
+
+{% block footer %}
+<footer>
+    <div class="container-fluid">
+        <div class="row justify-content-start align-items-start">
+          <div class="col-12 col-md-4 col-lg-3">
+            <h4 class="footer">PRODUCTS</h4>
+            <ul class="list-unstyled">
+              <li><a href="#">Prices drop</a></li>
+              <li><a href="#">New products</a></li>
+              <li><a href="#">Best sales</a></li>
+            </ul>
+          </div>
+          <div class="col-12 col-md-4 col-lg-3">
+            <h4 class="footer">OUR COMPANY</h4>
+            <ul class="list-unstyled">
+              <li><a href="#">Delivery</a></li>
+              <li><a href="#">Terms and Conditions</a></li>
+              <li><a href="#">About us</a></li>
+              <li><a href="#">Secure payment</a></li>
+              <li><a href="#">Cookies Policy</a></li>
+              <li><a href="#">Contact us</a></li>
+              <li><a href="#">Sitemap</a></li>
+            </ul>
+
+          </div>
+          <div class="col-12 col-md-4 col-lg-3">
+            <h4 class="footer">STORE INFORMATION</h4>
+            <ul class="list-unstyled">
+
+              
+              <li>GellifiQue Professional</li>
+              <li>159 Great Junction Street</li>
+              <li>Edinburgh</li>
+              <li>EH6 5LG</li>
+              <li>United Kingdom</li>
+              <li>Email us: info@gellifique.co.uk</li>
+
+            </ul>
+          </div>
+          <div class="col-12 col-md-4 col-lg-3">
+            <h4 class="footer">Follow Us</h4>
+            <a href="https://www.facebook.com/gellifiqueltd/" target="_blank"><i class="fa fa-2x fa-facebook-square"></i></a>
+            <a href="https://www.instagram.com/gellifique_gel_colour/" target="_blank"><i class="fa fa-2x fa-instagram"></i></a>
+            <a href="https://www.youtube.com/channel/UC8EB7U4DV4n_8BY8wprBXOQ" target="_blank"><i class="fa fa-2x fa-youtube-square"></i></a>
+            <a href="https://twitter.com/gellifique" target="_blank"><i class="fa fa-2x fa-twitter-square"></i></a>
+            <a href="https://uk.pinterest.com/gellifique/" target="_blank"><i class="fa fa-2x fa-pinterest-square"></i></a>
+              </div>
+        </div>
+      </div>
+
+    <div class="copy">© 2020,2021 - GellifiQue® </div>
+</footer>
+{% endblock footer %}
