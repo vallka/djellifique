@@ -54,7 +54,7 @@ def click_redirect(request,uuid):
     except NewsShot.DoesNotExist:
         logger.error("NewsShot.DoesNotExist:%s",uuid)
 
-    return redirect('/' + path)
+    return redirect('https://www.gellifique.co.uk/' + path)
 
 
 @csrf_exempt
