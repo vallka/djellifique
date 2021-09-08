@@ -6,15 +6,15 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dj',
-        'USER': 'root',
+        'USER': 'gellifique',
         'PASSWORD': os.environ['POLLS_DB_PASSWORD'],
         'HOST': '127.0.0.1',
         'OPTIONS': {'charset': 'utf8mb4'},
     },
     'presta': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'gellifique',
-        'USER': 'root',
+        'NAME': 'gellifique_new',
+        'USER': 'gellifique',
         'PASSWORD': os.environ['POLLS_DB_PASSWORD'],
         'HOST': '127.0.0.1',
         'OPTIONS': {'charset': 'utf8mb4'},

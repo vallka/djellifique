@@ -8,9 +8,7 @@ DATABASES = {
         'NAME': 'dj',
         'USER': 'gellifique',
         'PASSWORD': os.environ['POLLS_DB_PASSWORD'],
-        #'HOST': '127.0.0.1',
-        #'HOST': '172.31.18.205',
-        'HOST': '172.31.14.216',
+        'HOST': '127.0.0.1',
         'OPTIONS': {'charset': 'utf8mb4'},
     },
     'presta': {
@@ -18,9 +16,7 @@ DATABASES = {
         'NAME': 'gellifique_new',
         'USER': 'gellifique',
         'PASSWORD': os.environ['POLLS_DB_PASSWORD'],
-        #'HOST': '127.0.0.1',
-        #'HOST': '172.31.18.205',
-        'HOST': '172.31.14.216',
+        'HOST': '127.0.0.1',
         'OPTIONS': {'charset': 'utf8mb4'},
     },
 }  
@@ -31,10 +27,6 @@ TEMPLATE_SKIN = 'gellifique'
 MARKDOWNX_IMAGE_MAX_SIZE = { 'size': (610, 1500), 'quality': 80 }
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-#WHITENOISE_STATIC_PREFIX = '/static/'
-#FORCE_SCRIPT_NAME = '/pyadmin734r04xdw'
-#STATIC_URL = '%s%s' % (FORCE_SCRIPT_NAME, WHITENOISE_STATIC_PREFIX)
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
@@ -47,7 +39,7 @@ EMAIL_FROM_USER = "info@gellifique.co.uk"
 EMAIL_BCC_TO = None
 
 
-DEBUG = True
+DEBUG = False
 
 
 sentry_sdk.init(
