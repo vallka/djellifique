@@ -24,14 +24,9 @@ DATABASES = {
 ALLOWED_HOSTS = ['*']
 
 TEMPLATE_SKIN = 'gellifique'
-#TEMPLATE_SKIN = 'vallka'
 MARKDOWNX_IMAGE_MAX_SIZE = { 'size': (610, 1500), 'quality': 80 }
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-#WHITENOISE_STATIC_PREFIX = '/static/'
-#FORCE_SCRIPT_NAME = '/pyadmin734r04xdw'
-#STATIC_URL = '%s%s' % (FORCE_SCRIPT_NAME, WHITENOISE_STATIC_PREFIX)
 
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
@@ -58,3 +53,5 @@ sentry_sdk.init(
     # django.contrib.auth) you may enable sending PII data.
     send_default_pii=True
 )
+
+sentry_sdk.utils.MAX_STRING_LENGTH = 2048
