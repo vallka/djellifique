@@ -39,7 +39,7 @@ EMAIL_FROM_USER = "info@gellifique.co.uk"
 EMAIL_BCC_TO = None
 
 
-DEBUG = False
+DEBUG = True
 
 
 sentry_sdk.init(
