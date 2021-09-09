@@ -24,6 +24,10 @@ imagekitio = "*"
 gunicorn = "*"
 mysql-connector-python = "*"
 mariadb = "*"
+djangorestframework = "*"
+drf-yasg = "*"
+django-cors-headers = "*"
+
 
 [requires]
 python_version = "3"
