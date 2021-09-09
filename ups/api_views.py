@@ -47,7 +47,7 @@ class UPSAction(generics.ListAPIView):
 
         print(obj)
 
-        queryset = UPSParcel.objects.using('presta').raw(UPS_sql(obj['id_order']))
+        queryset = UPSParcel.objects.using('presta').raw(UPSParcel.UPS_sql(obj['id_order']))
         if len(queryset)==0:
             return Response({'status':'Error','message':f"Order id={obj['id_order']} not found"})
 
