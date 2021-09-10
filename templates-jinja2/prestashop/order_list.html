@@ -1,0 +1,74 @@
+{% extends "base_skinned.html" %}
+
+{% block title %}Orders{% endblock %}
+
+
+{% block content %}
+{% if order_list %}
+
+<style>
+.gel_row {
+  grid-template-columns: 1fr 2fr 3fr 3fr;
+}
+.gel_row > div.ready {
+  background-color:  springgreen;
+}
+
+</style>
+  
+<div class="gel_table">
+  <div class="gel_thead">
+    <div class="gel_row">
+          <div>reference / (id_order)
+          </div>
+          <div>customer</div>
+          <div>state</div>
+          <div>date</div>
+    </div>
+  </div>
+  <div class="gel_tbody">
+    {% for order in order_list %}
+      <div class="gel_row" data-id_order="{{order.id_order}}">
+          <div><a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.reference}}</a> <br />
+            (<a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.id_order}}</a>)
+          </div>
+          <div><a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.firstname}} {{order.lastname}}</a>
+            {% if order.is_new %}  
+            (*NEW*)
+            {% endif %}
+            <br />
+            {{order.country}}
+          </div>
+          <div class="order_state"><a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.order_state}}</a></div>
+          <div><a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.date_add}}</a></div>
+      </div>
+      {% endfor %}
+  </div>
+</div>
+  {% else %}
+    <p>There are no orders.</p>
+  {% endif %}     
+{% endblock content %}
+
+
+
+{% block javascript %}
+{{ super() }}
+<script>
+$(document).ready(function(){
+  $('.gel_row').each(function(){
+    let id_order = $(this).attr('data-id_order');
+    console.log(id_order);
+    let ready = window.localStorage.getItem('o'+id_order+'-ready');
+    console.log(ready);
+    if (ready) {
+      $(this).find('.order_state').addClass('ready');
+    }
+    else {
+      $(this).find('.order_state').removeClass('ready');
+    }
+
+  });
+});
+</script>
+{% endblock %}

@@ -47,6 +47,7 @@ urlpatterns = [
     path('blog/admin/', admin.site.urls),
     path('blog/newsletter/', include('newsletter.urls')),
     path('blog/', include('blog.urls')),
+    path('prestashop/', include('prestashop.urls')),
     path('admin/', admin.site.urls),
     path('markdownx/', include('markdownx.urls')),
 

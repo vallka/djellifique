@@ -360,3 +360,44 @@ hr.after-post {
 	box-shadow: inset 0 0 0 2px #f6f6f6,
 					0 0 0 4px #f6f6f6;
 }
+
+.gel_table {
+  margin-top:1rem;
+}
+
+.gel_row {
+  display: grid;
+  grid-template-columns: 1fr 3em 3em 3em;
+  background-color:darkgrey;
+  gap: 1px;
+  padding: 0 1px 1px 1px;
+}
+
+.gel_row > div {
+  background-color:cornsilk;
+  text-align: center;
+
+}
+.gel_thead {
+  font-weight: bold;
+}
+.gel_thead .gel_row > div {
+  background-color:chocolate;
+  color:white;
+}
+
+.gel_thead > div {
+  text-align: center;
+  background-color:chocolate;
+  color:white;
+}
+
+.back_link {
+  float: right;
+  color:white;
+}
+
+.back_link a {
+  color:white;
+  padding: 0.5rem;
+}

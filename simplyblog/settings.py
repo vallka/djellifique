@@ -34,6 +34,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'blog',
+    'prestashop',
     'newsletter',
     'gellifinsta',
     'ups',

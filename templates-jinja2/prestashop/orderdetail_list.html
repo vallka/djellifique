@@ -1,0 +1,303 @@
+{% extends "base_skinned.html" %}
+
+{% block title %}Order Detail{% endblock %}
+
+
+{% block content %}
+{% if orderdetail_list %}
+
+<style>
+.gel_row {
+  grid-template-columns: 1fr 3em 3em 3em;
+}
+
+.gel_row > div.not_ready {
+  background-color:  pink;
+}
+.gel_row > div.half_ready {
+  background-color:  gold;
+}
+
+.gel_row > div.ready {
+  background-color:  springgreen;
+}
+
+</style>
+
+<div class="gel_table" data-id_order="{{order.id_order}}">
+  <div class="gel_thead">
+    <div>{{order.reference}} (<span id="id_order">{{order.id_order}}</span>) {{order.firstname}} {{order.lastname}} 
+      {% if order.is_new %}  
+      (*NEW*)
+      {% endif %}
+      {{order.order_state}} ({{order.id_order_state}})
+    
+    <span class="back_link"> <a href="..">&lt;&lt;</a> </span>
+    </div>
+    <div class="gel_row">
+      <div>reference / ean13</div>
+      <div>units</div>
+      <div>qnt</div>
+      <div></div>
+    </div>
+  </div>
+
+  <div class="gel_tbody">
+  {% for order in orderdetail_list %}
+    <div class="product_row gel_row" data-id_product="{{order.id_product}}">
+      <div>{{order.product_reference}}<br>
+        {{order.product_name}}<br>
+        <span class="ean13_col">{{order.product_ean13}}</span> (<span class="id_product">{{order.id_product}}</span>)
+      </div>
+      <div class="qnt_col">{{order.unity}}</div>
+      <div><span class="product_quantity">{{order.product_quantity}}</span> / <span class="ready_quantity">0</span></div>
+      <div class="checkbox"><input type="checkbox"></div>
+    </div>
+  {% endfor %}
+  </div>
+
+  <div class="gel_tfoot">
+    <button id="btn-reset" class="btn btn-danger">Reset</button>
+    <button id="btn-update-status" class="btn btn-success" style="display:none">Set Status</button>
+  </div>
+  
+  <audio id="audio_yes" src="{% static 'audio/jazzy-chords.wav' %}" preload="auto"></audio>
+  <audio id="audio_no" src="{% static 'audio/wrong-buzzer.wav' %}" preload="auto"></audio>
+
+</div>
+  {% else %}
+    <p>There are no orders.</p>
+  {% endif %}     
+{% endblock content %}
+
+
+
+{% block javascript %}
+{{ super() }}
+<script>
+var order = {};
+var id_order;
+
+$(document).ready(function(){
+  id_order = $('.gel_table').attr('data-id_order');
+  order = JSON.parse(window.localStorage.getItem('o'+id_order));
+  if (! order) order = {};
+
+  if (window.localStorage.getItem('o'+id_order+'-ready')) {
+    $('#btn-update-status').show();
+  }
+
+  $('.product_row').each(function(){
+    const product_quantity = parseInt($(this).find('.product_quantity').text());
+    const id_product = 'p'+$(this).attr('data-id_product');
+    console.log('initp:'+id_product+':'+order[id_product]);
+    if (order[id_product]) {
+      console.log('init-set:'+id_product);
+      if (product_quantity!=order[id_product][0]) {
+        order[id_product][0] = product_quantity;
+      }
+
+      $(this).find('.ready_quantity').text(order[id_product][1]);
+      if (order[id_product][1]==product_quantity) {
+        console.log('!ready');
+        $(this).find('div.checkbox').addClass('ready');
+        $(this).find('div.checkbox').removeClass('not_ready');
+        $(this).find('div.checkbox').removeClass('half_ready');
+
+        $(this).find('input[type=checkbox]').prop('checked',true);
+      }
+      else if (order[id_product][1] > 0) {
+        console.log('!half ready');
+        $(this).find('div.checkbox').removeClass('ready');
+        $(this).find('div.checkbox').removeClass('not_ready');
+        $(this).find('div.checkbox').addClass('half_ready');
+      }
+      else {
+        console.log('!not ready');
+        $(this).find('div.checkbox').addClass('not_ready');
+      }
+    }
+    else {
+      order[id_product] = [product_quantity,0];    
+      $(this).find('div.checkbox').addClass('not_ready');
+      console.log('init:'+id_product);
+    }
+  });
+
+  console.log(order);
+
+  $('input[type=checkbox]').change(function(){
+    console.log('change:'+this.checked);
+
+    const id_product = 'p'+$(this).parents('div.gel_row').attr('data-id_product');
+    const product_quantity = parseInt($(this).parents('div.gel_row').find('.product_quantity').text());
+    let ready_quantity = parseInt($(this).parents('div.gel_row').find('.ready_quantity').text());
+
+    console.log(id_product+':'+product_quantity+':'+ready_quantity);
+
+
+    if (this.checked) {
+      if (ready_quantity != product_quantity) {
+        if (ready_quantity < product_quantity) {
+          $(this).parents('div.gel_row').find('.ready_quantity').text(++ready_quantity);
+          updateOrder(id_product,product_quantity,ready_quantity);
+        }
+        if (ready_quantity == product_quantity) {
+          $(this).parent('div').addClass('ready');
+          $(this).parent('div').removeClass('not_ready');
+          $(this).parent('div').removeClass('half_ready');
+        }
+        else {
+          this.checked = false;
+          if (ready_quantity == 0) {
+            $(this).parent('div').addClass('not_ready');
+            $(this).parent('div').removeClass('ready');
+            $(this).parent('div').removeClass('half_ready');
+          }
+          else {
+            $(this).parent('div').addClass('half_ready');
+            $(this).parent('div').removeClass('ready');
+            $(this).parent('div').removeClass('not_ready');
+          }
+        }
+      }
+    }
+    else {
+      if (ready_quantity > 0) {
+        this.checked = true;
+      }
+    }
+
+  });
+
+
+  $('#btn-reset').click(function () {
+    order = {};
+    console.log('reset')
+
+    $('.product_row').each(function(){
+      $(this).find('div.checkbox').addClass('not_ready');
+        $(this).find('div.checkbox').removeClass('ready');
+        $(this).find('div.checkbox').removeClass('half_ready');
+
+        $(this).find('input[type=checkbox]').prop('checked',false);
+        $(this).find('.ready_quantity').text(0);
+    });
+
+    window.localStorage.removeItem('o'+id_order);
+    window.localStorage.removeItem('o'+id_order+'-ready');
+
+    $('#btn-update-status').hide();
+
+    document.activeElement.blur(); //remove focus from Reset button!!!
+  });
+
+
+  $('#btn-update-status').click(function () {
+    let url = '/pyadmin734r04xdw/api/v1/prestashop/order/updatestatus/';
+    $.ajax({
+      method: "post",
+      async: false,
+      data: {
+            "id_order": id_order,
+            "id_status": 39,
+      },
+      dataType: "json",
+      url: url,
+      headers: {"Authorization": "Token 6b246cc18769c6ec02dc20009649d5ae5903d454"},
+      success: function(data) {
+        console.log(data)
+        alert('Updated')
+
+    }});
+  });
+
+
+
+});
+
+
+function updateOrder(id_product,product_quantity,ready_quantity) {
+  console.log('updateOrder:'+id_product+':'+product_quantity+':'+ready_quantity);
+
+  order[id_product] = [product_quantity,ready_quantity];
+  window.localStorage.removeItem('o'+id_order);
+  window.localStorage.setItem('o'+id_order, JSON.stringify(order));
+
+
+  let ready = 0;
+  $.each(order,function(key,element){
+    if (Array.isArray(element)) {
+      if (element[0]==element[1]) ++ready;
+    }
+  });
+
+
+  if (ready && $('.product_row').length==ready) {
+    console.log('+ready');
+    window.localStorage.setItem('o'+id_order+'-ready', true);
+    $('#btn-update-status').show();
+  }
+  else {
+    console.log('-not ready');
+    window.localStorage.removeItem('o'+id_order+'-ready');
+    $('#btn-update-status').hide();
+  }
+}
+
+
+function process(code) {
+
+  let found = false;
+  $('.product_row').each(function(){
+    tt = $(this).find('.ean13_col');
+    ttt = tt.text()
+    if (ttt==code) {
+      found = this;
+    }
+
+  });
+  if (!found) {
+    $('#audio_no').get(0).volume = 0.5;
+    $('#audio_no').get(0).play();
+  }
+  else {
+    $('#audio_yes').get(0).volume = 0.5;
+    $('#audio_yes').get(0).play();
+    $(found).find('input[type=checkbox]').prop('checked',true);
+    $(found).find('input[type=checkbox]').change();
+  }
+
+}
+
+
+var code='';
+  $( "body" ).keyup(function( event ) {
+    //console.log( event.originalEvent.key + ' --- ' + code);
+  
+    if (event.originalEvent.key=='0' ||
+        event.originalEvent.key=='1' ||
+        event.originalEvent.key=='2' ||
+        event.originalEvent.key=='3' ||
+        event.originalEvent.key=='4' ||
+        event.originalEvent.key=='5' ||
+        event.originalEvent.key=='6' ||
+        event.originalEvent.key=='7' ||
+        event.originalEvent.key=='8' ||
+        event.originalEvent.key=='9') {
+          code += event.originalEvent.key;
+    }
+  
+    else if (event.originalEvent.key=='Enter' && code.length==13) {
+      event.preventDefault();
+      const ccode = code;
+      code = '';
+      process(ccode);
+    }
+    else {
+      code = '';
+    }
+  
+  });
+  </script>
+{% endblock %}
