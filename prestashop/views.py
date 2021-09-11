@@ -72,7 +72,8 @@ class CertListView(generic.TemplateView):
         
             files = []
             for f in os.listdir(cert_dir):
-                url = str(settings.FORCE_SCRIPT_NAME) + os.path.join(settings.MEDIA_URL,'customer-certificates',self.kwargs['email'],f)
+                #url = settings.FORCE_SCRIPT_NAME + os.path.join(settings.MEDIA_URL,'customer-certificates',self.kwargs['email'],f)
+                url = '' + os.path.join(settings.MEDIA_URL,'customer-certificates',self.kwargs['email'],f)
                 files.append({'url':url,'file':f})
 
             context['files'] = files
