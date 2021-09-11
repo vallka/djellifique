@@ -1,0 +1,75 @@
+{% extends "base_skinned.html" %}
+
+{% block title %}Uploaded files page{% endblock title %}
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+<style>
+.content {
+    background-color: #f6f6f6;
+    padding: 1rem;
+}
+
+.file-uploads {
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    display: block;
+    width: 90%;
+    height: 250px;
+    border: solid 1px #3e9bc8;
+    margin: auto;
+}
+
+#app {
+    text-align: center;
+    position: relative;
+}
+
+#app div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.btn-primary {
+  background-color:  #f766a2;
+}
+
+a {
+  color:  #f766a2;
+
+}
+
+img.upl_img {
+    width: 100%;
+}
+
+</style>  
+{% endblock %}
+
+{% block content %}
+
+{{ email }}
+{{ cert_dir }}
+
+<ul>
+{% for f in files %}
+    <li><a href="#{{f['file']}}">{{f['file']}}</a> <a href="{{f['url']}}"><i class="fa fa-download" aria-hidden="true"></i></a></li>
+{% endfor %}
+</ul>
+
+{% for f in files %}
+    <hr>
+
+    {% if '.pdf' in f['file'] %}
+        <a href="{{f['url']}}" target="_blank" name="{{f['file']}}"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> {{f['file']}}</a>
+    {% else %}
+        <a href="{{f['url']}}" target="_blank" name="{{f['file']}}"><img class="upl_img" src="{{f['url']}}"></a>
+    {% endif %}
+
+{% endfor %}
+
+{% endblock content %}

@@ -1,0 +1,196 @@
+{% extends "base_skinned.html" %}
+
+{% block title %}Upload page{% endblock title %}
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+<style>
+.content {
+    background-color: #f6f6f6;
+    padding: 1rem;
+}
+
+.file-uploads {
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    display: block;
+    width: 90%;
+    height: 250px;
+    border: solid 1px #3e9bc8;
+    margin: auto;
+}
+
+#app {
+    text-align: center;
+    position: relative;
+}
+
+#app div.upload-div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.btn-primary {
+  background-color:  #f766a2;
+}
+
+a {
+  color:  #f766a2;
+
+}
+
+</style>  
+{% endblock %}
+
+{% block content %}
+
+<div id="app">
+    <ul>
+      <li v-for="file in files">
+        <span v-if="typeof(file.response)=='string'"><a target="_blank" v-bind:href="file.response">[[file.name]]</a></span>
+        <span v-else>
+        [[file.name]]
+        </span>
+      </li>
+    </ul>
+    <file-upload
+      ref="upload"
+      v-model="files"
+      post-action="put.method/"
+      put-action="put.method/"
+      @input-file="inputFile"
+      @input-filter="inputFilter"
+      :multiple="true"
+      :drop="true"
+      :data="{filename: filename}"
+    >
+    <div class="upload-div">
+      <button class="btn btn-primary">
+        Drag'n'drop image or PDF file(s) here or click to select
+      </button>
+    </div>
+    </file-upload>
+    <!--
+
+{{ email }}
+
+    <button class="btn btn-success" v-show="!$refs.upload || !$refs.upload.active" @click.prevent="$refs.upload.active = true" type="button">Start upload</button>
+    <button class="btn btn-info" v-show="$refs.upload && $refs.upload.active" @click.prevent="$refs.upload.active = false" type="button">Stop upload</button>
+    -->
+
+    <div class="uploading" v-show="$refs.upload && $refs.upload.active">Uploading, please wait... <span id="pro-gress"></span></div>
+    <div class="uploaded" v-show="$refs.upload && $refs.upload.uploaded && files.length">Uploaded! Thank you! Please <a href="javascript:history.back();">click here</a> to return to you shopping cart. You may need to refresh the page to be able to continue.</div>
+  </div>
+
+
+{% endblock content %}
+
+{% block footer %}
+{% endblock footer %}
+
+{% block javascript %}
+{{ super() }}
+
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/vue-upload-component"></script>
+<script>
+new Vue({
+  delimiters: ['[[', ']]'],
+  el: '#app',
+  data: function () {
+    return {
+      files: [],
+      filename: 'xxx'
+    }
+  },
+  components: {
+    FileUpload: VueUploadComponent
+  },
+  methods: {
+    /**
+     * Has changed
+     * @param  Object|undefined   newFile   Read only
+     * @param  Object|undefined   oldFile   Read only
+     * @return undefined
+     */
+    inputFile: function (newFile, oldFile) {
+      if (newFile && oldFile) {
+       
+        if (newFile.active !== oldFile.active) {
+          console.log('Start upload', newFile.active, newFile)
+        }
+
+        // Upload progress
+        if (newFile.progress !== oldFile.progress) {
+          console.log('progress', newFile.progress)
+          document.getElementById('pro-gress').innerHTML = ' '+newFile.progress+'%'
+        }
+
+        // Upload error
+        if (newFile.error !== oldFile.error) {
+          console.log('error', newFile.error, newFile)
+          document.getElementById('pro-gress').innerHTML = ''
+        }
+
+        // Uploaded successfully
+        if (newFile.success !== oldFile.success) {
+          console.log('success', newFile.success, newFile)
+          document.getElementById('pro-gress').innerHTML = ''
+        }
+
+
+        if (!newFile.active && oldFile.active) {
+          // Get response data
+          console.log('response', newFile.response)
+          console.log(newFile.response)
+          if (newFile.xhr) {
+            //  Get the response status code
+            console.log('status', newFile.xhr.status)
+            if (newFile.xhr.status==200) {
+              //alert('Thank you')
+              document.cookie = "customer_cert_uploaded={{ email }}; path=/; domain=gellifique.co.uk";
+              //document.getElementById('div-continue').style.display = 'block';
+            }
+          }
+        }
+      }
+      // Automatic upload
+      if (Boolean(newFile) !== Boolean(oldFile) || oldFile.error !== newFile.error) {
+        if (!this.$refs.upload.active) {
+          this.$refs.upload.active = true
+        }
+      }
+    },
+    /**
+     * Pretreatment
+     * @param  Object|undefined   newFile   Read and write
+     * @param  Object|undefined   oldFile   Read only
+     * @param  Function           prevent   Prevent changing
+     * @return undefined
+     */
+    inputFilter: function (newFile, oldFile, prevent) {
+      if (newFile && !oldFile) {
+        // Filter non-image file
+        if (!/\.(pdf)|(jpg)|(jpeg)|(gif)|(png)|(tiff)|(jpg)|(dng)$/i.test(newFile.name)) {
+          alert('Please choose an image or a PDF file!')
+          return prevent()
+        }
+      }
+
+      // Create a blob field
+      newFile.blob = ''
+      let URL = window.URL || window.webkitURL
+      if (URL && URL.createObjectURL) {
+        newFile.blob = URL.createObjectURL(newFile.file)
+      }
+      newFile.data.filename = newFile.name
+    }
+  }
+});
+</script>
+
+{% endblock javascript %}

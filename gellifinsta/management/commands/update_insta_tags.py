@@ -20,7 +20,7 @@ debugging = False
 
 
 class Command(BaseCommand):
-    help = 'update_insta_db'
+    help = 'update_insta_tags'
 
     def add_arguments(self, parser):
         pass
