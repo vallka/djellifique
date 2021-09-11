@@ -57,7 +57,7 @@ class OrderDetailListView(generic.ListView):
         return context
     
 class CertListView(generic.TemplateView):    
-    template_name = 'uploaded.html'
+    template_name = 'prestashop/uploaded.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -84,7 +84,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class UploadPageView(generic.TemplateView):
-    template_name = 'upload.html'
+    template_name = 'prestashop/upload.html'
 
 import uuid
 import os
