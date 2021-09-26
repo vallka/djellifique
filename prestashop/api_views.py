@@ -15,7 +15,7 @@ from rest_framework.decorators import api_view
 from drf_yasg.utils import swagger_auto_schema
 from django.conf import settings
 from django.db import connections
-from django.utils.dateparse import parse_datetime
+from django.utils.dateparse import parse_date
 
 from .models import *
 from .views import *
@@ -361,7 +361,7 @@ class UpdateProduct(APIView):
                     dt = new_price[1]
                     new_price = new_price[0]
                     logger.info(f"{n} {p.id_product}: {new_price}/{dt}:{id_shop}")
-                    dt = parse_datetime(dt)
+                    dt = parse_date(dt)
                     logger.info(dt)
 
                     #if id_shop:
