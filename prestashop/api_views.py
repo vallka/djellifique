@@ -359,7 +359,7 @@ class UpdateProduct(APIView):
                     logger.info(new_price)
 
                     dt = new_price[1]
-                    new_price] = new_price[0]
+                    new_price = new_price[0]
                     logger.info(f"{n} {p.id_product}: {new_price}/{dt}:{id_shop}")
                     dt = parse_datetime(dt)
                     logger.info(dt)
