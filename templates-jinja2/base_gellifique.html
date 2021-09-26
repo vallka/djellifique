@@ -3,8 +3,9 @@
 {% set meta_title = 'GellifiQue' %}
 
 {% block css %}
-<link rel="stylesheet" href="https://use.typekit.net/oki2ljd.css">
+<link rel="stylesheet" href="https://use.typekit.net/oki2ljd.css?1">
 
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,600,600i,700,700i" rel="stylesheet">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
 {% endblock css %}
@@ -32,7 +33,9 @@ ga('require', 'ec');
 
 {% block header %} 
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="https://www.gellifique.co.uk/en/"><img src="{% static 'images/logo-professional-263.png' %}"></a>
+  
+    <div class="navbar-above">HEMA FREE UV/LED GEL SYSTEM</div>
+      <a class="navbar-brand" href="https://www.gellifique.co.uk/en/"><img src="{% static 'images/logo-professional-263.png' %}"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -45,7 +48,9 @@ ga('require', 'ec');
         </li>
         {% for cat in categories %}
           {% if cat.category[0]!='_' %}
-            <a class="nav-link" href="{% url 'blog:post-by-cat' cat.slug%}">{{cat.category}}</a>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'blog:post-by-cat' cat.slug%}">{{cat.category}}</a>
+            </li>
           {% endif %}
         {% endfor %}
       </ul>
