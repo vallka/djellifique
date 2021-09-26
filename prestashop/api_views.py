@@ -370,11 +370,13 @@ class UpdateProduct(APIView):
 
 
                     sql = """
-            INSERT ignore INTO `ps17_specific_price` 
-            (`id_specific_price_rule`, `id_cart`, `id_product`, `id_shop`, `id_shop_group`, `id_currency`, `id_country`, `id_group`, `id_customer`, `id_product_attribute`, `price`, `from_quantity`, `reduction`, `reduction_tax`, `reduction_type`, `from`, `to`) 
-            VALUES
-            (0, 0, %s, 1, 0, 0, 0, 0, 0, 0, '-1.000000', 1, %s, 1, 'percentage', '{}', '{}');
-            """
+INSERT ignore INTO ps17_specific_price
+(id_specific_price_rule,id_cart,id_product,id_shop,id_shop_group,id_currency,id_country,id_group,id_customer,id_product_attribute,price,from_quantity,reduction,reduction_tax,reduction_type,from,`to`) 
+VALUES
+(0, 0, %s, %s, 0, 0, 0, 0, 0, 0, '-1.000000', 1, %s, 1, 'percentage', %s, %s);
+"""
+                    with connections[db].cursor() as cursor:
+                        cursor.execute(sql,[p.id_product,id_shop,new_price,today,dt])
 
                     #sql = sql.format(dt1,dt2,)
                     #cursor.execute(sql, (idProduct,perCent,))
