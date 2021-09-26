@@ -15,6 +15,7 @@ from rest_framework.decorators import api_view
 from drf_yasg.utils import swagger_auto_schema
 from django.conf import settings
 from django.db import connections
+from django.utils.dateparse import parse_datetime
 
 from .models import *
 from .views import *
@@ -346,6 +347,34 @@ class UpdateProduct(APIView):
 
                         n_updated += 1
                         logger.info(f'saved:{p.id_product}')
+
+            if obj['what']=='spec-price':
+                queryset = Ps17Product.objects.using(db).filter(id_product__in=ids,)
+                l = len(queryset)
+                logger.info(f'found:{l}')
+                for p in queryset:
+                    n += 1
+                    new_price = re.split('/\s+/',obj['replace'].strip(),re.S)
+
+                    logger.info(f"{n} {p.id_product}: {new_price[0]}/{new_price[1]}:{id_shop}")
+
+                    #if id_shop:
+                    #    logger.info("update ps17_product_shop set wholesale_price=%s where id_product=%s and id_shop=%s")
+                    #    logger.info(f"pars:{new_price},{p.id_product},{id_shop}")
+#
+                    #    with connections[db].cursor() as cursor:
+                    #        cursor.execute("update ps17_product_shop set wholesale_price=%s where id_product=%s and id_shop=%s",[new_price,p.id_product,id_shop])
+                    #else:
+                    #    logger.info("update ps17_product_shop set wholesale_price=%s where id_product=%s")
+                    #    logger.info(f"pars:{new_price},{p.id_product}")
+#
+                    #    with connections[db].cursor() as cursor:
+                    #        cursor.execute("update ps17_product_shop set wholesale_price=%s where id_product=%s",[new_price,p.id_product])
+                    #        cursor.execute("update ps17_product set wholesale_price=%s where id_product=%s",[new_price,p.id_product])
+
+
+                    n_updated += 1
+                    logger.info(f'saved:{p.id_product}')
 
         logger.error(f'done:{n}/{n_updated}')
 
