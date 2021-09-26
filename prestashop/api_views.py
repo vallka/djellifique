@@ -358,7 +358,11 @@ class UpdateProduct(APIView):
                     new_price = re.split(r'\s+',obj['replace'].strip(),re.S)
                     logger.info(new_price)
 
-                    logger.info(f"{n} {p.id_product}: {new_price[0]}/{new_price[1]}:{id_shop}")
+                    dt = new_price[1]
+                    new_price] = new_price[0]
+                    logger.info(f"{n} {p.id_product}: {new_price}/{dt}:{id_shop}")
+                    dt = parse_datetime(dt)
+                    logger.info(dt)
 
                     #if id_shop:
                     #    logger.info("update ps17_product_shop set wholesale_price=%s where id_product=%s and id_shop=%s")
