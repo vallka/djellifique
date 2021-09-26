@@ -355,7 +355,7 @@ class UpdateProduct(APIView):
                 for p in queryset:
                     n += 1
                     logger.info(obj['replace'])
-                    new_price = re.split('/\s+/',obj['replace'].strip(),re.S)
+                    new_price = re.split(r'/(\s+)|(\s*\n\s*)/',obj['replace'].strip(),re.S)
                     logger.info(new_price)
 
                     logger.info(f"{n} {p.id_product}: {new_price[0]}/{new_price[1]}:{id_shop}")
