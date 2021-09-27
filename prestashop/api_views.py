@@ -356,27 +356,38 @@ class UpdateProduct(APIView):
                 for p in queryset:
                     n += 1
                     logger.info(obj['replace'])
-                    new_price = re.split(r'\s+',obj['replace'].strip(),re.S)
-                    logger.info(new_price)
+                    pars = re.split(r'\s+',obj['replace'].strip(),re.S)
+                    logger.info(pars)
 
-                    dt = new_price[1]
-                    new_price = float(new_price[0])/100
-                    logger.info(f"{n} {p.id_product}: {new_price}/{dt}:{id_shop}")
-                    dt = parse_date(dt)
-                    logger.info(dt)
-                    today = date.today()
-                    logger.info(today)
+                    new_price = float(pars[0])/100
+                    dt1 = pars[1]
+                    dt1 = parse_date(dt1)
+                    dt2 = pars.get(2)
+                    if not dt2: 
+                        dt2 = date.today()
+                    else:
+                        dt2 = parse_date(dt2)
 
+                    if dt2<dt1: dt1,dt2 = dt2,dt1
 
+                    logger.info(f"{n} {p.id_product}: {new_price}/{dt1}/{dt2}:{id_shop}")
 
-                    sql = """
+                    if id_shop:
+                        sql1 = "DELETE FROM `ps17_specific_price` where `id_product`=%s and `id_shop`=%s"
+
+                        sql2 = """
 INSERT ignore INTO ps17_specific_price
 (id_specific_price_rule,id_cart,id_product,id_shop,id_shop_group,id_currency,id_country,id_group,id_customer,id_product_attribute,price,from_quantity,reduction,reduction_tax,reduction_type,`from`,`to`) 
 VALUES
 (0, 0, %s, %s, 0, 0, 0, 0, 0, 0, '-1.000000', 1, %s, 1, 'percentage', %s, %s);
 """
-                    with connections[db].cursor() as cursor:
-                        cursor.execute(sql,[p.id_product,id_shop,new_price,today,dt])
+                        with connections[db].cursor() as cursor:
+                            cursor.execute(sql1,[p.id_product,id_shop])
+                            cursor.execute(sql2,[p.id_product,id_shop,new_price,dt1,dt2])
+
+                    else:
+                        logger.error('id_shop is not set')
+
 
                     #sql = sql.format(dt1,dt2,)
                     #cursor.execute(sql, (idProduct,perCent,))
