@@ -362,11 +362,10 @@ class UpdateProduct(APIView):
                     new_price = float(pars[0])/100
                     dt1 = pars[1]
                     dt1 = parse_date(dt1)
-                    dt2 = pars.get(2)
-                    if not dt2: 
-                        dt2 = date.today()
+                    if len(pars)>2: 
+                        dt2 = parse_date(pars[2])
                     else:
-                        dt2 = parse_date(dt2)
+                        dt2 = date.today()
 
                     if dt2<dt1: dt1,dt2 = dt2,dt1
 
