@@ -232,19 +232,20 @@ class UpdateProduct(APIView):
                 queryset = Ps17Product.objects.using(db).filter(id_product__in=ids,)
                 l = len(queryset)
                 logger.info(f'found:{l}')
+                new_price = obj['replace'].strip()
+                mult = False
+                if '*' in new_price:
+                    if new_price[0]=='*' and new_price[1] in ['0','1','2','3','4','5','6','7','8','9']:
+                        mult = True
+                        new_price = new_price[1:]
+                    else:
+                        mult_arr = new_price.split()
+                        if mult_arr[0] == '*':
+                            mult = True
+                            new_price = mult_arr[1]
+
                 for p in queryset:
                     n += 1
-                    new_price = obj['replace'].strip()
-                    mult = False
-                    if '*' in new_price:
-                        if new_price[0]=='*' and new_price[1] in ['0','1','2','3','4','5','6','7','8','9']:
-                            mult = True
-                            new_price = new_price[1:]
-                        else:
-                            mult_arr = new_price.split()
-                            if mult_arr[0] == '*':
-                                mult = True
-                                new_price = mult_arr[1]
 
                     logger.info(f"{n} {p.id_product}: {p.price}=>{new_price}:{id_shop}")
 
@@ -282,19 +283,20 @@ class UpdateProduct(APIView):
                 queryset = Ps17Product.objects.using(db).filter(id_product__in=ids,)
                 l = len(queryset)
                 logger.info(f'found:{l}')
+                new_price = obj['replace'].strip()
+                mult = False
+                if '*' in new_price:
+                    if new_price[0]=='*' and new_price[1] in ['0','1','2','3','4','5','6','7','8','9']:
+                        mult = True
+                        new_price = new_price[1:]
+                    else:
+                        mult_arr = new_price.split()
+                        if mult_arr[0] == '*':
+                            mult = True
+                            new_price = mult_arr[1]
+
                 for p in queryset:
                     n += 1
-                    new_price = obj['replace'].strip()
-                    mult = False
-                    if '*' in new_price:
-                        if new_price[0]=='*' and new_price[1] in ['0','1','2','3','4','5','6','7','8','9']:
-                            mult = True
-                            new_price = new_price[1:]
-                        else:
-                            mult_arr = new_price.split()
-                            if mult_arr[0] == '*':
-                                mult = True
-                                new_price = mult_arr[1]
 
                     logger.info(f"{n} {p.id_product}: {p.wholesale_price}=>{new_price}:{id_shop}")
 
@@ -333,9 +335,9 @@ class UpdateProduct(APIView):
                 queryset = Ps17Product.objects.using(db).filter(id_product__in=ids,)
                 l = len(queryset)
                 logger.info(f'found:{l}')
+                new_weight = obj['replace']
                 for p in queryset:
                     n += 1
-                    new_weight = obj['replace']
                     logger.info(f"{n} {p.id_product}: {p.weight}=>{new_weight}")
                     if p.weight!=new_weight:
 
@@ -353,21 +355,21 @@ class UpdateProduct(APIView):
                 queryset = Ps17Product.objects.using(db).filter(id_product__in=ids,)
                 l = len(queryset)
                 logger.info(f'found:{l}')
+                logger.info(obj['replace'])
+                pars = re.split(r'\s+',obj['replace'].strip(),re.S)
+                logger.info(pars)
+
+                new_price = float(pars[0])/100
+                dt1 = pars[1]
+                dt1 = parse_date(dt1)
+                if len(pars)>2: 
+                    dt2 = parse_date(pars[2])
+                else:
+                    dt2 = date.today()
+                if dt2<dt1: dt1,dt2 = dt2,dt1
+
                 for p in queryset:
                     n += 1
-                    logger.info(obj['replace'])
-                    pars = re.split(r'\s+',obj['replace'].strip(),re.S)
-                    logger.info(pars)
-
-                    new_price = float(pars[0])/100
-                    dt1 = pars[1]
-                    dt1 = parse_date(dt1)
-                    if len(pars)>2: 
-                        dt2 = parse_date(pars[2])
-                    else:
-                        dt2 = date.today()
-
-                    if dt2<dt1: dt1,dt2 = dt2,dt1
 
                     logger.info(f"{n} {p.id_product}: {new_price}/{dt1}/{dt2}:{id_shop}")
 
@@ -408,6 +410,81 @@ VALUES
 
                     n_updated += 1
                     logger.info(f'saved:{p.id_product}')
+
+            if obj['what']=='feature':
+                queryset = Ps17Product.objects.using(db).filter(id_product__in=ids,)
+                l = len(queryset)
+                logger.info(f'found:{l}')
+                logger.info(obj['replace'])
+                pars = re.split(r'\s+',obj['replace'].strip(),re.S)
+                minus=False
+                feature_id=None
+                value_id=None
+                if pars[0]=='+':
+                    feature_id=pars[1]
+                    value_id=pars[2]
+                elif pars[0]=='-':
+                    minus=True
+                    feature_id=pars[1]
+                elif pars[0][0]=='+':
+                    feature_id=pars[0][1:]
+                    value_id=pars[1]
+                elif pars[0][0]=='-':
+                    minus=True
+                    feature_id=pars[0][1:]
+
+                for p in queryset:
+                    n += 1
+                    logger.info(f"{n} {p.id_product}: {minus}/{feature_id}/{value_id}")
+                    if minus:
+                        sql="delete from ps17_feature_product where id_product=%s and id_feature=%s"
+                        logger.info(sql)
+                        with connections[db].cursor() as cursor:
+                            cursor.execute(sql,[p.id_product,feature_id])
+                    else:
+                        sql="insert ignore into ps17_feature_product(id_product,id_feature,id_value) values(%s,%s,%s)"
+                        logger.info(sql)
+                        with connections[db].cursor() as cursor:
+                            cursor.execute(sql,[p.id_product,feature_id,value_id])
+
+                        n_updated += 1
+                        logger.info(f'saved:{p.id_product}')
+
+            if obj['what']=='category':
+                queryset = Ps17Product.objects.using(db).filter(id_product__in=ids,)
+                l = len(queryset)
+                logger.info(f'found:{l}')
+                logger.info(obj['replace'])
+                pars = re.split(r'\s+',obj['replace'].strip(),re.S)
+                minus=False
+                category_id=None
+                if pars[0]=='+':
+                    category_id=pars[1]
+                elif pars[0]=='-':
+                    minus=True
+                    category_id=pars[1]
+                elif pars[0][0]=='+':
+                    category_id=pars[0][1:]
+                elif pars[0][0]=='-':
+                    minus=True
+                    category_id=pars[0][1:]
+
+                for p in queryset:
+                    n += 1
+                    logger.info(f"{n} {p.id_product}: {minus}/{category_id}/{value_id}")
+                    if minus:
+                        sql="delete from ps17_category_product where id_product=%s and id_category=%s"
+                        logger.info(sql)
+                        with connections[db].cursor() as cursor:
+                            cursor.execute(sql,[p.id_product,category_id])
+                    else:
+                        sql="insert ignore into ps17_category_product(id_product,id_category,position) values(%s,%s,%s)"
+                        logger.info(sql)
+                        with connections[db].cursor() as cursor:
+                            cursor.execute(sql,[p.id_product,category_id,999])
+
+                        n_updated += 1
+                        logger.info(f'saved:{p.id_product}')
 
         logger.error(f'done:{n}/{n_updated}')
 
