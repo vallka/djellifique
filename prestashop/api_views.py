@@ -442,13 +442,13 @@ VALUES
                         with connections[db].cursor() as cursor:
                             cursor.execute(sql,[p.id_product,feature_id])
                     else:
-                        sql="insert ignore into ps17_feature_product(id_product,id_feature,id_value) values(%s,%s,%s)"
+                        sql="insert ignore into ps17_feature_product(id_product,id_feature,id_feature_value) values(%s,%s,%s)"
                         logger.info(sql)
                         with connections[db].cursor() as cursor:
                             cursor.execute(sql,[p.id_product,feature_id,value_id])
 
-                        n_updated += 1
-                        logger.info(f'saved:{p.id_product}')
+                    n_updated += 1
+                    logger.info(f'saved:{p.id_product}')
 
             if obj['what']=='category':
                 queryset = Ps17Product.objects.using(db).filter(id_product__in=ids,)
@@ -483,8 +483,8 @@ VALUES
                         with connections[db].cursor() as cursor:
                             cursor.execute(sql,[p.id_product,category_id,999])
 
-                        n_updated += 1
-                        logger.info(f'saved:{p.id_product}')
+                    n_updated += 1
+                    logger.info(f'saved:{p.id_product}')
 
         logger.error(f'done:{n}/{n_updated}')
 
