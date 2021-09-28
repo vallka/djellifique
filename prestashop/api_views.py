@@ -432,6 +432,9 @@ VALUES
                 elif pars[0][0]=='-':
                     minus=True
                     feature_id=pars[0][1:]
+                else:
+                    feature_id=pars[0]
+                    value_id=pars[1]
 
                 for p in queryset:
                     n += 1
