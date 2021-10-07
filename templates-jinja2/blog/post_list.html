@@ -76,6 +76,20 @@ body {
       .blog_post_{{post.id}} p a {
           border-bottom-color: {{post.title_bgcolor}} !important;
       }
+      .blog_post_{{post.id}} li::marker {
+        color: {{post.title_bgcolor}} !important;
+
+      }
+      .blog_post_{{post.id}} .read_more a {
+        color: {{post.title_bgcolor}} !important;
+
+      }
+
+
+      .div-dot_{{post.id}}::after {
+        background-color: {{post.title_bgcolor}} !important;
+      }
+
     </style>
   {% endif %}
     <div class="blog_post blog_post_{{post.id}}">
@@ -93,7 +107,7 @@ body {
       {% endif %}
 
     </div>
-    <div class="divider div-transparent div-dot"></div>
+    <div class="divider div-transparent div-dot div-dot_{{post.id}}"></div>
 
   {% endfor %}
 {% else %}
