@@ -28,6 +28,9 @@ djangorestframework = "*"
 drf-yasg = "*"
 django-cors-headers = "*"
 
+pandas = "*"
+plotly = "*"
+plotly-express = "*"
 
 [requires]
 python_version = "3"

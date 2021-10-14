@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'newsletter',
     'gellifinsta',
     'ups',
+    'stats',
 
     'django.contrib.admin',
     'django.contrib.auth',

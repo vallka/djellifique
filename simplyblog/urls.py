@@ -27,6 +27,7 @@ from drf_yasg import openapi
 
 from ups.api_views import *
 from prestashop.api_views import *
+from stats.api_views import *
 
 
 schema_view = get_schema_view(
@@ -49,6 +50,7 @@ urlpatterns = [
     path('blog/newsletter/', include('newsletter.urls')),
     path('blog/', include('blog.urls')),
     path('prestashop/', include('prestashop.urls')),
+    path('stats/', include('stats.urls')),
     path('admin/', admin.site.urls),
     path('markdownx/', include('markdownx.urls')),
 
@@ -61,6 +63,10 @@ urlpatterns = [
     path('api/v1/prestashop/order/', OrderList.as_view()),
     path('api/v1/prestashop/order/<int:id_order>/', OrderDetailList.as_view()),
     path('api/v1/prestashop/order/updatestatus/', UpdateOrderStatus.as_view()),
+
+    path('api/v1/stats/dailysales/', DailySalesView.as_view()),
+    path('api/v1/stats/monthlysales/', MonthlySalesView.as_view()),
+    path('api/v1/stats/yearlysales/', YearlySalesView.as_view()),
 
     re_path(r'^api/v1/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('api/v1/swagger/<slug:format>', schema_view.without_ui(cache_timeout=0), name='schema-json'),

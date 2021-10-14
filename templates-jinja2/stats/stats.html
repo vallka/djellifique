@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+    </head>
+<body>
+    <section class="section">
+        <div class="container">
+
+            <div id="myPlot1" style="display:none;"></div>
+            <div id="myPlot2" style="display:none;"></div>
+            <div id="myPlot3" style="display:none;"></div>
+
+            <div class="has-text-centered">
+                <button id="update" class="button is-primary">Please wait...</button>
+            </div>
+
+        </div>
+        </section>
+</body>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script>
+    Plotly.newPlot('myPlot1' );
+    Plotly.newPlot('myPlot2' );
+    Plotly.newPlot('myPlot3' );
+    
+    $('#update').click(function(){
+    
+        $.ajax({
+            url: "/api/v1/stats/dailysales/",
+            type: "GET",
+            contentType: 'application/json;charset=UTF-8',
+            dataType:"json",
+            success: function (data) {
+                Plotly.react('myPlot1', data );
+                $('#myPlot1').show();
+            }
+        });
+    
+        $.ajax({
+            url: "/api/v1/stats/monthlysales/",
+            type: "GET",
+            contentType: 'application/json;charset=UTF-8',
+            dataType:"json",
+            success: function (data) {
+                Plotly.react('myPlot2', data );
+                $('#myPlot2').show();
+            }
+        });
+    
+        $.ajax({
+            url: "/api/v1/stats/yearlysales/",
+            type: "GET",
+            contentType: 'application/json;charset=UTF-8',
+            dataType:"json",
+            success: function (data) {
+                Plotly.react('myPlot3', data );
+                $('#myPlot3').show();
+            }
+        });
+    })
+
+    $('#update').click();
+    setTimeout(function(){$('#update').hide()},1500)
+</script>
+
+
+</html>
