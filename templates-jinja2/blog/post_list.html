@@ -89,6 +89,9 @@ body {
         color: {{post.title_bgcolor}} !important;
         filter: brightness(95%);
       }
+      .blog_post_{{post.id}} s, .blog_post_{{post.id}} del {
+        text-decoration-color: {{post.title_bgcolor}}30;
+      }
 
 
       .div-dot_{{post.id}}::after {

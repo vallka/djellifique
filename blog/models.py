@@ -66,7 +66,8 @@ class Post(models.Model):
 
     @property
     def formatted_markdown(self):
-        return markdownify(self.text)
+        text = re.sub('~~([^~]+)~~',r'<s>\1</s>',self.text) # not in standard extensions
+        return markdownify(text)
 
     def __str__(self):
         return str(self.id) + ':'+ str(self.slug)

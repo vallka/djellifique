@@ -27,7 +27,6 @@ mariadb = "*"
 djangorestframework = "*"
 drf-yasg = "*"
 django-cors-headers = "*"
-
 pandas = "*"
 plotly = "*"
 plotly-express = "*"
@@ -35,6 +34,5 @@ plotly-express = "*"
 [requires]
 python_version = "3"
 
-[packages.django-markdownx]
-git = "https://github.com/vallka/django-markdownx.git"
-editable = true
+[packages]
+django-markdownx = {git = "https://github.com/vallka/django-markdownx.git", editable = true}
