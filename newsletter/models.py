@@ -218,8 +218,8 @@ a {
 }
 
 .blog_post s, .blog_post del {
-  text-decoration-color: #d7367230;
-  text-decoration-thickness: 20px;
+  text-decoration: none;
+  background-color: #d7367230;
 }
 
 
