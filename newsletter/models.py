@@ -285,6 +285,7 @@ footer .unsubscribe {
   color: {{post.title_bgcolor}} !important;
   filter: brightness(95%);
 }}
+
 .blog_post h2 {{
   color: {{post.title_bgcolor}} !important;
   filter: brightness(95%);
