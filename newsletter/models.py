@@ -281,10 +281,6 @@ footer .unsubscribe {
   background-color: {title_bgcolor}30 !important;
 }}
 
-.blog_post li::marker {{
-    color: {{title_bgcolor}} !important;
-}}
-
 .blog_post h2 {{
     color: {{title_bgcolor}} !important;
 }}
