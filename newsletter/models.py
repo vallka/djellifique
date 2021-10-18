@@ -276,6 +276,11 @@ footer .unsubscribe {
     border-bottom-color: {title_bgcolor} !important;
 }}
 
+.blog_post s, .blog_post del {{
+  text-decoration: none;
+  background-color: {title_bgcolor}30 !important;
+}}
+
 
             """
 
