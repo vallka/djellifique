@@ -217,6 +217,12 @@ a {
     margin-right: 1rem;
 }
 
+.blog_post s, .blog_post del {
+  text-decoration-color: #d7367230;
+  text-decoration-thickness: 20px;
+}
+
+
 footer {
     text-align: center !important;
     font-size: 0.8rem !important;
