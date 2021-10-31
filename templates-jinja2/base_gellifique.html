@@ -4,13 +4,11 @@
 
 {% block css %}
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 
-<link rel="stylesheet" href="https://use.typekit.net/oki2ljd.css?1">
+<!-- link rel="stylesheet" href="https://use.typekit.net/oki2ljd.css?1" -->
 
-<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,600,600i,700,700i" rel="stylesheet">
+
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
 {% endblock css %}
@@ -18,7 +16,223 @@
 
 {% block skin_css %}
 <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
-<link rel="stylesheet" href="{% static 'css/base_gellifique.css' %}"?0001>
+<link rel="stylesheet" href="{% static 'css/base_gellifique.css' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Playfair+Display:ital,wght@1,800&display=swap" rel="stylesheet" -->
+<link href="https://fonts.googleapis.com/css2?family=Elsie:wght@900&family=Playfair+Display:ital,wght@1,800&family=Source+Sans+Pro&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,600,600i,700,700i" rel="stylesheet">
+<style>
+body {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-feature-settings: "ss03" 0;
+  font-size: 16px;
+  line-height: 1.3rem;
+  letter-spacing: initial;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-feature-settings: "ss03" 0;
+  line-height: 1;
+  font-size: 21px;
+}
+h1 {
+  font-size: 32px;
+  text-transform: none;
+}
+h2 {
+  font-size: 26px;
+  text-transform: none;
+}
+h3 {
+  font-size: 21px;
+}
+h4 {
+  font-size: 18px;
+}
+</style>
+
+{% if request.GET.get('f')=='1' %}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,700;1,400;1,700&family=DM+Serif+Display:ital@0;1&family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'GM Sans', sans-serif;
+  font-feature-settings: "ss03" 0;
+  font-size: 16px;
+  line-height: 1.3rem;
+  letter-spacing: initial;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'GM Serif Text', serif;
+  line-height: 1;
+  font-size: 21px;
+}
+h1 {
+  font-size: 32px;
+}
+h2 {
+  font-size: 26px;
+}
+h3 {
+  font-size: 21px;
+}
+h4 {
+  font-size: 18px;
+}
+</style>
+{% endif %}
+{% if request.GET.get('f')=='2' %}
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@600&family=Julius+Sans+One&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Crimson Text', sans-serif;
+  font-feature-settings: "ss03" 0;
+  font-size: 16px;
+  line-height: 1.3rem;
+  letter-spacing: initial;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Julius Sans One', san-serif;
+  font-feature-settings: "ss03" 0;
+  line-height: 1;
+  font-size: 21px;
+}
+h1 {
+  font-size: 32px;
+}
+h2 {
+  font-size: 26px;
+}
+h3 {
+  font-size: 21px;
+}
+h4 {
+  font-size: 18px;
+}
+</style>
+{% endif %}
+{% if request.GET.get('f')=='3' %}
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@600&family=Julius+Sans+One&family=Monda&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Monda', sans-serif;
+  font-feature-settings: "ss03" 0;
+  font-size: 16px;
+  line-height: 1.3rem;
+  letter-spacing: initial;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Julius Sans One', san-serif;
+  font-feature-settings: "ss03" 0;
+  line-height: 1;
+  font-size: 21px;
+}
+h1 {
+  font-size: 32px;
+}
+h2 {
+  font-size: 26px;
+}
+h3 {
+  font-size: 21px;
+}
+h4 {
+  font-size: 18px;
+}
+</style>
+{% endif %}
+{% if request.GET.get('f')=='4' %}
+<link href="https://fonts.googleapis.com/css2?family=Elsie:wght@900&family=Source+Sans+Pro&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-feature-settings: "ss03" 0;
+  font-size: 16px;
+  line-height: 1.3rem;
+  letter-spacing: initial;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Elsie', cursive;
+  font-feature-settings: "ss03" 0;
+  line-height: 1;
+  font-size: 21px;
+}
+h1 {
+  font-size: 32px;
+}
+h2 {
+  font-size: 26px;
+}
+h3 {
+  font-size: 21px;
+}
+h4 {
+  font-size: 18px;
+}
+</style>
+{% endif %}
+{% if request.GET.get('f')=='5' %}
+<link href="https://fonts.googleapis.com/css2?family=Elsie:wght@900&family=Playfair+Display:ital,wght@1,800&family=Source+Sans+Pro&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-feature-settings: "ss03" 0;
+  font-size: 16px;
+  line-height: 1.3rem;
+  letter-spacing: initial;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-feature-settings: "ss03" 0;
+  line-height: 1;
+  font-size: 21px;
+}
+h1 {
+  font-size: 32px;
+}
+h2 {
+  font-size: 26px;
+}
+h3 {
+  font-size: 21px;
+}
+h4 {
+  font-size: 18px;
+}
+</style>
+{% endif %}
+{% if request.GET.get('f')=='6' %}
+<link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Playfair+Display:ital,wght@1,800&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Merriweather Sans', sans-serif;
+  font-feature-settings: "ss03" 0;
+  font-size: 16px;
+  line-height: 1.3rem;
+  letter-spacing: initial;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-feature-settings: "ss03" 0;
+  line-height: 1;
+  font-size: 21px;
+}
+h1 {
+  font-size: 32px;
+}
+h2 {
+  font-size: 26px;
+}
+h3 {
+  font-size: 21px;
+}
+h4 {
+  font-size: 18px;
+}
+</style>
+{% endif %}
+
+
 {% endblock skin_css %}
 
 {% block ga %}
@@ -69,9 +283,32 @@ ga('require', 'ec');
     </div>
   </nav>
 
-
 {% block breadcrumb %}
+<nav data-depth="3" class="breadcrumb hidden-sm-down">
+  <ol itemscope="" itemtype="http://schema.org/BreadcrumbList">
+          
+        <li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+          <a itemprop="item" href="{% url 'blog:list' %}">
+            <span itemprop="name">Blog</span>
+          </a>
+          <meta itemprop="position" content="1">
+        </li>
+      
+          
+        {% if post %}
+        <li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
+          <a itemprop="item" href="{{ post.get_absolute_url() }}">
+            <span itemprop="name">{{ breadcrumb }}</span>
+          </a>
+          <meta itemprop="position" content="2">
+        </li>
+        {% endif %}
+    
+  </ol>
+</nav>
 {% endblock breadcrumb %}
+
+
 {% endblock header %} 
 
 {% block footer %}
