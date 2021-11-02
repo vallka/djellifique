@@ -1,0 +1,212 @@
+{% extends "base_skinned.html" %}
+
+{% block title %} {{meta_title}} - BlogHome - {{post.title}}{% endblock %}
+
+
+
+{% block content %}
+{% if post_list %}
+<style>
+  .blog_content {
+	background-color: #f6f6f6;
+	display: flex;
+  flex-wrap: wrap;
+	max-width: 1170px;
+}
+
+  .blog_post {
+    max-width: 550px;
+    background-color: initial;
+  }
+
+
+@media (min-width: 576px){
+  .blog_post {
+  max-width: 550px;
+}
+}
+
+
+@media (min-width: 768px){
+  .blog_post {
+  width: 345px;
+}
+.blog_header  {
+  height: 258px;
+  overflow: hidden;
+}
+}
+
+
+@media (min-width: 992px){
+  .blog_post {
+  width: 464px;
+}
+.blog_header  {
+  height: 330px;
+  overflow: hidden;
+}
+}
+
+@media (min-width: 1200px){
+  .blog_post {
+  width: 550px;
+}
+.blog_header  {
+  height: 380px;
+  overflow: hidden;
+}
+}
+
+    .blog_header  {
+        position: relative;
+    }
+    .blog_header  h1 {
+        font-size: 27px;
+        overflow: hidden;
+        height: 37px;
+    }
+    .blog_header img {
+          width: 60%;
+          margin: inherit;
+          padding: 6px;
+
+      }
+      .blog_text {
+    height: 67%;
+    overflow: hidden;
+    position: absolute;
+    background-color: #fffd;
+    top: 30%;
+    left: 30%;
+    color: #403f3f;
+    padding: 6px;
+    border-radius: 5px;
+    margin-right: 6px;
+    border: solid 1px #a2a2a2;
+}
+.blog_text h1,.blog_text h2,.blog_text h3{
+  font-size: 20px;
+}
+
+.blog_text h4,.blog_text h6{
+font-size: 17px;
+background-color: #b3b3b3;
+}
+
+.blog_text_after {
+
+    position: absolute;
+  bottom: 0;  
+  left: 0;
+  height: 30px;
+  width: 100%;
+	
+  background: linear-gradient(to bottom, transparent, white);;
+
+  pointer-events: none; /* so the text is still selectable */
+}
+    </style>
+
+
+
+{% for post in post_list %}
+  {% if post.title_color %}
+    <style>
+      .blog_post_{{post.id}} .blog_header, 
+      .blog_post_{{post.id}} .blog_date, 
+      .blog_post_{{post.id}} .blog_header a {
+        color: {{post.title_color}} !important;
+      }
+    </style>
+  {% endif %}
+  {% if post.title_bgcolor %}
+    <style>
+      .blog_post_{{post.id}} .blog_header {
+        background-color: {{post.title_bgcolor}} !important;
+      }
+      .blog_post_{{post.id}} p a {
+          border-bottom-color: {{post.title_bgcolor}} !important;
+          filter: brightness(95%);
+      }
+      .blog_post_{{post.id}} li::marker {
+        color: {{post.title_bgcolor}} !important;
+        filter: brightness(95%);
+      }
+      .blog_post_{{post.id}} h2 {
+        color: {{post.title_bgcolor}} !important;
+        filter: brightness(95%);
+      }
+      .blog_post_{{post.id}} .read_more a {
+        color: {{post.title_bgcolor}} !important;
+        filter: brightness(95%);
+      }
+      .blog_post_{{post.id}} s, .blog_post_{{post.id}} del {
+        text-decoration-color: {{post.title_bgcolor}}30;
+      }
+
+
+      .div-dot_{{post.id}}::after {
+        background-color: {{post.title_bgcolor}} !important;
+      }
+
+    </style>
+  {% endif %}
+    <div class="blog_post blog_post_{{post.id}}">
+      <div class="blog_header">
+        <h1><a href="{{ post.get_absolute_url() }}">{{post.title|capitalize}}</a></h1>
+        <a href="{{ post.get_absolute_url() }}">
+          {% if post.first_image %}
+            <img src="{{post.first_image}}">
+          {% else %}
+            <img src="{% static 'images//flower-square.png' %}">
+          {% endif %}
+        </a>
+        <a href="{{ post.get_absolute_url() }}">
+        <div class="blog_text">
+          {{post.plain_text|safe}}
+          <div class="blog_text_after"></div>
+        </div></a>
+    </div>
+
+    </div>
+
+  {% endfor %}
+{% else %}
+  <div class="blog_post blog_post_{{post.id}}">
+      <div class="blog_body">
+        <p>There are no posts yet.</p>
+      </div>
+  </div>
+{% endif %}     
+
+{% if is_paginated %}
+<div class="blog_post">
+  {% if page_obj.has_previous() %}
+      {# <h4 class="paginator"><a href="?page=1">&#x300A;</a></h4> #}
+      <h4 class="paginator"><a href="?page={{ page_obj.previous_page_number() }}">&#x3008;</a></h4></h4>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+      <h4 class="paginator paginator-current">{{ num }}</h4>
+      {% else %}
+      <h4 class="paginator"><a href="?page={{ num }}">{{ num }}</a></h4>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next() %}
+      <h4 class="paginator"><a href="?page={{ page_obj.next_page_number() }}">&#x3009;</a></h4>
+      {# <h4 class="paginator"><a href="?page={{ page_obj.paginator.num_pages }}">&#x300B;</a></h4> #}
+    {% endif %}
+</div>
+{% endif %}
+
+
+{% endblock content %}
+
+
+
+{% block javascript %}
+{{ super() }}
+{% endblock %}

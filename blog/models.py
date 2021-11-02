@@ -69,6 +69,26 @@ class Post(models.Model):
         text = re.sub('~~([^~]+)~~',r'<s>\1</s>',self.text) # not in standard extensions
         return markdownify(text)
 
+    @property
+    def plain_text(self):
+        text = re.sub('~~([^~]+)~~',r'<s>\1</s>',self.text) # not in standard extensions
+        md = markdownify(text)
+
+        md = re.sub('<a[^>]+?>','',md)
+        md = re.sub(r'</a>','',md)
+        md = re.sub('<img[^>]+?>','',md)
+        return md
+        #return '<p>'.join(BeautifulSoup(md,features="html.parser").findAll(text=True))
+        #return '<p>' + ''.join(BeautifulSoup(md,features="html.parser").findAll(text=True)) + '</p>'
+
+    @property
+    def first_image(self):
+        img = re.search(r'\!\[\]\(([^)]+)\)',self.text)
+        if img and img.group(1):
+            return img.group(1)
+        else:
+            return None
+
     def __str__(self):
         return str(self.id) + ':'+ str(self.slug)
 

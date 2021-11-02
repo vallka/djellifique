@@ -66,7 +66,9 @@ class ListView(generic.ListView):
 
 class HomeView(generic.ListView):
     model = Post
-    paginate_by = 10
+    paginate_by = 50
+    template_name = "blog/post_home.html"
+
     
     def get_queryset(self):
         
@@ -91,33 +93,6 @@ class HomeView(generic.ListView):
         context['categories'] = Category.objects.all().order_by('id')
 
         page = int(self.request.GET.get('page',1))
-
-        n = 0
-        for p in context['post_list']:
-            if n>0 or page>1:
-                #print(p.text)
-                pics = re.finditer(r'\!\[\]\(',p.text)
-
-                pos = [pic.start() for pic in pics]
-
-                print(p.slug,pos)
-
-                if len(pos)>1 and pos[0]<100:
-                    p.text = p.text[0:pos[1]]
-                    p.read_more = True
-                
-                elif len(pos)>0 and pos[0]>=100:
-                    p.text = p.text[0:pos[0]]
-                    p.read_more = True
-
-                else:
-                    crs = re.finditer(r'\n',p.text)    
-                    pos = [cr.start() for cr in crs]
-                    if len(pos)>3:
-                        p.text = p.text[0:pos[3]]
-                        p.read_more = True
-
-            n += 1
 
         context['breadcrumb'] = re.sub(r'[^\x00-\x7F]',' ', context['post'].title)
         return context        
