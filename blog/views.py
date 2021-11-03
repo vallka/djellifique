@@ -66,7 +66,7 @@ class ListView(generic.ListView):
 
 class HomeView(generic.ListView):
     model = Post
-    paginate_by = 50
+    paginate_by = 20
     template_name = "blog/post_home.html"
 
     

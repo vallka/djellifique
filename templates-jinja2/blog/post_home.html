@@ -7,77 +7,102 @@
 {% block content %}
 {% if post_list %}
 <style>
-  .blog_content {
+.blog_content {
 	background-color: #f6f6f6;
 	display: flex;
   flex-wrap: wrap;
 	max-width: 1170px;
 }
 
-  .blog_post {
-    max-width: 550px;
-    background-color: initial;
-  }
-
-
-@media (min-width: 576px){
-  .blog_post {
+.blog_post {
+  width: 100%;
   max-width: 550px;
-}
+  padding: 10px;
+  background-color: initial;
 }
 
+.blog_card  {
+  border-radius: 5px;
+  background-color: #fdc5dc;
+  position: relative;
+  height: 340px;
+}
+
+.blog_card .card_title {
+  background-color: #fdc5dc88;
+  color: #1a1a1a;
+  z-index: 2;
+  position: relative;
+}
+
+.blog_card a:hover  {
+  text-decoration: none !important;
+}
 
 @media (min-width: 768px){
   .blog_post {
   width: 345px;
 }
-.blog_header  {
-  height: 258px;
+.blog_card  {
+  height: 234px;
   overflow: hidden;
 }
 }
-
-
 @media (min-width: 992px){
   .blog_post {
   width: 464px;
 }
-.blog_header  {
-  height: 330px;
+.blog_card  {
+  height: 320px;
   overflow: hidden;
 }
 }
-
 @media (min-width: 1200px){
   .blog_post {
   width: 550px;
 }
-.blog_header  {
+.blog_card  {
   height: 380px;
   overflow: hidden;
 }
 }
 
-    .blog_header  {
-        position: relative;
-    }
-    .blog_header  h1 {
-        font-size: 27px;
-        overflow: hidden;
-        height: 37px;
-    }
-    .blog_header img {
-          width: 60%;
-          margin: inherit;
-          padding: 6px;
+.card_title  h1 {
+  font-size: 27px;
+  overflow: hidden;
+}
+@media (min-width: 768px){
+  .card_title  h1 {
+  font-size: 25px;
+}
+}
+@media (min-width: 992px){
+.card_title  h1 {
+  font-size: 27px;
+}
+}
+.card_image {
+  position: absolute;
+  overflow: hidden;
+  width: 76%;
+  height: 82%;
+  top: 16%;
+  left: .6%;
+  margin: inherit;
+  padding: 6px;
 
-      }
-      .blog_text {
-    height: 67%;
+}
+@media (min-width: 768px){
+  .card_image {
+    width: 60%;
+}
+}
+.card_text {
+    height: 69%;
     overflow: hidden;
     position: absolute;
     background-color: #fffd;
-    top: 30%;
+    top: 28%;
     left: 30%;
     color: #403f3f;
     padding: 6px;
@@ -85,45 +110,51 @@
     margin-right: 6px;
     border: solid 1px #a2a2a2;
 }
-.blog_text h1,.blog_text h2,.blog_text h3{
+@media (min-width: 768px){
+  .card_text {
+    height: 67%;
+  }
+}
+.card_text h1,.card_text h2,.card_text h3{
   font-size: 20px;
 }
 
-.blog_text h4,.blog_text h6{
-font-size: 17px;
-background-color: #b3b3b3;
+.card_text h4,.card_text h6{
+  font-size: 17px;
+  background-color: #b3b3b3;
 }
 
-.blog_text_after {
-
-    position: absolute;
+.card_text_after {
+  position: absolute;
   bottom: 0;  
   left: 0;
   height: 30px;
   width: 100%;
-	
   background: linear-gradient(to bottom, transparent, white);;
-
   pointer-events: none; /* so the text is still selectable */
 }
-    </style>
+</style>
 
 
 
 {% for post in post_list %}
   {% if post.title_color %}
     <style>
-      .blog_post_{{post.id}} .blog_header, 
-      .blog_post_{{post.id}} .blog_date, 
-      .blog_post_{{post.id}} .blog_header a {
+      .blog_post_{{post.id}} .blog_card .card_title, 
+      .blog_post_{{post.id}} .blog_card .card_title h1, 
+      .blog_post_{{post.id}} .blog_card .card_title a
+      {
         color: {{post.title_color}} !important;
       }
     </style>
   {% endif %}
   {% if post.title_bgcolor %}
     <style>
-      .blog_post_{{post.id}} .blog_header {
+      .blog_post_{{post.id}} .blog_card {
         background-color: {{post.title_bgcolor}} !important;
+      }
+      .blog_post_{{post.id}} .blog_card .card_title {
+        background-color: {{post.title_bgcolor}}88 !important;
       }
       .blog_post_{{post.id}} p a {
           border-bottom-color: {{post.title_bgcolor}} !important;
@@ -153,21 +184,23 @@ background-color: #b3b3b3;
     </style>
   {% endif %}
     <div class="blog_post blog_post_{{post.id}}">
-      <div class="blog_header">
-        <h1><a href="{{ post.get_absolute_url() }}">{{post.title|capitalize}}</a></h1>
-        <a href="{{ post.get_absolute_url() }}">
+      
+      <div class="blog_card">
+        <div class="card_title">
+          <h1><a href="{{ post.get_absolute_url() }}">{{post.title|capitalize}}</a></h1>
+        </div>
+        <div class="card_image"><a href="{{ post.get_absolute_url() }}">
           {% if post.first_image %}
             <img src="{{post.first_image}}">
           {% else %}
-            <img src="{% static 'images//flower-square.png' %}">
+            <img src="{% static 'images/flower-square.png' %}">
           {% endif %}
-        </a>
-        <a href="{{ post.get_absolute_url() }}">
-        <div class="blog_text">
-          {{post.plain_text|safe}}
-          <div class="blog_text_after"></div>
-        </div></a>
-    </div>
+        </a></div>
+        <div class="card_text">
+          <a href="{{ post.get_absolute_url() }}">{{post.plain_text|safe}}</a>
+          <div class="card_text_after"></div>
+        </div>
+      </div>
 
     </div>
 
