@@ -94,7 +94,8 @@ class HomeView(generic.ListView):
 
         page = int(self.request.GET.get('page',1))
 
-        context['breadcrumb'] = re.sub(r'[^\x00-\x7F]',' ', context['post'].title)
+        if context['post']:
+            context['breadcrumb'] = re.sub(r'[^\x00-\x7F]',' ', context['post'].title)
         return context        
 
 class PostView(generic.DetailView):
