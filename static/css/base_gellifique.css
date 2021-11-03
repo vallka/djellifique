@@ -114,6 +114,10 @@ dl, ol, ul {
   color: #232323;
 }
 
+.container, .container-fluid, .container-sm {
+  padding-left: 0;
+  padding-right: 0;
+} 
 
 footer {
     color: white;  
