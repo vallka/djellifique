@@ -1,33 +1,10 @@
 body {
-  font-family: mr-eaves-modern, sans-serif;
+  font-family: sans-serif;
   font-weight: 300;
   font-size: 1.3rem;
   color: #7a7a7a;
   line-height: 1.1em;
   letter-spacing: initial;
-}
-
-/*
-@font-face {
-  font-family: 'corporative-bold';
-  src: url('corporative-bold-webfont.woff2') format('woff2'),
-       url('corporative-bold-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'corporative-regular';
-  src: url('corporative-regular-webfont.woff2') format('woff2'),
-       url('corporative-regular-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-*/
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: baskerville-urw, serif;
-  font-weight: 900;
-  font-style: normal;
 }
 
 .navbar-expand-lg {
@@ -351,7 +328,7 @@ hr.after-post {
 }
 
 .blog_post p {
-  text-align: left;
+  text-align: center;
   margin-left: 0;
   margin-right: 0;
 }
