@@ -24,7 +24,18 @@ class Command(BaseCommand):
         today = datetime.today().date() # get a Date object
         logger.info(today)
 
-        sql="SELECT id_product,id_specific_price FROM `ps17_specific_price` WHERE id_shop=%s and `from`<=now() and `to`>=now()"
+        self.unsale_past()
+
+        print('done')
+        logger.error("DONE - %s! - %s",self.help,str(today))
+
+    def unsale_past(self):
+        sql="""
+SELECT id_product FROM `ps17_specific_price` sp WHERE id_shop=%s AND  `to`<NOW()
+AND id_product NOT IN
+(SELECT id_product FROM ps17_category_product WHERE id_category=21)
+ORDER BY id_product
+        """
 
         with connections[db].cursor() as cursor:
             cursor.execute(sql,[id_shop])
@@ -32,4 +43,5 @@ class Command(BaseCommand):
 
             print (result)
 
-        logger.error("DONE - %s! - %s",self.help,str(today))
+
+
