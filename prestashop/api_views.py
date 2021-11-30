@@ -3,7 +3,7 @@ import pprint
 import requests
 import base64
 import re
-from datetime import date
+from datetime import date,datetime
 
 from rest_framework import viewsets,generics
 from rest_framework.views import APIView
@@ -16,7 +16,7 @@ from rest_framework.decorators import api_view
 from drf_yasg.utils import swagger_auto_schema
 from django.conf import settings
 from django.db import connections
-from django.utils.dateparse import parse_date
+from django.utils.dateparse import parse_date,parse_datetime
 
 from .models import *
 from .views import *
@@ -111,8 +111,10 @@ class UpdateProduct(APIView):
             id_shop = obj['shop_context'][2:]
         elif obj['shop_context'] and obj['shop_context'][0]=='g':
             pass
-        ids_shop = 'some group'
+            ids_shop = 'some group'
             # TODO: next time:)
+        else:
+            id_shop = 1
 
 
         n = 0
@@ -358,15 +360,23 @@ class UpdateProduct(APIView):
                 logger.info(obj['replace'])
                 pars = re.split(r'\s+',obj['replace'].strip(),re.S)
                 logger.info(pars)
+                pars[0] = pars[0].replace('%','')
 
                 new_price = float(pars[0])/100
-                dt1 = pars[1]
-                dt1 = parse_date(dt1)
-                if len(pars)>2: 
-                    dt2 = parse_date(pars[2])
-                else:
-                    dt2 = date.today()
-                if dt2<dt1: dt1,dt2 = dt2,dt1
+                dt1 = dt2 = None
+
+                if new_price:
+                    dt1 = pars[1]
+                    dt1 = parse_datetime(dt1) or datetime.combine(parse_date(dt1), datetime.min.time())
+
+                    if len(pars)>2: 
+                        dt2 = parse_datetime(pars[2]) or datetime.combine(parse_date(pars[2]), datetime.min.time())
+                    else:
+                        dt2 = datetime.combine(date.today(), datetime.min.time())
+
+                    logger.info(f'{dt1},{dt2}')
+
+                    if dt2<dt1: dt1,dt2 = dt2,dt1
 
                 for p in queryset:
                     n += 1
@@ -384,7 +394,7 @@ VALUES
 """
                         with connections[db].cursor() as cursor:
                             cursor.execute(sql1,[p.id_product,id_shop])
-                            cursor.execute(sql2,[p.id_product,id_shop,new_price,dt1,dt2])
+                            if new_price: cursor.execute(sql2,[p.id_product,id_shop,new_price,dt1,dt2])
 
                     else:
                         logger.error('id_shop is not set')
