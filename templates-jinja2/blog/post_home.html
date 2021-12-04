@@ -23,13 +23,12 @@
 
 .blog_card  {
   border-radius: 5px;
-  background-color: #fdc5dc;
+  background-color: #ccc;
   position: relative;
   height: 340px;
 }
 
 .blog_card .card_title {
-  background-color: #fdc5dc88;
   color: #1a1a1a;
   z-index: 2;
   position: relative;
@@ -138,7 +137,25 @@
 
 
 {% for post in post_list %}
-  {% if post.title_color %}
+<style>
+{% set rnd = range(1, 4)|random() %} 
+ .blog_post_{{post.id}} .blog_card  {
+  {% if rnd==1 %}
+    background-color: #ddd !important;
+  {% elif rnd==2 %}
+    background-color: #bbb !important;
+  {% else %}
+    background-color: #ccc !important;
+  {% endif %}
+}
+</style>
+<!-- 
+  
+{{ rnd }}
+
+-->
+
+  {% if False and post.title_color %}
     <style>
       .blog_post_{{post.id}} .blog_card .card_title, 
       .blog_post_{{post.id}} .blog_card .card_title h1, 
@@ -146,9 +163,9 @@
       {
         color: {{post.title_color}} !important;
       }
-    </style>
+    </>
   {% endif %}
-  {% if post.title_bgcolor %}
+  {% if False and post.title_bgcolor %}
     <style>
       .blog_post_{{post.id}} .blog_card {
         background-color: {{post.title_bgcolor}} !important;
