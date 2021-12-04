@@ -33,6 +33,7 @@ plotly-express = "*"
 django-markdownx = {git = "https://github.com/vallka/django-markdownx.git", editable = true}
 ipykernel = "*"
 python-barcode = {git = "https://github.com/vallka/python-barcode.git", editable = true}
+nbformat = "*"
 
 [requires]
 python_version = "3"

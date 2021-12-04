@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import plotly
 import plotly.express as px
+import plotly.graph_objects as go
 import json
 
 from rest_framework import viewsets,generics
@@ -46,12 +47,31 @@ class MonthlySalesView(generics.ListAPIView):
         queryset = DailySales.objects.using('presta').raw(DailySales.SQL('m'))
         p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
 
-
         fig = px.line(p,x='day', y='GBP_products',title="Monthly sales", width=1200, height=500)
+
         fig.update_xaxes(rangeslider_visible=True, 
             dtick="M1",
             tickformat="%b\n%Y",
         )
+
+        return JsonResponse(fig,safe=False,encoder=plotly.utils.PlotlyJSONEncoder)
+
+class MonthlySalesTableView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)     
+
+    def get(self, request, *args, **kwargs):
+        queryset = DailySales.objects.using('presta').raw(DailySales.SQL('m'))
+        p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
+
+        fig = go.Figure(data=go.Table(
+            header=dict(values=list(p.columns),
+                fill_color='paleturquoise',
+                align='left'),
+            cells=dict(values=p.transpose().values.tolist(),
+               fill_color='lavender',
+               align='left')))
+
+        fig.update_layout(width=1200, height=500)
 
         return JsonResponse(fig,safe=False,encoder=plotly.utils.PlotlyJSONEncoder)
 

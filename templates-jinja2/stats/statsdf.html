@@ -10,7 +10,7 @@
     <section class="section">
         <div class="container">
 
-            <div id="myPlot1" style="display:none;"></div>
+            <div id="myData1" style="display:block;">{{data|safe}}</div>
             <div id="myPlot2" style="display:none;"></div>
             <div id="myPlot3" style="display:none;"></div>
 
@@ -24,9 +24,7 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <script>
-    Plotly.newPlot('myPlot1' );
     Plotly.newPlot('myPlot2' );
-    Plotly.newPlot('myPlot3' );
     
     $('#update').click(function(){
     

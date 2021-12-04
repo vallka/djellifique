@@ -67,6 +67,7 @@ urlpatterns = [
     path('api/v1/stats/dailysales/', DailySalesView.as_view()),
     path('api/v1/stats/monthlysales/', MonthlySalesView.as_view()),
     path('api/v1/stats/yearlysales/', YearlySalesView.as_view()),
+    path('api/v1/stats/monthlysalestable/', MonthlySalesTableView.as_view()),
 
     re_path(r'^api/v1/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('api/v1/swagger/<slug:format>', schema_view.without_ui(cache_timeout=0), name='schema-json'),
