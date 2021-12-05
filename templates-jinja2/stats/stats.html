@@ -10,8 +10,17 @@
     <section class="section">
         <div class="container">
 
+            <style>
+            table td:not([align]), table th:not([align]) {
+                text-align: right;
+            }
+            </style>
+
+            <div id="myPlot11" style="display:none;"></div>
             <div id="myPlot1" style="display:none;"></div>
+            <div id="myPlot21" style="display:none;"></div>
             <div id="myPlot2" style="display:none;"></div>
+            <div id="myPlot31" style="display:none;"></div>
             <div id="myPlot3" style="display:none;"></div>
 
             <div class="has-text-centered">
@@ -24,63 +33,77 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <script>
-    Plotly.newPlot('myPlot1' );
-    Plotly.newPlot('myPlot2' );
-    Plotly.newPlot('myPlot3' );
+    //Plotly.newPlot('myPlot11' );
+    //Plotly.newPlot('myPlot21' );
+    //Plotly.newPlot('myPlot3' );
     
     $('#update').click(function(){
-    
-        /*
         $.ajax({
-            url: "/api/v1/stats/dailysales/",
+            url: "/api/v1/stats/monthlysalestable/y/",
             type: "GET",
             contentType: 'application/json;charset=UTF-8',
-            dataType:"json",
+            dataType:"html",
             success: function (data) {
-                Plotly.react('myPlot1', data );
+                //Plotly.react('myPlot1', data );
+                $('#myPlot1').html(data);
                 $('#myPlot1').show();
             }
         });
-        */
-    
         $.ajax({
-            url: "/api/v1/stats/monthlysales/",
+            url: "/api/v1/stats/monthlysalesfig/y/",
             type: "GET",
             contentType: 'application/json;charset=UTF-8',
             dataType:"json",
             success: function (data) {
-                Plotly.react('myPlot2', data );
+                Plotly.react('myPlot11', data );
+                $('#myPlot11').show();
+            }
+        });
+        $.ajax({
+            url: "/api/v1/stats/monthlysalestable/q/",
+            type: "GET",
+            contentType: 'application/json;charset=UTF-8',
+            dataType:"html",
+            success: function (data) {
+                $('#myPlot2').html(data);
                 $('#myPlot2').show();
             }
         });
-
         $.ajax({
-            url: "/api/v1/stats/monthlysalestable/",
+            url: "/api/v1/stats/monthlysalesfig/q/",
             type: "GET",
             contentType: 'application/json;charset=UTF-8',
             dataType:"json",
             success: function (data) {
-                Plotly.react('myPlot3', data );
+                Plotly.react('myPlot21', data );
+                $('#myPlot21').show();
+            }
+        });
+        $.ajax({
+            url: "/api/v1/stats/monthlysalestable/m/",
+            type: "GET",
+            contentType: 'application/json;charset=UTF-8',
+            dataType:"html",
+            success: function (data) {
+                $('#myPlot3').html(data);
                 $('#myPlot3').show();
             }
         });
 
-        /*
         $.ajax({
-            url: "/api/v1/stats/yearlysales/",
+            url: "/api/v1/stats/monthlysalesfig/m/",
             type: "GET",
             contentType: 'application/json;charset=UTF-8',
             dataType:"json",
             success: function (data) {
-                Plotly.react('myPlot3', data );
-                $('#myPlot3').show();
+                Plotly.react('myPlot31', data );
+                $('#myPlot31').show();
             }
         });
-        */
     })
 
     $('#update').click();
-    setTimeout(function(){$('#update').hide()},1500)
+    setTimeout(function(){$('#update').hide()},2500)
 </script>
 
 

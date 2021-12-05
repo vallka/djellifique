@@ -11,6 +11,9 @@ from django.shortcuts import render
 class PageView(generic.TemplateView):
     template_name = 'stats/stats.html'
 
+class PageDView(generic.TemplateView):
+    template_name = 'stats/stats-d.html'
+
 class DfPageView(generic.TemplateView):
     template_name = 'stats/statsdf.html'
 
