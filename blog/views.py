@@ -64,6 +64,46 @@ class ListView(generic.ListView):
             context['breadcrumb'] = re.sub(r'[^\x00-\x7F]',' ', context['post'].title)
         return context        
 
+class SearchView(generic.ListView):
+    model = Post
+    paginate_by = 50
+    template_name = "blog/post_search.html"
+    
+    def get_queryset(self):
+        
+        self.q = self.request.GET.get('q')
+
+        #sql = Post.objects.filter(blog_start_dt__lte="'"+str(timezone.now())+"'",blog=True,).query
+        sql = Post.objects.filter(blog=True,).query
+        sql = re.sub('ORDER BY.*$','',str(sql))
+
+        #posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,title__contains=q)
+
+        # sql = "select * from blog_post where match(title,text) against (%s in boolean mode) and blog=1 and blog_start_dt<=%s"
+        sql += "and match(title,text) against (%s in boolean mode) and blog_start_dt<=now()"
+        print(sql)
+
+
+        posts = Post.objects.raw(sql,[self.q])
+        self.len = len(posts)
+        return posts
+
+        return None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['post'] = context['post_list'] and context['post_list'][0]
+        context['categories'] = Category.objects.all().order_by('id')
+
+        page = int(self.request.GET.get('page',1))
+        #q = self.request.GET.get('q')
+        context['q'] = self.q
+
+        context['breadcrumb'] = f'Search: {self.q} ({self.len})' 
+        return context        
+
+
 class HomeView(generic.ListView):
     model = Post
     paginate_by = 20

@@ -1,0 +1,262 @@
+{% extends "base_skinned.html" %}
+
+{% block title %} {{meta_title}} - BlogHome - {{post.title}}{% endblock %}
+
+
+
+{% block content %}
+{% if post_list %}
+<style>
+.blog_content {
+	background-color: #f6f6f6;
+	display: flex;
+  flex-wrap: wrap;
+	max-width: 1170px;
+}
+
+.blog_post {
+  width: 100%;
+  max-width: 550px;
+  padding: 10px;
+  background-color: initial;
+}
+
+.blog_card  {
+  border-radius: 5px;
+  background-color: #ccc;
+  position: relative;
+  height: 340px;
+}
+
+.blog_card .card_title {
+  color: #1a1a1a;
+  z-index: 2;
+  position: relative;
+}
+
+.blog_card a:hover  {
+  text-decoration: none !important;
+}
+
+@media (min-width: 768px){
+  .blog_post {
+  width: 345px;
+}
+.blog_card  {
+  height: 234px;
+  overflow: hidden;
+}
+}
+@media (min-width: 992px){
+  .blog_post {
+  width: 464px;
+}
+.blog_card  {
+  height: 320px;
+  overflow: hidden;
+}
+}
+@media (min-width: 1200px){
+  .blog_post {
+  width: 550px;
+}
+.blog_card  {
+  height: 380px;
+  overflow: hidden;
+}
+}
+
+.card_title  h1 {
+  font-size: 27px;
+  overflow: hidden;
+}
+@media (min-width: 768px){
+  .card_title  h1 {
+  font-size: 25px;
+}
+}
+@media (min-width: 992px){
+.card_title  h1 {
+  font-size: 27px;
+}
+}
+.card_image {
+  position: absolute;
+  overflow: hidden;
+  width: 76%;
+  height: 82%;
+  top: 16%;
+  left: .6%;
+  margin: inherit;
+  padding: 6px;
+
+}
+@media (min-width: 768px){
+  .card_image {
+    width: 60%;
+}
+}
+.card_text {
+    height: 69%;
+    overflow: hidden;
+    position: absolute;
+    background-color: #fffd;
+    top: 28%;
+    left: 30%;
+    color: #403f3f;
+    padding: 6px;
+    border-radius: 5px;
+    margin-right: 6px;
+    border: solid 1px #a2a2a2;
+}
+@media (min-width: 768px){
+  .card_text {
+    height: 67%;
+  }
+}
+.card_text h1,.card_text h2,.card_text h3{
+  font-size: 20px;
+}
+
+.card_text h4,.card_text h6{
+  font-size: 17px;
+  background-color: #b3b3b3;
+}
+
+.card_text_after {
+  position: absolute;
+  bottom: 0;  
+  left: 0;
+  height: 30px;
+  width: 100%;
+  background: linear-gradient(to bottom, transparent, white);;
+  pointer-events: none; /* so the text is still selectable */
+}
+</style>
+
+
+
+{% for post in post_list %}
+<style>
+{% set rnd = range(1, 4)|random() %} 
+ .blog_post_{{post.id}} .blog_card  {
+  {% if rnd==1 %}
+    background-color: #ddd !important;
+  {% elif rnd==2 %}
+    background-color: #bbb !important;
+  {% else %}
+    background-color: #ccc !important;
+  {% endif %}
+}
+</style>
+<!-- 
+  
+{{ rnd }}
+
+-->
+
+  {% if False and post.title_color %}
+    <style>
+      .blog_post_{{post.id}} .blog_card .card_title, 
+      .blog_post_{{post.id}} .blog_card .card_title h1, 
+      .blog_post_{{post.id}} .blog_card .card_title a
+      {
+        color: {{post.title_color}} !important;
+      }
+    </>
+  {% endif %}
+  {% if False and post.title_bgcolor %}
+    <style>
+      .blog_post_{{post.id}} .blog_card {
+        background-color: {{post.title_bgcolor}} !important;
+      }
+      .blog_post_{{post.id}} .blog_card .card_title {
+        background-color: {{post.title_bgcolor}}88 !important;
+      }
+      .blog_post_{{post.id}} p a {
+          border-bottom-color: {{post.title_bgcolor}} !important;
+          filter: brightness(95%);
+      }
+      .blog_post_{{post.id}} li::marker {
+        color: {{post.title_bgcolor}} !important;
+        filter: brightness(95%);
+      }
+      .blog_post_{{post.id}} h2 {
+        color: {{post.title_bgcolor}} !important;
+        filter: brightness(95%);
+      }
+      .blog_post_{{post.id}} .read_more a {
+        color: {{post.title_bgcolor}} !important;
+        filter: brightness(95%);
+      }
+      .blog_post_{{post.id}} s, .blog_post_{{post.id}} del {
+        text-decoration-color: {{post.title_bgcolor}}30;
+      }
+
+
+      .div-dot_{{post.id}}::after {
+        background-color: {{post.title_bgcolor}} !important;
+      }
+
+    </style>
+  {% endif %}
+    <div class="blog_post blog_post_{{post.id}}">
+      
+      <div class="blog_card">
+        <div class="card_title">
+          <h1><a href="{{ post.get_absolute_url() }}">{{post.title|capitalize}}</a></h1>
+        </div>
+        <div class="card_image"><a href="{{ post.get_absolute_url() }}">
+          {% if post.first_image %}
+            <img src="{{post.first_image}}">
+          {% else %}
+            <img src="{% static 'images/flower-square.png' %}">
+          {% endif %}
+        </a></div>
+        <div class="card_text">
+          <a href="{{ post.get_absolute_url() }}">{{post.plain_text|safe}}</a>
+          <div class="card_text_after"></div>
+        </div>
+      </div>
+
+    </div>
+
+  {% endfor %}
+{% else %}
+  <div class="blog_post blog_post_{{post.id}}">
+      <div class="blog_body">
+        <p>There are no posts meeting the search criteria.</p>
+      </div>
+  </div>
+{% endif %}     
+
+{% if is_paginated %}
+<div class="blog_post">
+  {% if page_obj.has_previous() %}
+      {# <h4 class="paginator"><a href="?page=1&q={{ q }}">&#x300A;</a></h4> #}
+      <h4 class="paginator"><a href="?page={{ page_obj.previous_page_number() }}&q={{ q }}">&#x3008;</a></h4></h4>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+      <h4 class="paginator paginator-current">{{ num }}</h4>
+      {% else %}
+      <h4 class="paginator"><a href="?page={{ num }}&q={{ q }}">{{ num }}</a></h4>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next() %}
+      <h4 class="paginator"><a href="?page={{ page_obj.next_page_number() }}&q={{ q }}">&#x3009;</a></h4>
+      {# <h4 class="paginator"><a href="?page={{ page_obj.paginator.num_pages }}&q={{ q }}">&#x300B;</a></h4> #}
+    {% endif %}
+</div>
+{% endif %}
+
+
+{% endblock content %}
+
+
+
+{% block javascript %}
+{{ super() }}
+{% endblock %}
