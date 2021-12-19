@@ -1,7 +1,10 @@
 import numpy as np
 import pandas as pd
+import os
+import time
 
 from django.db import models
+from django.conf import settings
 
 def raw_queryset_as_values_list(raw_qs):
     columns = raw_qs.columns
@@ -101,8 +104,23 @@ ORDER BY Y DESC,m DESC,d DESC
         return sql        
 
     def get_data(par='d'):
-        queryset = DailySales2.objects.using('presta').raw(DailySales2.SQL())
-        p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
+        store_path = settings.MEDIA_ROOT + '/statsdata.pkl'
+        
+        try:
+            tm = os.path.getmtime(store_path) 
+            if int(time.time())-int(tm) > 24 * 60 * 60:
+                raise Exception("Cache expired")
+
+            p = pd.read_pickle(store_path)
+        except Exception as e:
+            print (e)
+            queryset = DailySales2.objects.using('presta').raw(DailySales2.SQL())
+            p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
+            p.to_pickle(store_path)
+            pass
+
+
+
 
         if par=='y':
             p = p.groupby(['Y',]).agg({'products':np.sum,

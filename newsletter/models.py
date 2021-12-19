@@ -315,20 +315,8 @@ footer .unsubscribe {
    <body>
         <img src="https://www.gellifique.co.uk/blog/newsletter/pixel/?uuid=####uuid####" style="display:none">
         <div class="blog_content">
-            <div class="header"><img class="logo img-responsive" src="https://www.gellifique.co.uk/img/logo-professional-263.png" alt="GellifiQue Professional">
-                <nav class="navbar">
-                    <div class="navbar-menu">
-                        <a class="navbar-item" href="https://www.gellifique.co.uk/en/shop-now(62)">SHOP NOW</a>
-                        <a class="navbar-item" href="https://www.gellifique.co.uk/en/outlet(21)">OUTLET</a>
-                        <a class="navbar-item" href="https://www.gellifique.co.uk/en/content/delivery(1)">Delivery</a>
-                        <a class="navbar-item" href="https://www.gellifique.co.uk/en/content/opportunities(13)">Opportunities</a>
-                        <a class="navbar-item" href="https://www.gellifique.co.uk/en/content/category/brochures(3)">BROCHURES</a>
-                        <a class="navbar-item" href="https://www.gellifique.co.uk/en/content/category/health-safety(4)">HEALTH & SAFETY</a>
-                        <a class="navbar-item" href="https://blog.gellifique.co.uk/blog/">BLOG</a>
-                        <a class="navbar-item" href="https://www.gellifique.co.uk/en/content/SHOWROOM(12)">Showroom</a>
-                        <a class="navbar-item" href="https://www.gellifique.co.uk/en/content/nail-salon(21)">Nail Salon</a>
-                    </div>
-                </nav>
+            <div class="header" style="text-align:center" >
+                <img class="logo img-responsive" src="https://www.gellifique.co.uk/img/logo-professional-263.png" alt="GellifiQue Professional">
             </div>
             <div class="blog_post">
 
