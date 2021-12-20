@@ -1,6 +1,6 @@
 {% extends "base_skinned.html" %}
 
-{% block title %} {{meta_title}} - BlogHome - {{post.title}}{% endblock %}
+{% block title %} {{meta_title}} - Blog - {{page_title}}{% endblock %}
 
 
 
@@ -19,12 +19,14 @@
   max-width: 550px;
   padding: 10px;
   background-color: initial;
+  margin-bottom: 10px;
 }
 
 .blog_card  {
+  border: dotted 1px #999;
   border-radius: 5px;
-  background-color: #ccc;
   position: relative;
+  width: 340px;
   height: 340px;
 }
 
@@ -41,27 +43,33 @@
 @media (min-width: 768px){
   .blog_post {
   width: 345px;
+  height: 345px;
 }
 .blog_card  {
-  height: 234px;
+  width: 345px;
+  height: 345px;
   overflow: hidden;
 }
 }
 @media (min-width: 992px){
   .blog_post {
   width: 464px;
+  height: 464px;
 }
 .blog_card  {
-  height: 320px;
+  width: 464px;
+  height: 464px;
   overflow: hidden;
 }
 }
 @media (min-width: 1200px){
   .blog_post {
   width: 550px;
+  height: 550px;
 }
 .blog_card  {
-  height: 380px;
+  width: 550px;
+  height: 550px;
   overflow: hidden;
 }
 }
@@ -81,28 +89,20 @@
 }
 }
 .card_image {
-  position: absolute;
-  overflow: hidden;
-  width: 76%;
-  height: 82%;
-  top: 16%;
-  left: .6%;
-  margin: inherit;
-  padding: 6px;
 
 }
 @media (min-width: 768px){
   .card_image {
-    width: 60%;
+    width: 100%;
 }
 }
 .card_text {
-    height: 69%;
+    height: 20%;
     overflow: hidden;
     position: absolute;
     background-color: #fffd;
-    top: 28%;
-    left: 30%;
+    top: 79%;
+    left: 10%;
     color: #403f3f;
     padding: 6px;
     border-radius: 5px;
@@ -111,11 +111,12 @@
 }
 @media (min-width: 768px){
   .card_text {
-    height: 67%;
+    height: 20%;
+    width: 80%;
   }
 }
 .card_text h1,.card_text h2,.card_text h3{
-  font-size: 20px;
+  font-size: 17px;
 }
 
 .card_text h4,.card_text h6{
@@ -132,80 +133,36 @@
   background: linear-gradient(to bottom, transparent, white);;
   pointer-events: none; /* so the text is still selectable */
 }
+.blog_share {
+      text-align: right;
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      display: flex;
+      flex-direction: column;
+      }
+
+.after_cat {
+  width:100%;
+  margin-left: 12px;
+  margin-top: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (min-width: 768px){
+.after_cat {
+  margin-left: 20px;
+}
+}
 </style>
 
 
 
 {% for post in post_list %}
-<style>
-{% set rnd = range(1, 4)|random() %} 
- .blog_post_{{post.id}} .blog_card  {
-  {% if rnd==1 %}
-    background-color: #ddd !important;
-  {% elif rnd==2 %}
-    background-color: #bbb !important;
-  {% else %}
-    background-color: #ccc !important;
-  {% endif %}
-}
-</style>
-<!-- 
-  
-{{ rnd }}
-
--->
-
-  {% if False and post.title_color %}
-    <style>
-      .blog_post_{{post.id}} .blog_card .card_title, 
-      .blog_post_{{post.id}} .blog_card .card_title h1, 
-      .blog_post_{{post.id}} .blog_card .card_title a
-      {
-        color: {{post.title_color}} !important;
-      }
-    </>
-  {% endif %}
-  {% if False and post.title_bgcolor %}
-    <style>
-      .blog_post_{{post.id}} .blog_card {
-        background-color: {{post.title_bgcolor}} !important;
-      }
-      .blog_post_{{post.id}} .blog_card .card_title {
-        background-color: {{post.title_bgcolor}}88 !important;
-      }
-      .blog_post_{{post.id}} p a {
-          border-bottom-color: {{post.title_bgcolor}} !important;
-          filter: brightness(95%);
-      }
-      .blog_post_{{post.id}} li::marker {
-        color: {{post.title_bgcolor}} !important;
-        filter: brightness(95%);
-      }
-      .blog_post_{{post.id}} h2 {
-        color: {{post.title_bgcolor}} !important;
-        filter: brightness(95%);
-      }
-      .blog_post_{{post.id}} .read_more a {
-        color: {{post.title_bgcolor}} !important;
-        filter: brightness(95%);
-      }
-      .blog_post_{{post.id}} s, .blog_post_{{post.id}} del {
-        text-decoration-color: {{post.title_bgcolor}}30;
-      }
-
-
-      .div-dot_{{post.id}}::after {
-        background-color: {{post.title_bgcolor}} !important;
-      }
-
-    </style>
-  {% endif %}
     <div class="blog_post blog_post_{{post.id}}">
       
       <div class="blog_card">
-        <div class="card_title">
-          <h1><a href="{{ post.get_absolute_url() }}">{{post.title|capitalize}}</a></h1>
-        </div>
         <div class="card_image"><a href="{{ post.get_absolute_url() }}">
           {% if post.first_image %}
             <img src="{{post.first_image}}">
@@ -214,8 +171,15 @@
           {% endif %}
         </a></div>
         <div class="card_text">
+          <h1><a href="{{ post.get_absolute_url() }}">{{post.title|capitalize}}</a></h1>
           <a href="{{ post.get_absolute_url() }}">{{post.plain_text|safe}}</a>
           <div class="card_text_after"></div>
+        </div>
+        <div class="blog_share">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+          <a target="_blank" href="https://www.facebook.com/sharer.php?u={{ 'https://blog.gellifique.co.uk' + post.get_absolute_url() }}"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a target="_blank" href="https://twitter.com/intent/tweet?text={{ 'https://blog.gellifique.co.uk' + post.get_absolute_url() }}"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a target="_blank" href="https://www.pinterest.com/pin/create/button/?media={{ 'https://blog.gellifique.co.uk' + post.get_absolute_url() }}"><i class="fa fa-pinterest" aria-hidden="true"></i></a>
         </div>
       </div>
 
@@ -250,6 +214,40 @@
       {# <h4 class="paginator"><a href="?page={{ page_obj.paginator.num_pages }}">&#x300B;</a></h4> #}
     {% endif %}
 </div>
+{% endif %}
+
+{% if post_list2 %}
+  {% for list2 in post_list2 %}
+    <div class="after_cat">
+      <a href="{% url 'blog:post-by-cat' list2['slug'] %}">{{list2['name']}}</a> >>
+    </div>
+    {% for post in list2['posts'] %}
+    <div class="blog_post blog_post_{{post.id}}">
+      
+      <div class="blog_card">
+        <div class="card_image"><a href="{{ post.get_absolute_url() }}">
+          {% if post.first_image %}
+            <img src="{{post.first_image}}">
+          {% else %}
+            <img src="{% static 'images/flower-square.png' %}">
+          {% endif %}
+        </a></div>
+        <div class="card_text">
+          <h1><a href="{{ post.get_absolute_url() }}">{{post.title|capitalize}}</a></h1>
+          <a href="{{ post.get_absolute_url() }}">{{post.plain_text|safe}}</a>
+          <div class="card_text_after"></div>
+        </div>
+        <div class="blog_share">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+          <a target="_blank" href="https://www.facebook.com/sharer.php?u={{ 'https://blog.gellifique.co.uk' + post.get_absolute_url() }}"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+          <a target="_blank" href="https://twitter.com/intent/tweet?text={{ 'https://blog.gellifique.co.uk' + post.get_absolute_url() }}"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+          <a target="_blank" href="https://www.pinterest.com/pin/create/button/?media={{ 'https://blog.gellifique.co.uk' + post.get_absolute_url() }}"><i class="fa fa-pinterest" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+  {% endfor %}
 {% endif %}
 
 

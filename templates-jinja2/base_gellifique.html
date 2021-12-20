@@ -230,7 +230,6 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
   font-size: 32px;
   text-transform: uppercase;
-  font-weight: 400;
 }
 h2 {
   font-size: 26px;
@@ -267,7 +266,7 @@ ga('require', 'ec');
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   
     <div class="navbar-above">HEMA FREE UV/LED GEL SYSTEM</div>
-      <a class="navbar-brand" href="https://www.gellifique.co.uk/en/"><img src="{% static 'images/logo-professional-263.png' %}"></a>
+      <a class="navbar-brand" style="z-index: 2;" href="https://www.gellifique.co.uk/en/"><img src="{% static 'images/logo-professional-263.png' %}"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -275,7 +274,7 @@ ga('require', 'ec');
       {% block header_nav %} 
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'blog:list' %}">Latest</a>
+          <a class="nav-link" href="{% url 'blog:list' %}">Blog Home</a>
         </li>
         {% for cat in categories %}
           {% if cat.category[0]!='_' %}

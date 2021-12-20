@@ -376,6 +376,14 @@ hr.after-post {
   margin-bottom: 0.5rem;
 }
 
+.blog_share {
+  text-align: right;
+}
+
+.blog_share a {
+  color: #d73672;
+}
+
 .footer-container {
   margin-top: 1.25rem;
   padding-top: 1.25rem;

@@ -62,6 +62,7 @@ class ListView(generic.ListView):
 
         if context['post']:
             context['breadcrumb'] = re.sub(r'[^\x00-\x7F]',' ', context['post'].title)
+            context['page_title'] = context['breadcrumb']
         return context        
 
 class SearchView(generic.ListView):
@@ -101,6 +102,7 @@ class SearchView(generic.ListView):
         context['q'] = self.q
 
         context['breadcrumb'] = f'Search: {self.q} ({self.len})' 
+        context['page_title'] = context['breadcrumb']
         return context        
 
 
@@ -112,19 +114,28 @@ class HomeView(generic.ListView):
     
     def get_queryset(self):
         
-        posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,)
+        posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,).order_by('-blog_start_dt')
         cat_slug = self.kwargs.get('slug')
-        if cat_slug:
-            cat = Category.objects.get(slug=cat_slug)
-            print (cat)
-            posts = posts.filter(category=cat)
-        else:
-            cat_ex = Category.objects.filter(category__startswith='_')
-            posts = posts.exclude(category__in=cat_ex)
-
         self.request.session['category'] = cat_slug
 
-        return posts.order_by('-blog_start_dt')
+        if cat_slug:
+            self.home = False
+            cat = Category.objects.get(slug=cat_slug)
+            self.cat = cat
+            posts = posts.filter(category=cat)
+            return posts
+        else:
+            self.home = True
+            self.cat = None
+            cat_ex = Category.objects.filter(category__startswith='_')
+            posts = posts.exclude(category__in=cat_ex).order_by('-blog_start_dt')[:4]
+
+            self.shown = []
+            for p in posts:
+                print (p.id)
+                self.shown.append(p.id)
+
+            return posts
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -134,8 +145,25 @@ class HomeView(generic.ListView):
 
         page = int(self.request.GET.get('page',1))
 
-        if context['post']:
-            context['breadcrumb'] = re.sub(r'[^\x00-\x7F]',' ', context['post'].title)
+
+        if self.home:
+            context['breadcrumb'] = 'Home'
+            context['post_list2'] = []
+            cats = ['news-announcements','health-safety','corporate-company-news','education','new-products','popular-this-month']
+            for i,cat_slug in enumerate(cats):
+                cat = Category.objects.get(slug=cat_slug)
+                context['post_list2'].append({
+                        'name':cat.category,
+                        'slug':cat.slug,
+                        'posts':Post.objects.filter(blog_start_dt__lte=timezone.now(),
+                        blog=True,
+                        category=cat).exclude(id__in=self.shown).order_by('-blog_start_dt')[:2]})
+        else:
+            context['breadcrumb'] = self.cat.category
+
+        context['page_title'] = context['breadcrumb']
+
+
         return context        
 
 class PostView(generic.DetailView):
