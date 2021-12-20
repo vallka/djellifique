@@ -102,20 +102,25 @@ class UpdateProduct(APIView):
 
     @swagger_auto_schema(operation_description="Update product",)
     def post(self, request, format=None):
+        global db
 
         obj = request.data
         logger.info(f"UpdateProduct:{obj['ids']} | {obj['what']} | {obj['search']} | {obj['replace']} | {obj['shop_context']}")
         id_shop = None
         ids_shop = None
-        if obj['shop_context'] and obj['shop_context'][0]=='s':
-            id_shop = obj['shop_context'][2:]
-        elif obj['shop_context'] and obj['shop_context'][0]=='g':
-            pass
-            ids_shop = 'some group'
-            # TODO: next time:)
-        else:
-            id_shop = 1
+        #if obj['shop_context'] and obj['shop_context'][0]=='s':
+        #    id_shop = obj['shop_context'][2:]
+        #elif obj['shop_context'] and obj['shop_context'][0]=='g':
+        #    pass
+        #    ids_shop = 'some group'
+        #    # TODO: next time:)
+        #else:
+        #    id_shop = 1
 
+        id_shop = 1
+        if obj['shop_context']=='eu':
+            db = 'presta_eu'
+            id_shop = 2
 
         n = 0
         n_updated = 0
