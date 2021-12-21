@@ -1,6 +1,7 @@
 import re
 from django.utils import timezone
 from django.views import generic
+from django.db import connections
 
 from .models import *
 
@@ -162,9 +163,41 @@ class HomeView(generic.ListView):
             context['breadcrumb'] = self.cat.category
 
         context['page_title'] = context['breadcrumb']
-
+        context['product_carousel'] = self.getBlogProducts()
 
         return context        
+
+    def getBlogProducts(self):
+        post = Post.objects.get(slug='_products_carousel')
+
+        pp = post.text.split('!')
+
+        pp = ['!' + p.strip() for p in pp if p]
+        post.text = '\n-----\n'.join(pp)
+        
+        text = '<div>' + re.sub('<hr />','</div>\n<div>',post.formatted_markdown) + '</div>'
+        return text
+
+
+
+
+    def getBlogProductsPresta(self):
+        id_cat = 2
+        db = 'presta'
+
+        sql = """
+            SELECT pl.id_product,pl.name FROM ps17_category_product cp 
+            LEFT  JOIN ps17_product_shop ps ON cp.id_product=ps.id_product AND ps.id_shop=1 
+            LEFT  JOIN ps17_product_lang pl ON cp.id_product=pl.id_product AND pl.id_lang=1 AND pl.id_shop=1
+            WHERE id_category=%s AND ps.active=1 ORDER BY cp.position
+        """
+
+        with connections[db].cursor() as cursor:
+            cursor.execute(sql,[id_cat])
+            pp = cursor.fetchall()
+
+            print (pp)
+
 
 class PostView(generic.DetailView):
     model = Post

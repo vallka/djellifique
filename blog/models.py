@@ -131,6 +131,7 @@ class Post(models.Model):
 
                     print (prod_img['src'])
 
-                    self.text = re.sub(product_re,f"![]({prod_img['src']})\n[<h4>{prod_name.text} - {prod_price.text}</h4>]({prod[1]})",self.text,1)
+                    #self.text = re.sub(product_re,f"![]({prod_img['src']})\n[<h4>{prod_name.text} - {prod_price.text}</h4>]({prod[1]})",self.text,1)
+                    self.text = re.sub(product_re,f"![]({prod_img['src']})\n####[{prod_name.text} - {prod_price.text}]({prod[1]})",self.text,1)
 
 

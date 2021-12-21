@@ -155,6 +155,41 @@
   margin-left: 20px;
 }
 }
+
+.product_carousel  {
+  display: flex !important;
+  align-items: stretch;
+  width: 100%;
+  overflow: auto;
+  flex-wrap: nowrap !important;
+  scroll-snap-type: x mandatory;
+  padding: 20px;
+}
+
+.product_carousel img {
+  width: 165px;
+  height: 165px;
+}
+
+@media (min-width: 768px){
+  .product_carousel img {
+  width: 250px;
+  height: 250px;
+}
+}
+
+.product_carousel div {
+  padding: 5px;
+}
+
+.product_carousel h4 {
+    font-size: 13px;
+    margin: -10px 10px 5px 10px;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+
 </style>
 
 
@@ -217,6 +252,14 @@
 {% endif %}
 
 {% if post_list2 %}
+
+  <div class="after_cat">
+    Shop Now
+  </div>
+  <div class="product_carousel">
+  {{ product_carousel|safe }}
+  </div>
+
   {% for list2 in post_list2 %}
     <div class="after_cat">
       <a href="{% url 'blog:post-by-cat' list2['slug'] %}">{{list2['name']}}</a> >>
