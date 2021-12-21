@@ -164,11 +164,12 @@ class HomeView(generic.ListView):
 
         context['page_title'] = context['breadcrumb']
         context['product_carousel'] = self.getBlogProducts()
+        context['product_carousel2'] = self.getBlogProducts('2')
 
         return context        
 
-    def getBlogProducts(self):
-        post = Post.objects.get(slug='_products_carousel')
+    def getBlogProducts(self,pos=''):
+        post = Post.objects.get(slug='_products_carousel'+pos)
 
         pp = post.text.split('!')
 
