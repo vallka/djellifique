@@ -49,13 +49,14 @@ def update_year(y):
             not f['filePath'].endswith('_17.jpg') and 
             not f['filePath'].endswith('_18.jpg') and 
             not f['filePath'].endswith('_19.jpg') and 
-            not f['filePath'].endswith('_20.jpg')
+            not f['filePath'].endswith('_20.jpg') and 
+            f['filePath'].find('_conflicted_')<0
         ): 
             ik_file = f['filePath']
             txt_url = f['url'].replace('.jpg','.txt')
-            if txt_url.endswith('_1.txt'): txt_url.replace('_1.','.')
+            if txt_url.endswith('_1.txt'): txt_url = txt_url.replace('_1.','.')
             json_url = f['url'].replace('.jpg','.js')
-            if json_url.endswith('_1.js'): json_url.replace('_1.','.')
+            if json_url.endswith('_1.js'): json_url = json_url.replace('_1.','.')
 
 
             print(ik_file,txt_url,json_url)
@@ -108,6 +109,65 @@ def update_year(y):
                         )
 
 
+def upload2imagekit():
+    #path = r"d:\a\instagel\gellifique_professional"
+    path = "/home/bitnami/bitnami/djellifique/media/instaloader/gellifique_professional"
+    for file in os.listdir(path):
+        ff = os.path.join(path, file)
+        folder = file[0:4]
+        if os.path.isfile(ff) and file.endswith('.jpg'):
+            print(ff)
+            txt = ff.replace('.jpg','.txt')
+            json_file = ff.replace('.jpg','.json')
+            response_json = ff.replace('.jpg','.response.json')
+
+            if txt.endswith('_1.txt'): txt = txt.replace('_1.','.')
+            if json_file.endswith('_1.json'): json_file = json_file.replace('_1.','.')
+            if response_json.endswith('_1.response.json'): response_json = response_json.replace('_1.','.')
+
+            print ('txt:',txt)
+            print ('json_file:',json_file)
+            print ('response_json:', response_json)
+
+            if not os.path.isfile(response_json):
+                upload = imagekit.upload(
+                    file=open(ff, "rb"),
+                    file_name=file,
+                    options={
+                        "folder":folder,
+                        "use_unique_file_name":False,
+                    },
+                )
+                print("Upload binary", upload)
+
+                if os.path.isfile(txt):
+                    upload2 = imagekit.upload(
+                        file=open(txt, "r",encoding='utf-8'),
+                        file_name=os.path.basename(txt),
+                        options={
+                            "folder":folder,
+                            "use_unique_file_name":False,
+                        },
+                    )
+
+                    print("Upload text", upload2)
+
+                if os.path.isfile(json_file):
+                    upload3 = imagekit.upload(\
+                        file=open(json_file, "r",encoding='utf-8'),
+                        file_name=os.path.basename(json_file).replace('.jpg','.js'),   #.json not allowed!
+                        options={
+                            "folder":folder,
+                            "use_unique_file_name":False,
+                        },
+                    )
+
+                    print("Upload json", upload3)
+
+                if upload and not upload['error'] and upload['response']:
+                    with open(response_json, "w",encoding='utf-8') as f:
+                        json.dump(upload['response'],f)
+
 
 
 
@@ -127,12 +187,13 @@ class Command(BaseCommand):
         for p in products:
             names.append(p.name)
 
-
+        upload2imagekit()
 
         #update_year('2018')
         #update_year('2019')
         #update_year('2020')
-        update_year('2021')
+        #update_year('2021')
+        update_year('2022')
         return
 
         with connections['presta'].cursor() as cursor:
