@@ -76,6 +76,31 @@ def update_year(y):
 
             try:
                 gi = Gellifinsta.objects.get(shortcode=sc)
+                if gi.caption=='' or gi.caption=='Not Found' or gi.caption==None:
+                    txt = requests.get(txt_url)
+                    txt_text = ''
+                    if txt.status_code==200:
+                        print(txt.text)
+                        print(txt.encoding)
+                        txt_text = txt.text.encode('utf-8','ignore').decode('ascii','ignore')
+                        print(txt_text)
+                    else:
+                        print(txt.status_code)
+
+                    is_video=False
+                    json_file = requests.get(json_url)
+                    if json_file.status_code==200:
+                        #print(json_file.text)
+                        json_data = json.loads(json_file.text)
+                        print (json_data['node']['is_video'])
+                        is_video=json_data['node']['is_video']
+                    else:
+                        print(json_file.status_code)
+
+                    gi.caption = txt_text
+                    gi.is_video = is_video
+                    gi.save()
+
             except Gellifinsta.DoesNotExist:    
                 txt = requests.get(txt_url)
                 txt_text = ''
@@ -189,6 +214,8 @@ class Command(BaseCommand):
 
         upload2imagekit()
 
+        #update_year('2016')
+        #update_year('2017')
         #update_year('2018')
         #update_year('2019')
         #update_year('2020')
