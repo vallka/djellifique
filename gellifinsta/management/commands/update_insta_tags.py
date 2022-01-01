@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from django.db import connections
 from django.utils.dateparse import parse_datetime
+from django.db.models import Q
 
 
 from gellifinsta.models import *
@@ -34,7 +35,7 @@ class Command(BaseCommand):
         for p in products:
             names.append(p.name)
 
-        gfs = Gellifinsta.objects.filter(tags__isnull=True)
+        gfs = Gellifinsta.objects.filter(Q(tags__isnull=True) | Q(tags=''))
 
         for gf in gfs:
             text = str(gf.caption.encode('ascii',errors="ignore").decode('ascii',errors="ignore").lower()) 

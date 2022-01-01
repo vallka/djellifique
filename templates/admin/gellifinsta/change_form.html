@@ -1,0 +1,74 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block extrahead %}{{ block.super }}
+<link href="https://unpkg.com/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+<style>
+</style>
+{% endblock %}
+
+
+{% block submit_buttons_bottom %}
+<hr>
+{{ block.super }}
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+
+<script src="https://unpkg.com/@yaireo/tagify"></script>
+
+<script>
+var input_tags = document.querySelector('textarea[id=id_tags]');
+var tagy = new Tagify(input_tags,
+    {
+        delimiters: ',| ',
+        callbacks: {
+            "add": function(e) {
+                let i = e.detail.index;
+                let v = tagy.value[i].value;
+                if (v.substr(0,1)!='#') {
+                    setTimeout(function(){
+                        tagy.value[i].value = '#' + v;
+                        tagy.loadOriginalValues(tagy.value);
+                    }
+                    ,100);
+                }
+
+            }
+        }
+    });
+
+django.jQuery(function(){
+
+    django.jQuery('#gellifinsta_form').submit(function(){
+        do_destroy(tagy,',');
+
+        return true;
+    });
+
+});
+
+function do_destroy(tagif,delimeter=', ') {
+    let text = untagify(tagif.value,delimeter);
+    let id = tagif.DOM.originalInput.id;
+
+    tagif.destroy();
+
+    tagif.DOM.originalInput.insertAdjacentElement('afterend',tagif.DOM.originalInput.cloneNode(false));
+    tagif.DOM.originalInput.remove();
+    document.getElementById(id).value = text;
+}
+
+function untagify(s,delimeter=', ') {
+    let str='';
+    for (var i=0;i<s.length;++i) {
+        str += s[i].value;
+        if (i<s.length-1)
+            str += delimeter;
+    }
+    return str;
+}
+
+</script>
+{% endblock %}
