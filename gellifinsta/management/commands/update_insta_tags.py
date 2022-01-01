@@ -35,7 +35,8 @@ class Command(BaseCommand):
         for p in products:
             names.append(p.name)
 
-        gfs = Gellifinsta.objects.filter(Q(tags__isnull=True) | Q(tags=''))
+        #gfs = Gellifinsta.objects.filter(Q(tags__isnull=True) | Q(tags=''))
+        gfs = Gellifinsta.objects.filter(Q(tags__isnull=True))
 
         for gf in gfs:
             text = str(gf.caption.encode('ascii',errors="ignore").decode('ascii',errors="ignore").lower()) 
@@ -55,8 +56,8 @@ class Command(BaseCommand):
 
             tags = ['#' + t for t in tags]
 
-            print(' '.join(tags))
-            gf.tags = ' '.join(tags)
+            print(','.join(tags))
+            gf.tags = ','.join(tags)
             gf.save()
 
 

@@ -13,7 +13,7 @@ class ProductsAdmin(admin.ModelAdmin):
 @admin.register(Gellifinsta)
 class GellifinstaAdmin(admin.ModelAdmin):
     list_display = ['shortcode','taken_at_datetime','is_video','image_tag',]
-    search_fields = ['caption','tags', ]
+    search_fields = ['caption','tags', 'shortcode','id']
     #list_filter = ['tags',]
     fields = ['shortcode','taken_at_datetime','created_dt','updated_dt','username','is_active','is_video',
                 'file_path','caption','tags','url','image_tag']
