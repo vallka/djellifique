@@ -24,9 +24,13 @@ class Gellifinsta(models.Model):
         return self.shortcode + ':' + str(self.taken_at_datetime)
 
     def image_tag(self):
-        return mark_safe('<img src="%s" width="250" height="250" />' % (self.url))
+        return mark_safe('<img src="%s" width="250"  />' % (self.url))
 
     image_tag.short_description = 'Image'
+
+    def tags_spaced(self):
+        return self.tags.replace(',',' ')
+    tags_spaced.short_description = 'Tags'
 
 class Products(models.Model):
     class Meta:

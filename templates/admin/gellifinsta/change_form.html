@@ -22,14 +22,16 @@
 var input_tags = document.querySelector('textarea[id=id_tags]');
 var tagy = new Tagify(input_tags,
     {
-        delimiters: ',| ',
         callbacks: {
             "add": function(e) {
                 let i = e.detail.index;
                 let v = tagy.value[i].value;
-                if (v.substr(0,1)!='#') {
+                if (v.substr(0,1)!='#' || v.indexOf(' ')>=0) {
                     setTimeout(function(){
-                        tagy.value[i].value = '#' + v;
+                        if (v.substr(0,1)!='#')
+                            tagy.value[i].value = '#' + v;
+                        if (v.indexOf(' ')>=0) 
+                            tagy.value[i].value = tagy.value[i].value.replace(' ','');
                         tagy.loadOriginalValues(tagy.value);
                     }
                     ,100);
