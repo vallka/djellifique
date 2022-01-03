@@ -29,9 +29,30 @@ class Command(BaseCommand):
         self.unsale_past_and_future()
         self.sale_present()
         self.set_price_outlet()
+        self.set_onsale_table()
 
         print('done')
         logger.error("DONE - %s! - %s",self.help,str(today))
+
+    def set_onsale_table(self):
+        print('set_onsale_table')
+
+        with connections[db].cursor() as cursor:
+            cursor.execute("SELECT COUNT(*) FROM ps17_category_product WHERE id_category=%s " +
+                "AND id_product IN (SELECT id_product FROM ps17_product_shop WHERE id_shop=%s AND ACTIVE=1)",[CATEGORY_SALE,id_shop])
+            result1 = cursor.fetchone()
+
+            cursor.execute("SELECT COUNT(*) FROM ps17_category_product WHERE id_category=%s " +
+                "AND id_product IN (SELECT id_product FROM ps17_product_shop WHERE id_shop=%s AND ACTIVE=1)",[CATEGORY_OUTLET,id_shop])
+            result2 = cursor.fetchone()
+
+            cursor.execute("SELECT COUNT(*) FROM ps17_product_shop WHERE id_shop=%s AND ACTIVE=1",[id_shop])
+            result3 = cursor.fetchone()
+
+            print (result1,result2,result3)
+
+            cursor.execute("insert ignore into a_products_onsale(dt,products_onsale,products_outlet,products_total) values " +
+                "(date(now()),%s,%s,%s)",[result1[0],result2[0],result3[0]])
 
     def unsale_past_and_future(self):
         print('unsale_past_and_future')
