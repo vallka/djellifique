@@ -13,6 +13,12 @@ class PageView(generic.TemplateView):
 
 class PageDView(generic.TemplateView):
     template_name = 'stats/stats-d.html'
+class PageDWView(generic.TemplateView):
+    template_name = 'stats/stats-dw.html'
+
+
+## ----
+
 
 class DfPageView(generic.TemplateView):
     template_name = 'stats/statsdf.html'
