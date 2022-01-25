@@ -183,3 +183,8 @@ VALUES
 (0, 0, %s, %s, 0, 0, 0, 0, 0, 0, '-1.000000', 1, %s, 1, 'percentage', %s, %s);
 """
                     cursor.execute(sql2,[row[0],id_shop,OUTLET_PC,dt1,dt2])
+
+                    #sql="insert ignore into ps17_feature_product(id_product,id_feature,id_feature_value) values(%s,%s,%s)"
+                    #feature_id = 24
+                    #value_id = 12196
+                    #cursor.execute(sql,[id_product,feature_id,value_id])
