@@ -118,6 +118,7 @@ class UpdateProduct(APIView):
         #    id_shop = 1
 
         id_shop = 1
+        db = 'presta'
         if obj['shop_context']=='eu':
             db = 'presta_eu'
             id_shop = 2
@@ -489,7 +490,7 @@ VALUES
 
                 for p in queryset:
                     n += 1
-                    logger.info(f"{n} {p.id_product}: {minus}/{category_id}/{value_id}")
+                    logger.info(f"{n} {p.id_product}: {minus}/{category_id}")
                     if minus:
                         sql="delete from ps17_category_product where id_product=%s and id_category=%s"
                         logger.info(sql)
