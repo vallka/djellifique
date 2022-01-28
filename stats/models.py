@@ -14,16 +14,24 @@ def raw_queryset_as_values_list(raw_qs):
 
 class DailySalesData(models.Model):
     date_add = models.DateField(primary_key=True)
-    y = models.IntegerField(blank=True,null=True)
-    q = models.IntegerField(blank=True,null=True)
-    m = models.IntegerField(blank=True,null=True)
-    d = models.IntegerField(blank=True,null=True)
     products = models.IntegerField(blank=True,null=True)
-    #products_discounted = models.IntegerField(blank=True,null=True)
     orders = models.IntegerField(blank=True,null=True)
+    GBP_cost = models.FloatField(blank=True,null=True)
     GBP_products = models.FloatField(blank=True,null=True)
     GBP_shipping = models.FloatField(blank=True,null=True)
     GBP_paid = models.FloatField(blank=True,null=True)
+
+    @staticmethod
+    def dtypes():
+        return {
+            'date_add':'M',
+            'products':'i',
+            'orders':'i',
+            'GBP_cost':'float64',
+            'GBP_products':'float64',
+            'GBP_shipping':'float64',
+            'GBP_paid':'float64',
+        }
 
     @staticmethod
     def SQL():
@@ -33,10 +41,6 @@ class DailySalesData(models.Model):
         sql = f"""
 SELECT
 date(date_add) date_add,
-YEAR(DATE_ADD) Y,
-QUARTER(DATE_ADD) Q,
-MONTH(DATE_ADD) M,
-DAY(DATE_ADD) D,
 SUM((SELECT SUM(product_quantity) FROM ps17_order_detail d WHERE id_order=o.id_order)) products,
 COUNT(id_order) orders,
 ROUND((
@@ -49,14 +53,15 @@ ROUND(SUM((total_paid_real)/conversion_rate) ,2) GBP_paid
 FROM `ps17_orders` o
 WHERE current_state IN
 (SELECT id_order_state FROM ps17_order_state WHERE paid=1)
-GROUP BY Y,m,d
-ORDER BY Y DESC,m DESC,d DESC
+and date_add>='2019-01-01'
+GROUP BY date(date_add)
+ORDER BY date_add DESC
         """
 
         return sql        
 
     def get_data(par='d'):
-        store_path = settings.MEDIA_ROOT + '/statsdata.pkl'
+        store_path = settings.MEDIA_ROOT + '/statsdata-v2.pkl'
         
         try:
             tm = os.path.getmtime(store_path) 
@@ -68,15 +73,20 @@ ORDER BY Y DESC,m DESC,d DESC
             print (e)
             queryset = DailySalesData.objects.using('presta').raw(DailySalesData.SQL())
             p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
+            p = p.astype(DailySalesData.dtypes())
+
+            p['Y'] = p['date_add'].dt.year
+            p['M'] = p['date_add'].dt.month
+            p['D'] = p['date_add'].dt.day
+            p['Q'] = p['date_add'].dt.quarter
+            p['DOY'] = p['date_add'].dt.day_of_year
+            p['DOW'] = p['date_add'].dt.day_of_week
+            p['DIM'] = p['date_add'].dt.days_in_month
+
+            p['VAT 8pc'] = round(p['GBP_products']*0.08,2)
+            p['Gross Margin'] = round(p['GBP_products'] - p['VAT 8pc'] - p['GBP_cost'],2)
+
             p.to_pickle(store_path)
-            pass
-
-
-        if par=='y':
-            p['DOY'] = pd.to_datetime(p['date_add']).dt.day_of_year
-        if par=='dw':
-            p['DOW'] = pd.to_datetime(p['date_add']).dt.day_of_week
-
 
         if par=='y':
             p = p.groupby(['Y',]).agg({'products':np.sum,
@@ -85,10 +95,13 @@ ORDER BY Y DESC,m DESC,d DESC
                                                 'GBP_products':np.sum,
                                                 'GBP_shipping':np.sum,
                                                 'GBP_paid':np.sum,
+                                                'VAT 8pc':np.sum,
+                                                'Gross Margin':np.sum,
                                                 'DOY':np.max
                                                 }).sort_index(ascending=False)
-            p['Y-M'] = p.index
             p['Year'] = p.index
+            p.loc[p.index[0],'P estimated'] = round(p.loc[p.index[0],'GBP_products']*365/p.loc[p.index[0],'DOY'],2)
+            p.loc[p.index[0],'GM estimated'] = round(p.loc[p.index[0],'Gross Margin']*365/p.loc[p.index[0],'DOY'],2)
 
         elif par=='q':
             p = p.groupby(['Y','Q']).agg({'products':np.sum,
@@ -97,12 +110,19 @@ ORDER BY Y DESC,m DESC,d DESC
                                                 'GBP_products':np.sum,
                                                 'GBP_shipping':np.sum,
                                                 'GBP_paid':np.sum,
+                                                'VAT 8pc':np.sum,
+                                                'Gross Margin':np.sum,
                                                 'D':np.max,
                                                 'M':np.max
                                                 }).sort_index(ascending=False)
             p.reset_index(inplace=True)
             p['Y-M'] = p['Y'].astype(str)+'-'+(1+3*(p['Q'].astype(int)-1)).astype(str)
-            p['Y-Q'] = p['Y'].astype(str)+'-'+p['Q'].astype(str)
+            p['Quarter'] = p['Y'].astype(str)+'-'+p['Q'].astype(str)
+
+            m = p.loc[p.index[0],'M']%3-1
+            p.loc[p.index[0],'P estimated'] = round(p.loc[p.index[0],'GBP_products']*90 / (p.loc[p.index[0],'D']+(m)*30),2)
+            p.loc[p.index[0],'GM estimated'] = round(p.loc[p.index[0],'Gross Margin']*90 / (p.loc[p.index[0],'D']+(m)*30),2)
+
         elif par=='m':
             p = p.groupby(['Y','Q','M']).agg({'products':np.sum,
                                                 'orders':np.sum,
@@ -110,73 +130,116 @@ ORDER BY Y DESC,m DESC,d DESC
                                                 'GBP_products':np.sum,
                                                 'GBP_shipping':np.sum,
                                                 'GBP_paid':np.sum,
+                                                'VAT 8pc':np.sum,
+                                                'Gross Margin':np.sum,
                                                 'D':np.max
                                                 }).sort_index(ascending=False)
             p.reset_index(inplace=True)
-            p['Y-M'] = p['Y'].astype(str)+'-'+p['M'].astype(str)
+            p['Month'] = p['Y'].astype(str)+'-'+p['M'].astype(str)
+            p.loc[p.index[0],'P estimated'] = round(p.loc[p.index[0],'GBP_products']*30/p.loc[p.index[0],'D'],2)
+            p.loc[p.index[0],'GM estimated'] = round(p.loc[p.index[0],'Gross Margin']*30/p.loc[p.index[0],'D'],2)
+
         elif par=='d':
-            p['Y-M'] = p['date_add'].astype(str)
+            p['Date'] = p['date_add'].astype(str)
             p.sort_index(ascending=False,inplace=True)
             p.reset_index(inplace=True)
+
+            p['P 7day avg'] = p['GBP_products'].rolling(7).mean()
+            p['GM 7day avg'] = p['Gross Margin'].rolling(7).mean()
+
+            p.sort_index(ascending=False,inplace=True)
+            p.reset_index(inplace=True)
+            p = p[0:30]
+
         elif par=='dw':
             p = p.groupby(['DOW']).agg({'products':np.sum,
                                                 'GBP_cost':np.mean,
                                                 'GBP_products':np.mean,
                                                 'GBP_shipping':np.mean,
                                                 'GBP_paid':np.mean,
+                                                'VAT 8pc':np.mean,
+                                                'Gross Margin':np.mean,
                                                 }).sort_index(ascending=False)
             p.reset_index(inplace=True)
 
-            p['Y-M'] = p.index
             p['DOW'] = p.index+1
+            p['GBP_products'] = round(p['GBP_products'],2)
+            p['GBP_products_e'] = p['GBP_products'] - p['Gross Margin']
+
         elif par=='dm':
             p = p.groupby(['D']).agg({'products':np.sum,
                                                 'GBP_cost':np.mean,
                                                 'GBP_products':np.mean,
                                                 'GBP_shipping':np.mean,
                                                 'GBP_paid':np.mean,
+                                                'VAT 8pc':np.mean,
+                                                'Gross Margin':np.mean,
                                                 }).sort_index(ascending=False)
             p.reset_index(inplace=True)
 
-            p['Y-M'] = p.index
-            p['D'] = p.index+1
-
-        p['GBP_shipping'] = p['GBP_shipping'].astype(float)
-        p['GBP_products'] = p['GBP_products'].astype(float)
-        p['GBP_cost'] = p['GBP_cost'].astype(float)
-
-        p['VAT 8pc'] = round(p['GBP_products']*0.08,2)
-        p['Gross Margin'] = round(p['GBP_products'] - p['VAT 8pc'] - p['GBP_cost'],2)
-
-        p['GBP_products_e'] = p['GBP_products']
-        p['Gross Margin_e'] = p['Gross Margin']
-
-        if par=='y':
-            p.loc[p.index[0],'GBP_products_e'] = round(p.loc[p.index[0],'GBP_products']*365/p.loc[p.index[0],'DOY'],2)
-            p.loc[p.index[0],'Gross Margin_e'] = round(p.loc[p.index[0],'Gross Margin']*365/p.loc[p.index[0],'DOY'],2)
-        elif par=='m':
-            p.loc[p.index[0],'GBP_products_e'] = round(p.loc[p.index[0],'GBP_products']*30/p.loc[p.index[0],'D'],2)
-            p.loc[p.index[0],'Gross Margin_e'] = round(p.loc[p.index[0],'Gross Margin']*30/p.loc[p.index[0],'D'],2)
-        elif par=='q':
-            m = p.loc[p.index[0],'M']%3-1
-            print('m',m)
-            p.loc[p.index[0],'GBP_products_e'] = round(p.loc[p.index[0],'GBP_products']*90 /
-                    (p.loc[p.index[0],'D']+(m)*30),2)
-            p.loc[p.index[0],'Gross Margin_e'] = round(p.loc[p.index[0],'Gross Margin']*90 /
-                    (p.loc[p.index[0],'D']+(m)*30),2)
-
-        elif par=='d':
-            p['GBP_products_e'] = p['GBP_products'].rolling(7).mean()
-            p['Gross Margin_e'] = p['Gross Margin'].rolling(7).mean()
-
-            p.sort_index(ascending=False,inplace=True)
-            p.reset_index(inplace=True)
-
-            p = p[0:30]
-
-        elif par=='dw' or par=='dm':
+            p['Day'] = p.index+1
             p['GBP_products'] = round(p['GBP_products'],2)
             p['GBP_products_e'] = p['GBP_products'] - p['Gross Margin']
+
+        elif par=='mm':
+            p = p.groupby(['M']).agg({'products':np.sum,
+                                                'GBP_cost':np.mean,
+                                                'GBP_products':np.mean,
+                                                'GBP_shipping':np.mean,
+                                                'GBP_paid':np.mean,
+                                                'VAT 8pc':np.mean,
+                                                'Gross Margin':np.mean,
+                                                }).sort_index(ascending=False)
+            p.reset_index(inplace=True)
+
+            p['Month'] = p.index+1
+            p['GBP_products'] = round(p['GBP_products'],2)
+            p['GBP_products_e'] = p['GBP_products'] - p['Gross Margin']
+
+        elif par=='mavg':
+            p1 = p.groupby(['Y','M']).agg({'products':np.sum,
+                                                'orders':np.sum,
+                                                'GBP_products':np.sum,
+                                                'Gross Margin':np.sum,
+                                                }).sort_index(ascending=False)
+            p2 = p1.groupby(['Y',]).agg({'products':np.mean,
+                                                'orders':np.mean,
+                                                'GBP_products':np.mean,
+                                                'Gross Margin':np.mean,
+
+                                                }).sort_index(ascending=False)
+            p2['products'] = round(p2['products'],2)
+            p2['orders'] = round(p2['orders'],2)
+            p2['GBP_products'] = round(p2['GBP_products'],2)
+            p2['Gross Margin'] = round(p2['Gross Margin'],2)
+
+            p2.loc['All Time'] = p2.mean()
+
+            p2['Year'] = p2.index
+
+            return p2                                                
+
+        elif par=='davg':
+            p1 = p.groupby(['Y','M']).agg({'products':np.mean,
+                                                'orders':np.mean,
+                                                'GBP_products':np.mean,
+                                                'Gross Margin':np.mean,
+                                                }).sort_index(ascending=False)
+            p2 = p1.groupby(['Y',]).agg({'products':np.mean,
+                                                'orders':np.mean,
+                                                'GBP_products':np.mean,
+                                                'Gross Margin':np.mean,
+
+                                                }).sort_index(ascending=False)
+            p2['products'] = round(p2['products'],2)
+            p2['orders'] = round(p2['orders'],2)
+            p2['GBP_products'] = round(p2['GBP_products'],2)
+            p2['Gross Margin'] = round(p2['Gross Margin'],2)
+            
+            p2.loc['All Time'] = p2.mean()
+            p2['Year'] = p2.index
+
+            return p2                                                
 
         return p
 

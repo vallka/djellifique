@@ -27,22 +27,37 @@ class SalesTableView(generics.ListAPIView):
 
         p = DailySalesData.get_data(par) 
 
-        if par=='d':
-            html=p.to_html(columns=['Y-M','products','orders','GBP_cost','GBP_products','GBP_shipping','GBP_paid','VAT 8pc','Gross Margin'],index=False)
+        if par=='y':
+            html=p.to_html(columns=['Year','orders','products','GBP_paid','GBP_shipping','VAT 8pc','GBP_cost','GBP_products','P estimated','Gross Margin','GM estimated'],index=False)
+
+        elif par=='q':
+            html=p.to_html(columns=['Quarter','orders','products','GBP_paid','GBP_shipping','VAT 8pc','GBP_cost','GBP_products','P estimated','Gross Margin','GM estimated'],index=False)
+
+        elif par=='m':
+            html=p.to_html(columns=['Month','orders','products','GBP_paid','GBP_shipping','VAT 8pc','GBP_cost','GBP_products','P estimated','Gross Margin','GM estimated'],index=False)
+
+        elif par=='d':
+            html=p.to_html(columns=['Date','orders','products','GBP_paid','GBP_shipping','VAT 8pc','GBP_cost','GBP_products','Gross Margin'],index=False)
+
         elif par=='dw':
             html=p.to_html(columns=['DOW','GBP_products','Gross Margin'],index=False)
+
         elif par=='dm':
-            html=p.to_html(columns=['D','GBP_products','Gross Margin'],index=False)
-        elif par=='m':
-            html=p.to_html(columns=['Y-M','products','orders','GBP_cost','GBP_products','GBP_products_e','GBP_shipping','GBP_paid','VAT 8pc','Gross Margin','Gross Margin_e'],index=False)
-        elif par=='q':
-            html=p.to_html(columns=['Y-Q','products','orders','GBP_cost','GBP_products','GBP_products_e','GBP_shipping','GBP_paid','VAT 8pc','Gross Margin','Gross Margin_e'],index=False)
-        elif par=='y':
-            html=p.to_html(columns=['Year','products','orders','GBP_cost','GBP_products','GBP_products_e','GBP_shipping','GBP_paid','VAT 8pc','Gross Margin','Gross Margin_e'],index=False)
+            html=p.to_html(columns=['Day','GBP_products','Gross Margin'],index=False)
+
+        elif par=='mm':
+            html=p.to_html(columns=['Month','GBP_products','Gross Margin'],index=False)
+
+        elif par=='mavg':
+            html=p.to_html(columns=['Year','orders','products','GBP_products','Gross Margin'],index=False)
+
+        elif par=='davg':
+            html=p.to_html(columns=['Year','orders','products','GBP_products','Gross Margin'],index=False)
 
         html=html.replace('class="dataframe"',
             'class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"'
         )
+        html=html.replace('<td>NaN</td>','<td> </td>')
 
         return HttpResponse( html)
 
@@ -53,55 +68,85 @@ class SalesFigView(generics.ListAPIView):
         par = self.kwargs.get('par')
 
         p = DailySalesData.get_data(par) 
-        if par=='q':
-            fig = px.line(p,x='Y-M', y=['GBP_products','GBP_products_e','Gross Margin','Gross Margin_e'],
+
+        if par=='y':
+            p.loc[p.index[1],'P estimated'] = p.loc[p.index[1],'GBP_products']
+            p.loc[p.index[1],'GM estimated'] = p.loc[p.index[1],'Gross Margin']
+
+            fig = px.line(p,x=p.index, y=['GBP_products','P estimated','Gross Margin','GM estimated'],
                 labels={
                     'value':'GBP',
-                    'Y-M':'Quarter (month starts)'
-                },
-                title="Quarterly sales",width=1200, height=500)
-            fig.update_xaxes(rangeslider_visible=True, dtick='M3')
-        elif par=='m':
-            fig = px.line(p,x='Y-M', y=['GBP_products','GBP_products_e','Gross Margin','Gross Margin_e'],
-                labels={
-                    'value':'GBP',
-                    'Y-M':'Month'
-                },
-                title="Monthly sales",width=1200, height=500)
-            fig.update_xaxes(rangeslider_visible=True, dtick='M1')
-        elif par=='d':
-            fig = px.line(p,x='date_add',y=['GBP_products','GBP_products_e','Gross Margin','Gross Margin_e'],
-                labels={
-                    'value':'GBP',
-                    'date_add':'Date'
-                },
-                title="Daily sales (30 days)",width=1200, height=500)
-            fig.update_xaxes(rangeslider_visible=True, dtick='D1')
-        elif par=='dw':
-            fig = px.bar(p,x='DOW',y=['Gross Margin','GBP_products_e',],
-                labels={
-                    'value':'GBP',
-                    'DOW':'Day'
-                },
-                title="Day of week",width=1200, height=500)
-            fig.update_xaxes(rangeslider_visible=False, dtick='D1')
-        elif par=='dm':
-            fig = px.bar(p,x='D',y=['Gross Margin','GBP_products_e',],
-                labels={
-                    'value':'GBP',
-                    'D':'Day'
-                },
-                title="Day of month",width=1200, height=500)
-            fig.update_xaxes(rangeslider_visible=False, dtick='D1')
-        else:    #y
-            fig = px.line(p,x=p.index, y=['GBP_products','GBP_products_e','Gross Margin','Gross Margin_e'],
-                labels={
-                    'value':'GBP',
+                    'variable':' ',
                     'Y':'Year'
                 },
                 title="Yearly sales",
                 width=1200, height=500)
-            fig.update_xaxes(rangeslider_visible=True, dtick='Y1')
+            fig.update_xaxes(rangeslider_visible=False, dtick='Y1')
+
+        elif par=='q':
+            p.loc[p.index[1],'P estimated'] = p.loc[p.index[1],'GBP_products']
+            p.loc[p.index[1],'GM estimated'] = p.loc[p.index[1],'Gross Margin']
+
+            fig = px.line(p,x='Y-M', y=['GBP_products','P estimated','Gross Margin','GM estimated'],
+                labels={
+                    'value':'GBP',
+                    'variable':' ',
+                    'Y-M':'Quarter (month starts)'
+                },
+                title="Quarterly sales",width=1200, height=500)
+            fig.update_xaxes(rangeslider_visible=True, dtick='M3')
+
+        elif par=='m':
+            p.loc[p.index[1],'P estimated'] = p.loc[p.index[1],'GBP_products']
+            p.loc[p.index[1],'GM estimated'] = p.loc[p.index[1],'Gross Margin']
+
+            fig = px.line(p,x='Month', y=['GBP_products','P estimated','Gross Margin','GM estimated'],
+                labels={
+                    'value':'GBP',
+                    'variable':' ',
+                },
+                title="Monthly sales",width=1200, height=500)
+            fig.update_xaxes(rangeslider_visible=True, dtick='M1')
+
+        elif par=='d':
+            fig = px.line(p,x='Date',y=['GBP_products','P 7day avg','Gross Margin','GM 7day avg'],
+                labels={
+                    'value':'GBP',
+                    'variable':' ',
+                },
+                title="Daily sales (30 days)",width=1200, height=500)
+            fig.update_xaxes(rangeslider_visible=True, dtick='D1')
+
+        elif par=='dw':
+            fig = px.bar(p,x='DOW',y=['Gross Margin','GBP_products_e',],
+                labels={
+                    'value':'GBP',
+                    'DOW':'Day',
+                    'variable':' ',
+                    'GBP_products_e': 'GBP_products'
+                },
+                title="Daily average by Day of week",width=1200, height=500)
+            fig.update_xaxes(rangeslider_visible=False, dtick='D1')
+
+        elif par=='dm':
+            fig = px.bar(p,x='Day',y=['Gross Margin','GBP_products_e',],
+                labels={
+                    'value':'GBP',
+                    'variable':' ',
+                    'GBP_products_e': 'GBP_products'
+                },
+                title="Daily average by Day of month",width=1200, height=500)
+            fig.update_xaxes(rangeslider_visible=False, dtick='D1')
+
+        elif par=='mm':
+            fig = px.bar(p,x='Month',y=['Gross Margin','GBP_products_e',],
+                labels={
+                    'value':'GBP',
+                    'variable':' ',
+                    'GBP_products_e': 'GBP_products'
+                },
+                title="Daily average by Month of year",width=1200, height=500)
+            fig.update_xaxes(rangeslider_visible=False, dtick='M1')
 
         return JsonResponse(fig,safe=False,encoder=plotly.utils.PlotlyJSONEncoder)
 
