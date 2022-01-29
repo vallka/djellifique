@@ -1,6 +1,11 @@
 {% extends "stats/stats-base.html" %}
 
 {% block ajax_update %}
+  $('#myPlots').append('<div id="myPlot51" style="display:none;"></div>');
+  $('#myPlots').append('<div id="myPlot5" style="display:none;"></div>');
+  $('#myPlots').append('<div id="myPlot61" style="display:none;"></div>');
+  $('#myPlots').append('<div id="myPlot6" style="display:none;"></div>');
+
   $('#myPlots').append('<div id="myPlot21" style="display:none;"></div>');
   $('#myPlots').append('<div id="myPlot2" style="display:none;"></div>');
   $('#myPlots').append('<div id="myPlot41" style="display:none;"></div>');
@@ -8,8 +13,46 @@
   $('#myPlots').append('<div id="myPlot31" style="display:none;"></div>');
   $('#myPlots').append('<div id="myPlot3" style="display:none;"></div>');
 
-  $('#myPlots').append('<div id="myPlot5" style="display:none;"></div>');
-  $('#myPlots').append('<div id="myPlot6" style="display:none;"></div>');
+  $.ajax({
+    url: "/api/v1/stats/monthlysalesfig/mavg/",
+    type: "GET",
+    contentType: 'application/json;charset=UTF-8',
+    dataType:"json",
+    success: function (data) {
+        Plotly.react('myPlot51', data );
+        $('#myPlot51').show();
+    }
+  });
+  $.ajax({
+    url: "/api/v1/stats/monthlysalestable/mavg/",
+    type: "GET",
+    contentType: 'application/json;charset=UTF-8',
+    dataType:"html",
+    success: function (data) {
+        $('#myPlot5').html(data);
+        $('#myPlot5').show();
+    }
+  });
+  $.ajax({
+    url: "/api/v1/stats/monthlysalesfig/davg/",
+    type: "GET",
+    contentType: 'application/json;charset=UTF-8',
+    dataType:"json",
+    success: function (data) {
+        Plotly.react('myPlot61', data );
+        $('#myPlot61').show();
+    }
+  });
+  $.ajax({
+    url: "/api/v1/stats/monthlysalestable/davg/",
+    type: "GET",
+    contentType: 'application/json;charset=UTF-8',
+    dataType:"html",
+    success: function (data) {
+        $('#myPlot6').html(data);
+        $('#myPlot6').show();
+    }
+  });
 
   $.ajax({
       url: "/api/v1/stats/monthlysalestable/dw/",
@@ -71,26 +114,6 @@
     success: function (data) {
         $('#myPlot4').html(data);
         $('#myPlot4').show();
-    }
-  });
-  $.ajax({
-    url: "/api/v1/stats/monthlysalestable/mavg/",
-    type: "GET",
-    contentType: 'application/json;charset=UTF-8',
-    dataType:"html",
-    success: function (data) {
-        $('#myPlot5').html('<h2>Monthly Averages</h2>'+data);
-        $('#myPlot5').show();
-    }
-  });
-  $.ajax({
-    url: "/api/v1/stats/monthlysalestable/davg/",
-    type: "GET",
-    contentType: 'application/json;charset=UTF-8',
-    dataType:"html",
-    success: function (data) {
-        $('#myPlot6').html('<h2>Daily Averages</h2>'+data);
-        $('#myPlot6').show();
     }
   });
 {% endblock ajax_update %}

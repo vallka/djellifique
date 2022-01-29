@@ -148,6 +148,24 @@ class SalesFigView(generics.ListAPIView):
                 title="Daily average by Month of year",width=1200, height=500)
             fig.update_xaxes(rangeslider_visible=False, dtick='M1')
 
+        elif par=='mavg':
+            fig = px.line(p,x='Year',y=['GBP_products','Gross Margin',],
+                labels={
+                    'value':'GBP',
+                    'variable':' ',
+                },
+                title="Monthly Averages",width=1200, height=500)
+            fig.update_xaxes(rangeslider_visible=True, dtick='D1')
+
+        elif par=='davg':
+            fig = px.line(p,x='Year',y=['GBP_products','Gross Margin',],
+                labels={
+                    'value':'GBP',
+                    'variable':' ',
+                },
+                title="Daily Averages",width=1200, height=500)
+            fig.update_xaxes(rangeslider_visible=True, dtick='D1')
+
         return JsonResponse(fig,safe=False,encoder=plotly.utils.PlotlyJSONEncoder)
 
 
