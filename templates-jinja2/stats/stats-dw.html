@@ -73,7 +73,7 @@
     
     $('#update').click(function(){
         $.ajax({
-            url: "/api/v1/stats/monthlysalestable/dw/",
+            url: "/api/v1/stats/salestable/dw/",
             type: "GET",
             contentType: 'application/json;charset=UTF-8',
             dataType:"html",
@@ -84,7 +84,7 @@
             }
         });
         $.ajax({
-            url: "/api/v1/stats/monthlysalesfig/dw/",
+            url: "/api/v1/stats/salesfig/dw/",
             type: "GET",
             contentType: 'application/json;charset=UTF-8',
             dataType:"json",
@@ -94,7 +94,7 @@
             }
         });
         $.ajax({
-            url: "/api/v1/stats/monthlysalestable/dm/",
+            url: "/api/v1/stats/salestable/dm/",
             type: "GET",
             contentType: 'application/json;charset=UTF-8',
             dataType:"html",
@@ -105,7 +105,7 @@
             }
         });
         $.ajax({
-            url: "/api/v1/stats/monthlysalesfig/dm/",
+            url: "/api/v1/stats/salesfig/dm/",
             type: "GET",
             contentType: 'application/json;charset=UTF-8',
             dataType:"json",

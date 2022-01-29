@@ -9,6 +9,6 @@ urlpatterns = [
     path('d', PageDView.as_view(), name='stats-d'),
     path('avg', PageAvgView.as_view(), name='stats-avg'),
 
-    ## ----
-    path('df', DfPageView.as_view(), name='dfstats'),
+    path('customers', PageCustView.as_view(), name='stats-cust'),
+
 ]

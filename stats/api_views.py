@@ -168,65 +168,25 @@ class SalesFigView(generics.ListAPIView):
 
         return JsonResponse(fig,safe=False,encoder=plotly.utils.PlotlyJSONEncoder)
 
-
-# ---
-
-def raw_queryset_as_values_list(raw_qs):
-    columns = raw_qs.columns
-    for row in raw_qs:
-        #yield tuple({col:getattr(row, col)} for col in columns)
-        yield tuple(getattr(row, col) for col in columns)
-
-class YearlySalesView(generics.ListAPIView):
+class CustomersTableView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)     
 
     def get(self, request, *args, **kwargs):
-        queryset = DailySales.objects.using('presta').raw(DailySales.SQL('y'))
+        par = self.kwargs.get('par')
 
-        p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
+        p = MonthlyCustomersData.get_data(par) 
 
-        fig = px.line(p,x='day', y='GBP_products',title="Yearly sales",width=1200, height=500)
-        fig.update_xaxes(rangeslider_visible=True, 
-            dtick="Y1",
+        html=p.to_html(
+                index=False,
+                columns=['month','customers','new_customers','%nc',
+                    'orders','new_orders','%no',
+                    'sales','new_sales','%ns',
+                    'registrations','registrations_customers',],
         )
 
-        return JsonResponse(fig,safe=False,encoder=plotly.utils.PlotlyJSONEncoder)
-
-class MonthlySalesView(generics.ListAPIView):
-    permission_classes = (IsAuthenticated,)     
-
-    def get(self, request, *args, **kwargs):
-        queryset = DailySales.objects.using('presta').raw(DailySales.SQL('m'))
-        p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
-
-        fig = px.line(p,x='day', y='GBP_products',title="Monthly sales", width=1200, height=500)
-
-        fig.update_xaxes(rangeslider_visible=True, 
-            dtick="M1",
-            tickformat="%b\n%Y",
+        html=html.replace('class="dataframe"',
+            'class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"'
         )
+        html=html.replace('<td>NaN</td>','<td> </td>')
 
-        return JsonResponse(fig,safe=False,encoder=plotly.utils.PlotlyJSONEncoder)
-
-
-class DailySalesView(generics.ListAPIView):
-    permission_classes = (IsAuthenticated,)     
-
-    def get(self, request, *args, **kwargs):
-        queryset = DailySales.objects.using('presta').raw(DailySales.SQL('d'))
-        p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
-
-        fig = px.line(p,x='day', y='GBP_products',title="Daily sales", width=1200, height=500)
-        fig.update_xaxes(rangeslider_visible=True, 
-            rangeselector=dict(
-                buttons=list([
-                    dict(count=1, label="1m", step="month", stepmode="backward"),
-                    dict(count=6, label="6m", step="month", stepmode="backward"),
-                    dict(count=1, label="YTD", step="year", stepmode="todate"),
-                    dict(count=1, label="1y", step="year", stepmode="backward"),
-                    dict(step="all")
-               ])
-            )
-        )
-
-        return JsonResponse(fig,safe=False,encoder=plotly.utils.PlotlyJSONEncoder)
+        return HttpResponse(html)

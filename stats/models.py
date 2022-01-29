@@ -36,9 +36,7 @@ class DailySalesData(models.Model):
     @staticmethod
     def SQL():
 
-        #SUM((SELECT SUM(product_quantity) FROM ps17_order_detail d WHERE id_order=o.id_order AND reduction_percent>0)) products_discounted,
-
-        sql = f"""
+        sql = """
 SELECT
 date(date_add) date_add,
 SUM((SELECT SUM(product_quantity) FROM ps17_order_detail d WHERE id_order=o.id_order)) products,
@@ -243,51 +241,134 @@ ORDER BY date_add DESC
 
         return p
 
-# ---
-class DailySales(models.Model):
-    day = models.CharField(primary_key=True,max_length=20)
-    products = models.IntegerField(blank=True,null=True)
-    products_discounted = models.IntegerField(blank=True,null=True)
-    orders = models.IntegerField(blank=True,null=True)
-    GBP_products = models.FloatField(blank=True,null=True)
-    GBP_8vat = models.FloatField(blank=True,null=True)
-    GBP_products_8vat = models.FloatField(blank=True,null=True)
-    gross_margin = models.FloatField(blank=True,null=True)
-    gross_margin_percent = models.FloatField(blank=True,null=True)
+class MonthlyCustomersData(models.Model):
+    month = models.CharField(primary_key=True,max_length=20)
 
     @staticmethod
-    def SQL(par='d'):
-        digits = 4 if par=='y' else 7 if par=='m' else 10
+    def dtypes():
+        return {
+            'date_add':'M',
+            'products':'i',
+            'orders':'i',
+            'GBP_cost':'float64',
+            'GBP_products':'float64',
+            'GBP_shipping':'float64',
+            'GBP_paid':'float64',
+        }
 
-        sql = f"""
+    @staticmethod
+    def SQL():
+
+        sql = """
 SELECT
-substr(date_add,1,{digits}) day,
-sum((select sum(product_quantity) from ps17_order_detail d where id_order=o.id_order)) products,
-sum((select sum(product_quantity) from ps17_order_detail d where id_order=o.id_order and reduction_percent>0)) products_discounted,
-count(id_order) orders,
-round(sum((total_products_wt-total_discounts_tax_incl)/conversion_rate) ,2) GBP_products,
-round(0.08*sum((total_products_wt-total_discounts_tax_incl)/conversion_rate) ,2) GBP_8vat,
-round(0.92*sum((total_products_wt-total_discounts_tax_incl)/conversion_rate) ,2) GBP_products_8vat,
-round((
-0.92*sum((total_products_wt-total_discounts_tax_incl)/conversion_rate)  -
-sum((select sum(original_wholesale_price) from ps17_order_detail d where id_order=o.id_order)) 
-    ),2) gross_margin
-,
-round((
-(0.92*sum((total_products_wt-total_discounts_tax_incl)/conversion_rate)  -
-sum((select sum(original_wholesale_price) from ps17_order_detail d where id_order=o.id_order)) 
-) * 100 /
-(0.92*sum((total_products_wt-total_discounts_tax_incl)/conversion_rate))
-),2) gross_margin_percent
+SUBSTR(DATE_ADD,1,7) month ,
+COUNT(DISTINCT id_customer) customers,
+
+(SELECT
+COUNT(DISTINCT id_customer)
+FROM `ps17_orders` o1
+WHERE current_state IN
+(SELECT id_order_state FROM ps17_order_state WHERE paid=1)
+AND MONTH(DATE_ADD)=MONTH(o.date_add)
+AND YEAR(DATE_ADD)=YEAR(o.date_add)
+AND NOT EXISTS(SELECT id_order FROM ps17_orders o2 WHERE o1.id_customer=o2.id_customer AND 
+o2.current_state IN        (SELECT id_order_state FROM ps17_order_state WHERE paid=1) AND 
+SUBSTR(o2.date_add,1,7)<SUBSTR(o1.date_add,1,7)
+)) new_customers,
+
+COUNT(id_order) orders,
+
+(SELECT
+COUNT(DISTINCT id_order)
+FROM `ps17_orders` o1
+WHERE current_state IN
+(SELECT id_order_state FROM ps17_order_state WHERE paid=1)
+AND MONTH(DATE_ADD)=MONTH(o.date_add)
+AND YEAR(DATE_ADD)=YEAR(o.date_add)
+AND NOT EXISTS(SELECT id_order FROM ps17_orders o2 WHERE o1.id_customer=o2.id_customer AND 
+o2.current_state IN        (SELECT id_order_state FROM ps17_order_state WHERE paid=1) AND 
+SUBSTR(o2.date_add,1,7)<SUBSTR(o1.date_add,1,7)
+)) new_orders,
+
+SUM((total_products_wt-total_discounts_tax_incl)/conversion_rate) sales,
+
+(SELECT
+SUM((total_products_wt-total_discounts_tax_incl)/conversion_rate)
+FROM `ps17_orders` o1
+WHERE current_state IN
+(SELECT id_order_state FROM ps17_order_state WHERE paid=1)
+AND MONTH(DATE_ADD)=MONTH(o.date_add)
+AND YEAR(DATE_ADD)=YEAR(o.date_add)
+AND NOT EXISTS(SELECT id_order FROM ps17_orders o2 WHERE o1.id_customer=o2.id_customer AND 
+o2.current_state IN        (SELECT id_order_state FROM ps17_order_state WHERE paid=1) AND 
+SUBSTR(o2.date_add,1,7)<SUBSTR(o1.date_add,1,7)
+)) new_sales,
+
+(SELECT
+COUNT(id_customer)
+FROM ps17_customer c
+WHERE MONTH(c.date_add)=MONTH(o.date_add)
+AND YEAR(c.date_add)=YEAR(o.date_add)
+) registrations,
+
+(SELECT
+COUNT(id_customer)
+FROM ps17_customer c
+WHERE MONTH(c.date_add)=MONTH(o.date_add)
+AND YEAR(c.date_add)=YEAR(o.date_add)
+AND EXISTS(SELECT id_order FROM ps17_orders o2 WHERE c.id_customer=o2.id_customer AND 
+o2.current_state IN        (SELECT id_order_state FROM ps17_order_state WHERE paid=1)
+)) registrations_customers
+
 
 FROM `ps17_orders` o
-where current_state in
-(2,3,4,5,17,20,21,31,35,39,40)
+WHERE current_state IN
+(SELECT id_order_state FROM ps17_order_state WHERE paid=1)
 
-group by
-substr(date_add,1,{digits})
-order by 1 
+GROUP BY
+SUBSTR(DATE_ADD,1,7)
+ORDER BY 1 DESC
+
         """
+        return sql        
 
-        return sql
+    @staticmethod
+    def dtypes():
+        return {
+            'customers':'i',
+            'new_customers':'i',
+            'orders':'i',
+            'new_orders':'i',
+            'sales':'float64',
+            'new_sales':'float64',
+            'registrations':'i',
+            'registrations_customers':'i',
+        }
 
+    @classmethod
+    def get_data(cls,par='d'):
+        store_path = settings.MEDIA_ROOT + '/stats-customers-data-v1.pkl'
+        
+        try:
+            tm = os.path.getmtime(store_path) 
+            if int(time.time())-int(tm) > 24 * 60 * 60:
+                raise Exception("Cache expired")
+
+            p = pd.read_pickle(store_path)
+        except Exception as e:
+            print (e)
+            print(cls.SQL())
+            queryset = cls.objects.using('presta').raw(cls.SQL())
+            p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
+            p = p.astype(cls.dtypes())
+
+            p['sales'] = round(p['sales'],2)
+            p['new_sales'] = round(p['new_sales'],2)
+
+            p['%nc'] = round(p['new_customers']*100/p['customers']).astype(int)
+            p['%no'] = round(p['new_orders']*100/p['orders']).astype(int)
+            p['%ns'] = round(p['new_sales']*100/p['sales']).astype(int)
+
+            p.to_pickle(store_path)
+
+        return p

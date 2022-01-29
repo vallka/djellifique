@@ -32,7 +32,10 @@
             <a class="navbar-item" href="/stats/avg">
                 Averages
             </a>
-        
+            <a class="navbar-item" href="/stats/customers">
+              Customers
+          </a>
+      
           </div>
       
           <div class="navbar-end">
@@ -73,6 +76,45 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <script>
+var plot_pos=0;
+
+function draw_table(par,superpar="salestable") {
+  const my_pos = plot_pos++;
+
+  if ($('#myPlot'+my_pos).length==0) {
+    $('#myPlots').append('<div id="myPlot'+my_pos+'" style="display:none;"></div>');
+  }
+
+  $.ajax({
+    url: "/api/v1/stats/"+superpar+"/"+par,
+    type: "GET",
+    contentType: 'application/json;charset=UTF-8',
+    dataType:"html",
+    success: function (data) {
+        $('#myPlot'+my_pos).html(data);
+        $('#myPlot'+my_pos).show();
+    }
+  });
+}
+
+function draw_figure(par) {
+  const my_pos = plot_pos++;
+
+  if ($('#myPlot'+my_pos).length==0) {
+    $('#myPlots').append('<div id="myPlot'+my_pos+'" style="display:none;"></div>');
+  }
+
+  $.ajax({
+    url: "/api/v1/stats/salesfig/"+par,
+    type: "GET",
+    contentType: 'application/json;charset=UTF-8',
+    dataType:"json",
+    success: function (data) {
+        Plotly.react('myPlot'+my_pos, data );
+        $('#myPlot'+my_pos).show();
+    }
+  });
+}
 
 {% block ajax_update %}
 // ajax calls
