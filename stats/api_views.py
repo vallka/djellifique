@@ -225,8 +225,10 @@ class CustomersBehaviourTableView(generics.ListAPIView):
         print('par',par)
         p = CustomersBehaviourData.get_data(par) 
 
+        p.sort_values('total_gbp',ascending=False,inplace=True)
+
         p.loc['--average--'] = p.mean()
-        p.loc['--average--','customer_name'] = '--average--'
+        p.loc['--average--','customer_name'] = '--average customer--'
 
         html=p.to_html(
                 columns=['customer_name','group','orders','order_first','order_last','total_gbp','avg_order_gbp','orders_apart_days'],
