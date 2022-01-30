@@ -10,5 +10,6 @@ urlpatterns = [
     path('avg', PageAvgView.as_view(), name='stats-avg'),
 
     path('customers', PageCustView.as_view(), name='stats-cust'),
+    path('customers-behaviour', PageCustBhvrView.as_view(), name='stats-cust-bhvr'),
 
 ]

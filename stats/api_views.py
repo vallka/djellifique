@@ -174,11 +174,15 @@ class CustomersTableView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         par = self.kwargs.get('par')
 
+        print('par',par)
         p = MonthlyCustomersData.get_data(par) 
+
+        if par=='y':
+            p = p.rename(columns={'month':'year'})
 
         html=p.to_html(
                 index=False,
-                columns=['month','customers','new_customers','%nc',
+                columns=['month' if par=='m' else 'year','customers','new_customers','%nc','last_customers',
                     'orders','new_orders','%no',
                     'sales','new_sales','%ns',
                     'registrations','registrations_customers',],
@@ -188,5 +192,52 @@ class CustomersTableView(generics.ListAPIView):
             'class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"'
         )
         html=html.replace('<td>NaN</td>','<td> </td>')
+
+        return HttpResponse(html)
+
+class TotalCustomersTableView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)     
+
+    def get(self, request, *args, **kwargs):
+        par = self.kwargs.get('par')
+
+        print('par',par)
+        p = MonthlyTotalCustomersData.get_data(par) 
+
+        html=p.to_html(
+                index=False,
+                columns=['month','total_customers','loyal_customers',],
+        )
+
+        html=html.replace('class="dataframe"',
+            'class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"'
+        )
+        html=html.replace('<td>NaN</td>','<td> </td>')
+
+        return HttpResponse(html)
+
+class CustomersBehaviourTableView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)     
+
+    def get(self, request, *args, **kwargs):
+        par = self.kwargs.get('par')
+
+        print('par',par)
+        p = CustomersBehaviourData.get_data(par) 
+
+        p.loc['--average--'] = p.mean()
+        p.loc['--average--','customer_name'] = '--average--'
+
+        html=p.to_html(
+                columns=['customer_name','group','orders','order_first','order_last','total_gbp','avg_order_gbp','orders_apart_days'],
+                index=False,
+                na_rep=' ',
+                float_format='{:.2f}'.format,
+        )
+
+        html=html.replace('class="dataframe"',
+            'class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"'
+        )
+        #html=html.replace('<td>NaN</td>','<td> </td>')
 
         return HttpResponse(html)

@@ -19,3 +19,5 @@ class PageAvgView(generic.TemplateView):
 class PageCustView(generic.TemplateView):
     template_name = 'stats/stats-cust.html'
 
+class PageCustBhvrView(generic.TemplateView):
+    template_name = 'stats/stats-cust-bhvr.html'

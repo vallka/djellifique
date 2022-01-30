@@ -2,6 +2,12 @@
 
 {% block ajax_update %}
 
-draw_table('x','customerstable');
+draw_title('Orders and Customers annually');
+
+draw_table('y','customerstable');
+draw_title('Orders and Customers monthly');
+draw_table('m','customerstable');
+draw_title('Total Customers monthly');
+draw_table('t','totalcustomerstable');
 
 {% endblock ajax_update %}
