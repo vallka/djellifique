@@ -118,8 +118,8 @@ ORDER BY date_add DESC
             p['Quarter'] = p['Y'].astype(str)+'-'+p['Q'].astype(str)
 
             m = p.loc[p.index[0],'M']%3-1
-            p.loc[p.index[0],'P estimated'] = round(p.loc[p.index[0],'GBP_products']*90 / (p.loc[p.index[0],'D']+(m)*30),2)
-            p.loc[p.index[0],'GM estimated'] = round(p.loc[p.index[0],'Gross Margin']*90 / (p.loc[p.index[0],'D']+(m)*30),2)
+            p.loc[p.index[0],'P estimated'] = round(p.loc[p.index[0],'GBP_products']*91 / (p.loc[p.index[0],'D']+(m)*30),2)
+            p.loc[p.index[0],'GM estimated'] = round(p.loc[p.index[0],'Gross Margin']*91 / (p.loc[p.index[0],'D']+(m)*30),2)
 
         elif par=='m':
             p = p.groupby(['Y','Q','M']).agg({'products':np.sum,
@@ -130,12 +130,13 @@ ORDER BY date_add DESC
                                                 'GBP_paid':np.sum,
                                                 'VAT 8pc':np.sum,
                                                 'Gross Margin':np.sum,
-                                                'D':np.max
+                                                'D':np.max,
+                                                'DIM':np.max,
                                                 }).sort_index(ascending=False)
             p.reset_index(inplace=True)
             p['Month'] = p['Y'].astype(str)+'-'+p['M'].astype(str)
-            p.loc[p.index[0],'P estimated'] = round(p.loc[p.index[0],'GBP_products']*30/p.loc[p.index[0],'D'],2)
-            p.loc[p.index[0],'GM estimated'] = round(p.loc[p.index[0],'Gross Margin']*30/p.loc[p.index[0],'D'],2)
+            p.loc[p.index[0],'P estimated'] = round(p.loc[p.index[0],'GBP_products']*p.loc[p.index[0],'DIM']/p.loc[p.index[0],'D'],2)
+            p.loc[p.index[0],'GM estimated'] = round(p.loc[p.index[0],'Gross Margin']*p.loc[p.index[0],'DIM']/p.loc[p.index[0],'D'],2)
 
         elif par=='d':
             p['Date'] = p['date_add'].astype(str)
