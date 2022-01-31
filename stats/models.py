@@ -532,4 +532,20 @@ WHERE orders>0
 
             p.to_pickle(store_path)
 
+        if par=='g':
+            p['avg_orders'] = p['orders']
+            p = p.groupby(['group',]).agg({'id_customer':'count',
+                                                'orders':np.sum,
+                                                'avg_orders':np.mean,
+                                                'total_gbp':np.sum,
+                                                'avg_order_gbp':np.mean,
+                                                'orders_apart_days':np.mean,
+                                                'order_first':np.min,
+                                                'order_last':np.max,
+                                                }).sort_index()
+
+            p['group'] = p.index
+            print(p)                                            
+
+
         return p
