@@ -372,9 +372,9 @@ ORDER BY 1 DESC
             p['sales'] = round(p['sales'],2)
             p['new_sales'] = round(p['new_sales'],2)
 
-            p['%nc'] = round(p['new_customers']*100/p['customers']).astype(int)
-            p['%no'] = round(p['new_orders']*100/p['orders']).astype(int)
-            p['%ns'] = round(p['new_sales']*100/p['sales']).astype(int)
+            p['%nc'] = round(p['new_customers']*100/p['customers'],1)
+            p['%no'] = round(p['new_orders']*100/p['orders'],1)
+            p['%ns'] = round(p['new_sales']*100/p['sales'],1)
 
             p.to_pickle(store_path)
 
