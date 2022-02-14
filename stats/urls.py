@@ -12,4 +12,8 @@ urlpatterns = [
     path('customers', PageCustView.as_view(), name='stats-cust'),
     path('customers-behaviour', PageCustBhvrView.as_view(), name='stats-cust-bhvr'),
 
+    path('products', PageProductsView.as_view(), name='stats-products'),
+
+    
+
 ]

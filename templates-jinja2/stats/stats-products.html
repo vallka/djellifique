@@ -1,0 +1,101 @@
+{% extends "stats/stats-base.html" %}
+
+
+
+{% block content %}
+<style>
+#a-by-cat li {
+    display: inline;
+    padding: 0 0.3rem;
+}
+
+.cat-active {
+    color: black;
+}
+
+</style>
+
+By Category:
+<ul id="a-by-cat">
+    <li><a href="#" data-cat="">All</a></li>    
+    <li><a href="#" data-cat="18">Base and Top</a></li>    
+    <li><a href="#" data-cat="60">GEL POLISH COLOUR</a></li>    
+    <li><a href="#" data-cat="78">Acrylic Gel</a></li>    
+    <li><a href="#" data-cat="79">Advance Hard Gel</a></li>    
+    <li><a href="#" data-cat="87">Apex Gel</a></li>    
+    <li><a href="#" data-cat="111">TIPS AND FORMS</a></li>    
+    
+</ul>
+
+{{ super() }}
+{% endblock content %}
+
+{% block ajax_update %}
+
+
+draw_title('Popular Products');
+draw_table('p','productstable');
+
+var t_sold;
+var t_per;
+var current_sort = 'p';
+var cat = '';
+
+$('#a-by-cat a').click(function(){
+    cat = $(this).attr('data-cat');
+    console.log('cat:'+$(this).attr('data-cat'));
+    redraw_table();
+})
+
+function redraw_table() {
+    plot_pos--;
+    draw_table(current_sort + (cat?'-'+cat:''),'productstable');   
+    setTimeout(after_plots_build,1000); 
+
+    $('#a-by-cat a').removeClass('cat-active');
+    $('#a-by-cat a[data-cat='+cat+']').addClass('cat-active');
+}
+
+
+function after_build() {
+    $('table.dataframe thead th:nth-child(4)').attr('id','th-sold')
+    $('table.dataframe thead th:nth-child(5)').attr('id','th-per-month')
+    
+    t_sold = $('#th-sold').text();
+    t_per = $('#th-per-month').text();
+    
+    $('#th-sold').html('<a href="#">'+t_sold+
+            (current_sort=='s'?' &darr;':(current_sort=='sa'?' &uarr;':'')) +
+            '</a>');
+    $('#th-per-month').html('<a href="#">'+t_per+
+            (current_sort=='p'?' &darr;':(current_sort=='pa'?' &uarr;':'')) +
+            '</a>');
+    
+    $('#th-sold a').click(function(){
+        if (current_sort=='s') {
+            current_sort = 'sa';
+        }
+        else {
+            current_sort = 's';
+        }
+        redraw_table();
+    })
+    $('#th-per-month a').click(function(){
+        if (current_sort=='p') {
+            current_sort = 'pa';
+        }
+        else {
+            current_sort = 'p';
+        }
+        redraw_table();
+    })
+    
+}
+
+{% endblock ajax_update %}
+
+{% block ajax_after_update %}
+
+after_build();
+
+{% endblock ajax_after_update %}

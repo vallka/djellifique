@@ -550,3 +550,104 @@ WHERE orders>0
 
 
         return p
+
+class ProductsData(models.Model):
+    id_product = models.IntegerField(primary_key=True)
+
+    @staticmethod
+    def SQL(cat=None):
+        where_cat = ''
+        if cat:
+            where_cat = f' AND d.product_id IN (SELECT id_product FROM ps17_category_product WHERE id_category={cat}) '
+
+        sql = f"""
+select aa.product_id id_product,
+pp.reference,
+aa.quantity sold,
+(aa.quantity-1)*30/period as per_month,
+period/30 as month_in_sale
+from 
+(
+select product_id,sum(product_quantity) quantity,
+datediff(max(date_add),min(date_add)) period
+from
+(
+select o.id_order, d.product_id,d.product_quantity,date_add
+FROM `ps17_orders` o join ps17_order_detail d on d.id_order=o.id_order
+where current_state in 
+(SELECT id_order_state FROM ps17_order_state WHERE paid=1)
+{where_cat}
+) a
+group by product_id    
+) aa
+join ps17_product pp on pp.id_product=aa.product_id
+where period>30
+order by (aa.quantity-1)*30/period desc
+        """
+        
+        return sql        
+
+    @staticmethod
+    def dtypes():
+        return {
+            'id_product':'i',
+            'sold':'i',
+            'per_month':'f',
+            'month_in_sale':'f',
+        }
+
+    @classmethod
+    def get_data(cls,par='c'):
+        pars = par.split('-')
+        par=pars[0]
+        cat = None
+        if len(pars) > 1: cat = pars[1]
+        print('par',par,cat)
+        store_path = settings.MEDIA_ROOT + f'/stats-products{cat}-v1.pkl'
+        
+        try:
+            tm = os.path.getmtime(store_path) 
+            if int(time.time())-int(tm) > 24 * 60 * 60:
+                raise Exception("Cache expired")
+
+            p = pd.read_pickle(store_path)
+        except Exception as e:
+            print (e)
+            print(cls.SQL(cat))
+            queryset = cls.objects.using('presta').raw(cls.SQL(cat))
+            p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
+            p = p.astype(cls.dtypes())
+
+            p.to_pickle(store_path)
+
+        if par=='p':
+            p['place'] = p.index+1
+        elif par=='pa':
+            p.sort_values('per_month',ascending=True,inplace=True)
+            p.reset_index(inplace=True)
+            p['place'] = p.index+1
+        elif par=='s':
+            p.sort_values('sold',ascending=False,inplace=True)
+            p.reset_index(inplace=True)
+            p['place'] = p.index+1
+        elif par=='sa':
+            p.sort_values('sold',ascending=True,inplace=True)
+            p.reset_index(inplace=True)
+            p['place'] = p.index+1
+        elif par=='g':
+            p['avg_orders'] = p['orders']
+            p = p.groupby(['group',]).agg({'id_customer':'count',
+                                                'orders':np.sum,
+                                                'avg_orders':np.mean,
+                                                'total_gbp':np.sum,
+                                                'avg_order_gbp':np.mean,
+                                                'orders_apart_days':np.mean,
+                                                'order_first':np.min,
+                                                'order_last':np.max,
+                                                }).sort_index()
+
+            p['group'] = p.index
+            print(p)                                            
+
+
+        return p

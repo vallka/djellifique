@@ -222,7 +222,7 @@ class CustomersBehaviourTableView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         par = self.kwargs.get('par')
 
-        print('par',par)
+        print('par=',par)
         p = CustomersBehaviourData.get_data(par) 
 
 
@@ -259,5 +259,24 @@ class CustomersBehaviourTableView(generics.ListAPIView):
             'class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"'
         )
         #html=html.replace('<td>NaN</td>','<td> </td>')
+
+        return HttpResponse(html)
+
+class ProductsTableView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)     
+
+    def get(self, request, *args, **kwargs):
+        par = self.kwargs.get('par')
+
+        print('par==',par)
+        p = ProductsData.get_data(par) 
+
+        html=p.to_html(
+                index=False,
+                columns=['place','id_product','reference','sold','per_month','month_in_sale'],
+                na_rep=' ',
+                float_format='{:.2f}'.format,
+                classes="table is-bordered is-striped is-narrow is-hoverable is-fullwidth",
+        )
 
         return HttpResponse(html)

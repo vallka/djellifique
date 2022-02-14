@@ -37,8 +37,11 @@
             </a>
             <a class="navbar-item" href="/stats/customers-behaviour">
               Cust.Behaviour
-          </a>
-    
+            </a>
+            <a class="navbar-item" href="/stats/products">
+              Products
+            </a>
+
           </div>
       
           <div class="navbar-end">
@@ -109,7 +112,7 @@ function draw_table(par,superpar="salestable") {
     contentType: 'application/json;charset=UTF-8',
     dataType:"html",
     success: function (data) {
-        $('#myPlot'+my_pos).html(data);
+        $('#myPlot'+my_pos).html('<div class="plot-container">' +data + '</div>');
         $('#myPlot'+my_pos).show();
     }
   });
@@ -138,7 +141,22 @@ function draw_figure(par) {
 // ajax calls
 {% endblock ajax_update %}
 
-setTimeout(function(){$('#update').hide()},2500)
+
+function after_plots_build() {
+  for (var i=0; i<plot_pos && i<20; ++i) {
+    if ($('#myTitle'+i).length==0 && $('#myPlot'+i+' div.plot-container').length==0) {
+      setTimeout(after_plots_build,1000);
+      return;
+    }
+  }
+  console.log('Built!');
+  {% block ajax_after_update %}
+  // after ajax calls
+  {% endblock ajax_after_update %}
+
+  $('#update').hide();
+}
+setTimeout(after_plots_build,1000)
 </script>
 
 </html>
