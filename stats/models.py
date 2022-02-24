@@ -516,7 +516,7 @@ WHERE orders>0
     @classmethod
     def get_data(cls,par='c'):
         print('par',par)
-        store_path = settings.MEDIA_ROOT + f'/stats-customers-behaviour-v1.pkl'
+        store_path = settings.MEDIA_ROOT + f'/stats-customers-behaviour-v2.pkl'
         
         try:
             tm = os.path.getmtime(store_path) 
@@ -555,55 +555,55 @@ class ProductsData(models.Model):
     id_product = models.IntegerField(primary_key=True)
 
     @staticmethod
-    def SQL(cat=None):
-        where_cat = ''
-        if cat:
-            where_cat = f' AND d.product_id IN (SELECT id_product FROM ps17_category_product WHERE id_category={cat}) '
+    def SQL():
+        sql = """
+SELECT aa.product_id,pp.id_product,product_reference,product_name,
+aa.quantity sold, min_date,max_date,
+(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=18) bt,
+(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=60) gelclr,
+(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=78) acry,
+(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=79) hb,
+(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=87) apex,
+(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=111) qt
+FROM 
+(
+SELECT product_id,SUM(product_quantity) quantity,product_name ,product_reference,
+MAX(DATE(DATE_ADD)) max_date,
+MIN(DATE(DATE_ADD)) min_date
+FROM
+(
+SELECT o.id_order, d.product_id,d.product_quantity,DATE_ADD,d.product_name,d.product_reference 
+FROM `ps17_orders` o JOIN ps17_order_detail d ON d.id_order=o.id_order
+WHERE current_state IN (SELECT id_order_state FROM ps17_order_state WHERE paid=1)
 
-        sql = f"""
-select aa.product_id id_product,
-pp.reference,
-aa.quantity sold,
-(aa.quantity-1)*30/period as per_month,
-period/30 as month_in_sale
-from 
-(
-select product_id,sum(product_quantity) quantity,
-datediff(max(date_add),min(date_add)) period
-from
-(
-select o.id_order, d.product_id,d.product_quantity,date_add
-FROM `ps17_orders` o join ps17_order_detail d on d.id_order=o.id_order
-where current_state in 
-(SELECT id_order_state FROM ps17_order_state WHERE paid=1)
-{where_cat}
 ) a
-group by product_id    
+GROUP BY product_id    
 ) aa
-join ps17_product pp on pp.id_product=aa.product_id
-where period>30
-order by (aa.quantity-1)*30/period desc
-        """
+LEFT OUTER JOIN ps17_product pp ON pp.id_product=aa.product_id
+ORDER BY aa.quantity DESC
+"""
         
         return sql        
 
     @staticmethod
     def dtypes():
         return {
-            'id_product':'i',
+            'id_product':'f',
             'sold':'i',
-            'per_month':'f',
-            'month_in_sale':'f',
+            'min_date':'M',
+            'max_date':'M',
+            'bt':'i',
+            'gelclr':'i',	
+            'acry':'i',	
+            'hb':'i',	
+            'apex':'i',	
+            'qt':'i',
         }
 
     @classmethod
     def get_data(cls,par='c'):
-        pars = par.split('-')
-        par=pars[0]
-        cat = None
-        if len(pars) > 1: cat = pars[1]
-        print('par',par,cat)
-        store_path = settings.MEDIA_ROOT + f'/stats-products{cat}-v1.pkl'
+        print('par',par)
+        store_path = settings.MEDIA_ROOT + f'/stats-products-v3.pkl'
         
         try:
             tm = os.path.getmtime(store_path) 
@@ -613,41 +613,58 @@ order by (aa.quantity-1)*30/period desc
             p = pd.read_pickle(store_path)
         except Exception as e:
             print (e)
-            print(cls.SQL(cat))
-            queryset = cls.objects.using('presta').raw(cls.SQL(cat))
+            print(cls.SQL())
+            queryset = cls.objects.using('presta').raw(cls.SQL())
             p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
             p = p.astype(cls.dtypes())
 
+            p['product_name'] = p['product_name'].str.upper()
+            p['product_name'] = p['product_name'].str.replace(r' \(HEMA FREE\)','')
+            p['product_name'] = p['product_name'].str.replace(r'^\d\.\s*','')
+            p['product_name'] = p['product_name'].str.replace(r'^P\d\d\s*','')
+            p['product_name'] = p['product_name'].str.replace(r'^PASTEL\s*-\s*','')
+            p['product_name'] = p['product_name'].str.replace(r'^PASTEL 2020\s*-\s*','')
+            p['product_name'] = p['product_name'].str.replace(r'"',' ')
+            p['product_name'] = p['product_name'].str.replace(r'-',' ')
+            p['product_name'] = p['product_name'].str.replace(r'\(',' ')
+            p['product_name'] = p['product_name'].str.replace(r'\)',' ')
+            p['product_name'] = p['product_name'].str.replace(r'\s+',' ')
+            p['product_name'] = p['product_name'].str.replace(r'BASE COAT','BASE')
+            p['product_name'] = p['product_name'].str.replace(r'TOP COAT','TOP')
+            p['product_name'] = p['product_name'].str.replace(r'DRY TOP','TOP')
+            
+            p['product_name'] = p['product_name'].str.strip()
+            
+            
+            p = p.groupby(['product_name',]).agg({'id_product':np.min,
+                                                'sold':np.sum,
+                                                'min_date':np.min,
+                                                'max_date':np.max,
+                                                'bt':np.max,
+                                                'gelclr':np.max,	
+                                                'acry':np.max,	
+                                                'hb':np.max,	
+                                                'apex':np.max,	
+                                                'qt':np.max,
+                                                })
+
+            p['months_in_sale'] = (p['max_date'].astype('M')-p['min_date'].astype('M'))/np.timedelta64(1,'M')
+            p['per_month'] = p['sold'] / p['months_in_sale']
+            p.loc[p['months_in_sale']==0,'per_month']=0
+
+            p['name'] = p.index
+
+            p.loc[p['name'].str.contains('APEX'),'apex']=1
+            p.loc[p['name'].str.contains('QUICK TIPS'),'qt']=1
+            p.loc[p['name'].str.contains('BUILDER GEL'),'hb']=1
+            p.loc[p['name'].str.contains('ACRYLIC GEL'),'acry']=1
+            p.loc[p['name'].str.contains('PRIMER'),'bt']=1
+            p.loc[p['name'].str.contains('MATTE TOP'),'bt']=1
+            p.loc[p['name'].str.contains('RUBBER TOP'),'bt']=1
+            p.loc[p['name'].str.contains('RUBBER BASE'),'bt']=1
+            p.loc[p['name'].str.contains('PRO BASE'),'bt']=1
+            
+
             p.to_pickle(store_path)
-
-        if par=='p':
-            p['place'] = p.index+1
-        elif par=='pa':
-            p.sort_values('per_month',ascending=True,inplace=True)
-            p.reset_index(inplace=True)
-            p['place'] = p.index+1
-        elif par=='s':
-            p.sort_values('sold',ascending=False,inplace=True)
-            p.reset_index(inplace=True)
-            p['place'] = p.index+1
-        elif par=='sa':
-            p.sort_values('sold',ascending=True,inplace=True)
-            p.reset_index(inplace=True)
-            p['place'] = p.index+1
-        elif par=='g':
-            p['avg_orders'] = p['orders']
-            p = p.groupby(['group',]).agg({'id_customer':'count',
-                                                'orders':np.sum,
-                                                'avg_orders':np.mean,
-                                                'total_gbp':np.sum,
-                                                'avg_order_gbp':np.mean,
-                                                'orders_apart_days':np.mean,
-                                                'order_first':np.min,
-                                                'order_last':np.max,
-                                                }).sort_index()
-
-            p['group'] = p.index
-            print(p)                                            
-
 
         return p

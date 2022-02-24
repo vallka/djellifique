@@ -268,12 +268,33 @@ class ProductsTableView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         par = self.kwargs.get('par')
 
-        print('par==',par)
+        pars = par.split(':')
+        par=pars[0]
+        cat = None
+        if len(pars) > 1: cat = pars[1]
+        print('par',par,cat)
+        
         p = ProductsData.get_data(par) 
+
+        if cat=='x':
+            p = p[(p['bt']==0) & (p['gelclr']==0) & (p['acry']==0) & (p['hb']==0) & (p['apex']==0) & (p['qt']==0)]
+        elif cat:
+            p = p[p[cat]>0]
+        else:    
+            p = p[p['months_in_sale']>1]
+
+        if par in ['name','sold','per_month','months_in_sale','min_date','max_date']:
+            p.sort_values(par,ascending=True,inplace=True)
+        elif par in ['-name','-sold','-per_month','-months_in_sale','-min_date','-max_date']: 
+            p.sort_values(par[1:],ascending=False,inplace=True)
+
+        p.reset_index(inplace=True)
+        p['place'] = p.index+1
+
 
         html=p.to_html(
                 index=False,
-                columns=['place','id_product','reference','sold','per_month','month_in_sale'],
+                columns=['place','name','sold','per_month','months_in_sale','min_date','max_date','bt','gelclr','acry','hb','apex','qt',],
                 na_rep=' ',
                 float_format='{:.2f}'.format,
                 classes="table is-bordered is-striped is-narrow is-hoverable is-fullwidth",
