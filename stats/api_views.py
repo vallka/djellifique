@@ -294,7 +294,7 @@ class ProductsTableView(generics.ListAPIView):
 
         html=p.to_html(
                 index=False,
-                columns=['place','name','sold','per_month','months_in_sale','min_date','max_date','bt','gelclr','acry','hb','apex','qt',],
+                columns=['place','name','sold','per_month','months_in_sale','min_date','max_date'],
                 na_rep=' ',
                 float_format='{:.2f}'.format,
                 classes="table is-bordered is-striped is-narrow is-hoverable is-fullwidth",
