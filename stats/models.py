@@ -117,7 +117,7 @@ ORDER BY date_add DESC
             p['Y-M'] = p['Y'].astype(str)+'-'+(1+3*(p['Q'].astype(int)-1)).astype(str)
             p['Quarter'] = p['Y'].astype(str)+'-'+p['Q'].astype(str)
 
-            m = p.loc[p.index[0],'M']%3-1
+            m = (p.loc[p.index[0],'M']-1)%3
             p.loc[p.index[0],'P estimated'] = round(p.loc[p.index[0],'GBP_products']*91 / (p.loc[p.index[0],'D']+(m)*30),2)
             p.loc[p.index[0],'GM estimated'] = round(p.loc[p.index[0],'Gross Margin']*91 / (p.loc[p.index[0],'D']+(m)*30),2)
 
