@@ -38,9 +38,9 @@ class Post(models.Model):
     slug = models.SlugField(_("Slug"), unique=True, max_length=100, blank=True, null=False)
 
     blog = models.BooleanField(_("Publish to blog"),default=False)
-    blog_start_dt = models.DateTimeField(_("Publish Date/Time"), blank=True, null=True)
-    email = models.BooleanField(_("Send as newsletter to UK customers"),default=False)
-    email_send_dt = models.DateTimeField(_("Send Date/Time"), blank=True, null=True)
+    blog_start_dt = models.DateTimeField(_("Published"), blank=True, null=True)
+    email = models.BooleanField(_("Send as newsletter"),default=False)
+    email_send_dt = models.DateTimeField(_("Sent"), blank=True, null=True)
 
     class EmailStatus(models.IntegerChoices):
         NONE = 0

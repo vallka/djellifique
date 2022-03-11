@@ -3,6 +3,7 @@ from markdownx.admin import MarkdownxModelAdmin
 from markdownx.models import MarkdownxField
 from django.db import models
 from django.forms.widgets import Textarea
+from django.utils import timezone
 
 from .models import *
 
@@ -12,8 +13,23 @@ admin.site.register(Category)
 
 @admin.register(Post)
 class PostAdmin(MarkdownxModelAdmin):
-    list_display = ['id','slug','title','blog','email','created_dt']
+    list_display = ['id','slug','title','blogged','blog_start_dt','newsletter','email_send_dt','created_dt']
+    list_display_links = ['id','slug','title',]
     search_fields = ['title', ]
+    list_filter = ['blog','email']
+
+
+    def blogged(self,instance):
+        return True if instance.blog and instance.blog_start_dt and instance.blog_start_dt<=timezone.now() else False
+    
+    blogged.boolean = True      
+    blogged.short_description = 'Blog'
+
+    def newsletter(self,instance):
+        return True if instance.email and instance.email_send_dt and instance.email_send_dt<=timezone.now() else False
+    
+    newsletter.boolean = True      
+    newsletter.short_description = 'News'
 
     def get_search_results(self, request, queryset, search_term):
         queryset, may_have_duplicates = super().get_search_results(request, queryset, search_term)
