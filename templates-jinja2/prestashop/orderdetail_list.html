@@ -6,6 +6,8 @@
 {% block content %}
 {% if orderdetail_list %}
 
+<script src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js"></script>
+
 <style>
 .gel_row {
   grid-template-columns: 1fr 1fr 3em 3em 3em;
@@ -31,6 +33,8 @@
 }
 
 </style>
+
+<div id="qr-reader" style="width: 600px"></div>
 
 <div class="gel_table" data-id_order="{{order.id_order}}">
   <div class="gel_thead">
@@ -84,6 +88,15 @@
 {% block javascript %}
 {{ super() }}
 <script>
+
+function onScanSuccess(decodedText, decodedResult) {
+    console.log(`Code scanned = ${decodedText}`, decodedResult);
+}
+var html5QrcodeScanner = new Html5QrcodeScanner(
+	"qr-reader", { fps: 10, qrbox: 250 });
+
+  html5QrcodeScanner.render(onScanSuccess);
+
 var order = {};
 var id_order;
 
