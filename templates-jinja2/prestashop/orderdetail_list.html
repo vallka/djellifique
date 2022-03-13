@@ -94,7 +94,7 @@ function onScanSuccess(decodedText, decodedResult) {
     process(decodedResult.decodedText);
 }
 var html5QrcodeScanner = new Html5QrcodeScanner(
-	"qr-reader", { fps: 10, qrbox: 200  }
+	"qr-reader", { fps: 10, qrbox: 280  }
   );
 
   html5QrcodeScanner.render(onScanSuccess);
