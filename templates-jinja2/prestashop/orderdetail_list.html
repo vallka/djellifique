@@ -34,7 +34,7 @@
 
 </style>
 
-<div id="qr-reader" style="width: 600px"></div>
+<div id="qr-reader" style="width: 100%"></div>
 
 <div class="gel_table" data-id_order="{{order.id_order}}">
   <div class="gel_thead">
@@ -91,9 +91,11 @@
 
 function onScanSuccess(decodedText, decodedResult) {
     console.log(`Code scanned = ${decodedText}`, decodedResult);
+    process(decodedResult.decodedText);
 }
 var html5QrcodeScanner = new Html5QrcodeScanner(
-	"qr-reader", { fps: 10, qrbox: 250 });
+	"qr-reader", { fps: 10, qrbox: 200  }
+  );
 
   html5QrcodeScanner.render(onScanSuccess);
 
