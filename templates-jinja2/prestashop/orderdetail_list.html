@@ -8,7 +8,15 @@
 
 <style>
 .gel_row {
-  grid-template-columns: 1fr 3em 3em 3em;
+  grid-template-columns: 1fr 1fr 3em 3em 3em;
+}
+
+.gel_row > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 8px 0;
 }
 
 .gel_row > div.not_ready {
@@ -35,7 +43,8 @@
     <span class="back_link"> <a href="..">&lt;&lt;</a> </span>
     </div>
     <div class="gel_row">
-      <div>reference / ean13</div>
+      <div>name</div>
+      <div>ean13</div>
       <div>units</div>
       <div>qnt</div>
       <div></div>
@@ -45,10 +54,10 @@
   <div class="gel_tbody">
   {% for order in orderdetail_list %}
     <div class="product_row gel_row" data-id_product="{{order.id_product}}">
-      <div>{{order.product_reference}}<br>
-        {{order.product_name}}<br>
-        <span class="ean13_col">{{order.product_ean13}}</span> (<span class="id_product">{{order.id_product}}</span>)
+      <div>
+        {{order.product_name}} ({{order.product_reference}})
       </div>
+      <div class="ean13_col">{{order.product_ean13}}</div>
       <div class="qnt_col">{{order.unity}}</div>
       <div><span class="product_quantity">{{order.product_quantity}}</span> / <span class="ready_quantity">0</span></div>
       <div class="checkbox"><input type="checkbox"></div>
