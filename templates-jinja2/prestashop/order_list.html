@@ -1,4 +1,4 @@
-{% extends "base_skinned.html" %}
+{% extends "base_int_app.html" %}
 
 {% block title %}Orders{% endblock %}
 
@@ -8,7 +8,7 @@
 
 <style>
 .gel_row {
-  grid-template-columns: 1fr 2fr 3fr 3fr;
+  grid-template-columns: 2fr 2fr 2fr 2fr;
 }
 .gel_row > div.ready {
   background-color:  springgreen;
@@ -19,7 +19,7 @@
 <div class="gel_table">
   <div class="gel_thead">
     <div class="gel_row">
-          <div>reference / (id_order)
+          <div>ref / id
           </div>
           <div>customer</div>
           <div>state</div>
@@ -30,17 +30,17 @@
     {% for order in order_list %}
       <div class="gel_row" data-id_order="{{order.id_order}}">
           <div><a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.reference}}</a> <br />
-            (<a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.id_order}}</a>)
+            <a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.id_order}}</a>
           </div>
           <div><a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.firstname}} {{order.lastname}}</a>
             {% if order.is_new %}  
-            (*NEW*)
+            *NEW*
             {% endif %}
             <br />
             {{order.country}}
           </div>
           <div class="order_state"><a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.order_state}}</a></div>
-          <div><a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.date_add}}</a></div>
+          <div><a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.date_add.strftime("%d/%m/%y %H:%M")}}</a></div>
       </div>
       {% endfor %}
   </div>

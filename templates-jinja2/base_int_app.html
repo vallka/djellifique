@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% set meta_title = 'GellifiQue Internal App' %}
+
+{% block css %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+{% endblock css %}
+
+
+{% block skin_css %}
+<!-- link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}" -->
+<link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/apple-touch-icon.png' %}">
+<link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}">
+<link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}">
+<link rel="manifest" href="{% static 'images/site.webmanifest' %}">
+
+<meta name="theme-color" content="black"/>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="GellifiQue">
+
+
+<link rel="stylesheet" href="{% static 'css/base_int_app.css' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,600,600i,700,700i" rel="stylesheet">
+
+<style>
+body {
+  /*font-family: 'GM Sans', sans-serif;*/
+  font-family: 'Open Sans', san-serif;
+  font-size: 14px;
+  line-height: 1rem;
+  letter-spacing: initial;
+}
+h1, h2, h3, h4, h5, h6 {
+  /*font-family: 'GM Serif Text', serif;*/
+  font-family: 'Open Sans', san-serif;
+  line-height: 1;
+  font-size: 21px;
+
+}
+h1 {
+  font-size: 32px;
+  text-transform: uppercase;
+}
+h2 {
+  font-size: 26px;
+  text-transform: capitalize;
+}
+h3 {
+  font-size: 21px;
+}
+h4 {
+  font-size: 18px;
+}
+</style>
+{% endblock skin_css %}
+
+
+{% block header %} 
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarColor01">
+      {% block header_nav %} 
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'prestashop:order' %}">App Home</a>
+        </li>
+      </ul>
+      {% endblock header_nav %} 
+      <form class="form-inline search-box d-flex justify-content-lg-end" action="{% url 'blog:search' %}">
+        <input name="q" class="form-control mr-sm-2" type="text" placeholder="Search">
+        <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+      </form>
+    </div>
+  </nav>
+
+
+{% endblock header %} 
+
+{% block footer %}
+<footer>
+    <div class="copy">© 2020-2022 - GellifiQue® </div>
+</footer>
+{% endblock footer %}
