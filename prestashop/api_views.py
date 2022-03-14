@@ -143,8 +143,61 @@ class UpdateProduct(APIView):
                             n_updated += 1
                             logger.info(f'saved:{p.id_product}')
 
+                #if obj['what'][0:4]=='name':
+                #    id_lang = int(obj['what'][5:])
+                #    logger.info(f'id_lang:{id_lang}')
+                #    if id_shop:
+                #        queryset = Ps17ProductLang.objects.using(db).filter(id_product__in=ids,id_lang=id_lang,id_shop=id_shop)
+                #    else:
+                #        queryset = Ps17ProductLang.objects.using(db).filter(id_product__in=ids,id_lang=id_lang)
+                #    l = len(queryset)
+                #    logger.info(f'found:{l}')
+                #    for p in queryset:
+                #        n += 1
+                #        new_name = re.sub(obj['search'],obj['replace'],p.name)
+                #        logger.info(f"{n} {p.id_product}: {p.name}=>{new_name}")
+                #        if p.name!=new_name:
+                #            p.name=new_name
+                #            
+                #            #p.save()
+                #            # DOSN'T WORK AS ps_product_lang uses composite pk!
+#
+                #            logger.info("update ps17_product_lang set name=%s where id_product=%s and id_lang=%s and id_shop=%s")
+                #            logger.info(f"pars:{new_name},{p.id_product},{p.id_lang},{p.id_shop}")
+#
+#
+                #            with connections[db].cursor() as cursor:
+                #                cursor.execute("update ps17_product_lang set name=%s where id_product=%s and id_lang=%s and id_shop=%s",
+                #                    [new_name,p.id_product,p.id_lang,p.id_shop])
+#
+                #            n_updated += 1
+                #            logger.info(f'saved:{p.id_product},{p.id_lang},{p.id_shop}')
+
                 if obj['what'][0:4]=='name':
-                    id_lang = int(obj['what'][5:])
+                    sample_p_id = None
+                    langs = None
+                    if obj['what'][5:]=='*':
+                        id_lang = 1
+                        langs = range(1,9)  # TODO!!!
+                    else:
+                        id_lang = int(obj['what'][5:])
+
+                    do_re = True
+                    if obj['search']=='*':
+                        do_re = False
+                        new_name = obj['replace']
+
+                    if obj['replace'] and obj['replace'][0]=='#':
+                        if obj['search']!='*':
+                            logger.error('Not supported')
+                            return Response({'success':0,'req':obj, 'count':0, 'error':'Not supported'})                
+
+
+                        do_re = False
+                        sample_p_id = int(obj['replace'][1:])
+                        if not langs:
+                            new_name = Ps17ProductLang.objects.using(db).get(id_product=sample_p_id,id_lang=id_lang,id_shop=id_shop).name
+
                     logger.info(f'id_lang:{id_lang}')
                     if id_shop:
                         queryset = Ps17ProductLang.objects.using(db).filter(id_product__in=ids,id_lang=id_lang,id_shop=id_shop)
@@ -154,17 +207,30 @@ class UpdateProduct(APIView):
                     logger.info(f'found:{l}')
                     for p in queryset:
                         n += 1
-                        new_name = re.sub(obj['search'],obj['replace'],p.name)
-                        logger.info(f"{n} {p.id_product}: {p.name}=>{new_name}")
-                        if p.name!=new_name:
-                            p.name=new_name
+                        
+                        if langs and (sample_p_id or do_re):
+                            for l_id in langs:
+                                if do_re:
+                                    new_name = re.sub(obj['search'],obj['replace'],
+                                            Ps17ProductLang.objects.using(db).get(id_product=p.id_product,id_lang=l_id,id_shop=id_shop).name)
+                                else:
+                                    new_name = Ps17ProductLang.objects.using(db).get(id_product=sample_p_id,id_lang=l_id,id_shop=id_shop).name
+                                logger.info(f"{n}/{l_id} {p.id_product}: =>{new_name}")
+
+                                with connections[db].cursor() as cursor:
+                                    cursor.execute("update ps17_product_lang set name=%s where id_product=%s and id_lang=%s and id_shop=%s",
+                                        [new_name,p.id_product,l_id,p.id_shop])
+
+                                n_updated += 1
+                                logger.info(f'saved:{p.id_product},{p.id_lang},{p.id_shop}')
                             
-                            #p.save()
-                            # DOSN'T WORK AS ps_product_lang uses composite pk!
+                            continue
 
-                            logger.info("update ps17_product_lang set name=%s where id_product=%s and id_lang=%s and id_shop=%s")
-                            logger.info(f"pars:{new_name},{p.id_product},{p.id_lang},{p.id_shop}")
+                        if do_re: new_name = re.sub(obj['search'],obj['replace'],p.name,flags=re.DOTALL)
+                        logger.info(f"{n} {p.id_product}: {p.name}=>{new_name}")
 
+                        if not langs and p.name!=new_name:
+                            logger.info(f"update ps17_product_lang set name=%s where id_product=%s and id_lang=%s and is_shop=%s ({new_name},{p.id_product},{p.id_lang},{p.id_shop})")
 
                             with connections[db].cursor() as cursor:
                                 cursor.execute("update ps17_product_lang set name=%s where id_product=%s and id_lang=%s and id_shop=%s",
@@ -174,7 +240,30 @@ class UpdateProduct(APIView):
                             logger.info(f'saved:{p.id_product},{p.id_lang},{p.id_shop}')
 
                 if obj['what'][0:7]=='summary':
-                    id_lang = int(obj['what'][8:])
+                    sample_p_id = None
+                    langs = None
+                    if obj['what'][8:]=='*':
+                        id_lang = 1
+                        langs = range(1,9)  # TODO!!!
+                    else:
+                        id_lang = int(obj['what'][8:])
+
+                    do_re = True
+                    if obj['search']=='*':
+                        do_re = False
+                        new_description_short = obj['replace']
+
+                    if obj['replace'][0]=='#':
+                        if obj['search']!='*':
+                            logger.error('Not supported')
+                            return Response({'success':0,'req':obj, 'count':0, 'error':'Not supported'})                
+
+
+                        do_re = False
+                        sample_p_id = int(obj['replace'][1:])
+                        if not langs:
+                            new_description_short = Ps17ProductLang.objects.using(db).get(id_product=sample_p_id,id_lang=id_lang,id_shop=id_shop).description_short
+
                     logger.info(f'id_lang:{id_lang}')
                     if id_shop:
                         queryset = Ps17ProductLang.objects.using(db).filter(id_product__in=ids,id_lang=id_lang,id_shop=id_shop)
@@ -184,17 +273,30 @@ class UpdateProduct(APIView):
                     logger.info(f'found:{l}')
                     for p in queryset:
                         n += 1
-                        new_description_short = re.sub(obj['search'],obj['replace'],p.description_short,flags=re.DOTALL)
-                        logger.info(f"{n} {p.id_product}: {p.description_short}=>{new_description_short}")
-                        if p.description_short!=new_description_short:
-                            p.description_short=new_description_short
+                        
+                        if langs and (sample_p_id or do_re):
+                            for l_id in langs:
+                                if do_re:
+                                    new_description_short = re.sub(obj['search'],obj['replace'],
+                                            Ps17ProductLang.objects.using(db).get(id_product=sample_p_id,id_lang=l_id,id_shop=id_shop).description_short)
+                                else:
+                                    new_description_short = Ps17ProductLang.objects.using(db).get(id_product=sample_p_id,id_lang=l_id,id_shop=id_shop).description_short
+                                logger.info(f"{n}/{l_id} {p.id_product}: =>{new_description_short}")
+
+                                with connections[db].cursor() as cursor:
+                                    cursor.execute("update ps17_product_lang set description_short=%s where id_product=%s and id_lang=%s and id_shop=%s",
+                                        [new_description_short,p.id_product,l_id,p.id_shop])
+
+                                n_updated += 1
+                                logger.info(f'saved:{p.id_product},{p.id_lang},{p.id_shop}')
                             
-                            #p.save()
-                            # DOSN'T WORK AS ps_product_lang uses composite pk!
+                            continue
 
-                            logger.info("update ps17_product_lang set description_short=%s where id_product=%s and id_lang=%s and is_shop=%s")
-                            logger.info(f"pars:{new_description_short},{p.id_product},{p.id_lang},{p.id_shop}")
+                        if do_re: new_description_short = re.sub(obj['search'],obj['replace'],p.description_short,flags=re.DOTALL)
+                        logger.info(f"{n} {p.id_product}: {p.description_short}=>{new_description_short}")
 
+                        if not langs and p.description_short!=new_description_short:
+                            logger.info(f"update ps17_product_lang set description_short=%s where id_product=%s and id_lang=%s and is_shop=%s ({new_description_short},{p.id_product},{p.id_lang},{p.id_shop})")
 
                             with connections[db].cursor() as cursor:
                                 cursor.execute("update ps17_product_lang set description_short=%s where id_product=%s and id_lang=%s and id_shop=%s",
@@ -204,27 +306,63 @@ class UpdateProduct(APIView):
                             logger.info(f'saved:{p.id_product},{p.id_lang},{p.id_shop}')
 
                 if obj['what'][0:11]=='description':
-                    id_lang = int(obj['what'][12:])
+                    sample_p_id = None
+                    langs = None
+                    if obj['what'][12:]=='*':
+                        id_lang = 1
+                        langs = range(1,9)  # TODO!!!
+                    else:
+                        id_lang = int(obj['what'][12:])
+
+                    do_re = True
+                    if obj['search']=='*':
+                        do_re = False
+                        new_description = obj['replace']
+
+                    if obj['replace'][0]=='#':
+                        if obj['search']!='*':
+                            logger.error('Not supported')
+                            return Response({'success':0,'req':obj, 'count':0, 'error':'Not supported'})                
+
+
+                        do_re = False
+                        sample_p_id = int(obj['replace'][1:])
+                        if not langs:
+                            new_description = Ps17ProductLang.objects.using(db).get(id_product=sample_p_id,id_lang=id_lang,id_shop=id_shop).description
+
                     logger.info(f'id_lang:{id_lang}')
                     if id_shop:
-                        queryset = Ps17ProductLang.objects.using(db).filter(id_product__in=ids,id_lang=id_lang,id_shop=id_shop,)
+                        queryset = Ps17ProductLang.objects.using(db).filter(id_product__in=ids,id_lang=id_lang,id_shop=id_shop)
                     else:
-                        queryset = Ps17ProductLang.objects.using(db).filter(id_product__in=ids,id_lang=id_lang,)
+                        queryset = Ps17ProductLang.objects.using(db).filter(id_product__in=ids,id_lang=id_lang)
                     l = len(queryset)
                     logger.info(f'found:{l}')
                     for p in queryset:
                         n += 1
-                        new_description = re.sub(obj['search'],obj['replace'],p.description,flags=re.DOTALL)
-                        logger.info(f"{n} {p.id_product}: {p.description}=>{new_description}")
-                        if p.description!=new_description:
-                            p.description=new_description
+                        
+                        if langs and (sample_p_id or do_re):
+                            for l_id in langs:
+                                if do_re:
+                                    new_description = re.sub(obj['search'],obj['replace'],
+                                            Ps17ProductLang.objects.using(db).get(id_product=sample_p_id,id_lang=l_id,id_shop=id_shop).description)
+                                else:
+                                    new_description = Ps17ProductLang.objects.using(db).get(id_product=sample_p_id,id_lang=l_id,id_shop=id_shop).description
+                                logger.info(f"{n}/{l_id} {p.id_product}: =>{new_description}")
+
+                                with connections[db].cursor() as cursor:
+                                    cursor.execute("update ps17_product_lang set description=%s where id_product=%s and id_lang=%s and id_shop=%s",
+                                        [new_description,p.id_product,l_id,p.id_shop])
+
+                                n_updated += 1
+                                logger.info(f'saved:{p.id_product},{p.id_lang},{p.id_shop}')
                             
-                            #p.save()
-                            # DOSN'T WORK AS ps_product_lang uses composite pk!
+                            continue
 
-                            logger.info("update ps17_product_lang set description=%s where id_product=%s and id_lang=%s and is_shop=%s")
-                            logger.info(f"pars:{new_description},{p.id_product},{p.id_lang},{p.id_shop}")
+                        if do_re: new_description = re.sub(obj['search'],obj['replace'],p.description,flags=re.DOTALL)
+                        logger.info(f"{n} {p.id_product}: {p.description}=>{new_description}")
 
+                        if not langs and p.description!=new_description:
+                            logger.info(f"update ps17_product_lang set description=%s where id_product=%s and id_lang=%s and is_shop=%s ({new_description},{p.id_product},{p.id_lang},{p.id_shop})")
 
                             with connections[db].cursor() as cursor:
                                 cursor.execute("update ps17_product_lang set description=%s where id_product=%s and id_lang=%s and id_shop=%s",
@@ -232,6 +370,7 @@ class UpdateProduct(APIView):
 
                             n_updated += 1
                             logger.info(f'saved:{p.id_product},{p.id_lang},{p.id_shop}')
+
 
             #end if obj['search']:
 
