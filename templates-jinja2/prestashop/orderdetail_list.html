@@ -34,7 +34,7 @@
 
 </style>
 
-<div id="qr-reader" style="width: 100%"></div>
+<div id="qr-reader" style="width: 350px"></div>
 
 <div class="gel_table" data-id_order="{{order.id_order}}">
   <div class="gel_thead">
@@ -88,6 +88,27 @@
 {% block javascript %}
 {{ super() }}
 <script>
+var qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
+  return {width: 200, height: 200};
+      // Square QR Box, with size = 80% of the min edge.
+      var minEdgeSizeThreshold = 250;
+      var edgeSizePercentage = 0.8;
+
+      var minEdgeSize = (viewfinderWidth > viewfinderHeight) ?
+          viewfinderHeight : viewfinderWidth;
+      var qrboxEdgeSize = Math.floor(minEdgeSize * edgeSizePercentage);
+      if (qrboxEdgeSize < minEdgeSizeThreshold) {
+          if (minEdgeSize < minEdgeSizeThreshold) {
+              return {width: minEdgeSize, height: minEdgeSize};
+          } else {
+              return {
+                  width: minEdgeSizeThreshold,
+                  height: minEdgeSizeThreshold
+              };
+          }
+      }
+      return {width: qrboxEdgeSize, height: qrboxEdgeSize};
+}  
 
 function onScanSuccess(decodedText, decodedResult) {
     console.log(`Code scanned = ${decodedText}`, decodedResult);
