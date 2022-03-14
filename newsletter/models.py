@@ -90,26 +90,31 @@ h1, h2, h3 {
     margin-top: 0 !important;
     margin-bottom: .5rem !important;
     font-weight: 700 !important;
-    line-height: 1.1 !important;
+    line-height: 1 !important;
     color: #d73672 !important;
     text-transform: initial !important;
     letter-spacing: initial !important;
 }
 
 .h1, h1 {
-    font-size: 1.5rem !important;
+    font-size: 32px !important;
     margin-bottom: 1.563rem !important;
     padding-bottom: 0.5rem !important;
     color: black !important;
+    text-transform: uppercase;
 }
 
 .h2, h2 {
   color: #d73672 !important;
-  font-size: 1.25rem !important;
+  font-size: 26px !important;
+  text-transform: capitalize;
 }
 .h3, h3 {
   color: #1a1a1a !important;
-  font-size: 1.1rem !important;
+  font-size: 21px !important;
+}
+.h4, h4 {
+  font-size: 18px !important;
 }
 
 .navbar {

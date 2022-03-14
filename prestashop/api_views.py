@@ -87,12 +87,18 @@ class UpdateOrderStatus(APIView):
             cursor.execute("select current_state from ps17_orders where id_order=%s",[obj['id_order']])
             state = cursor.fetchone()[0]
 
-            cursor.execute("update ps17_orders set current_state=%s where id_order=%s",[obj['id_status'],obj['id_order']])
-            cursor.execute("insert into ps17_order_history (id_employee,id_order,id_order_state,date_add) values (%s,%s,%s,now())", [0,obj['id_order'],obj['id_status']])
+            cursor.execute("select count(*) from ps17_order_history where id_order=%s and id_order_state=%s",[obj['id_order'],obj['id_status']])
+            state_was_already = cursor.fetchone()[0]
 
-            if state!=3: #processing in progress
-                cursor.execute("update ps17_orders set current_state=%s where id_order=%s",[state,obj['id_order']])
-                cursor.execute("insert into ps17_order_history (id_employee,id_order,id_order_state,date_add) values (%s,%s,%s,now())", [0,obj['id_order'],state])
+            print ('update status',state,obj['id_status'],state_was_already)
+            if state_was_already==0:
+                print ('do update status',state,obj['id_status'])
+                cursor.execute("update ps17_orders set current_state=%s where id_order=%s",[obj['id_status'],obj['id_order']])
+                cursor.execute("insert into ps17_order_history (id_employee,id_order,id_order_state,date_add) values (%s,%s,%s,now())", [0,obj['id_order'],obj['id_status']])
+
+                if state!=3: #processing in progress
+                    cursor.execute("update ps17_orders set current_state=%s where id_order=%s",[state,obj['id_order']])
+                    cursor.execute("insert into ps17_order_history (id_employee,id_order,id_order_state,date_add) values (%s,%s,%s,now())", [0,obj['id_order'],state])
 
         return Response({'success':1,'req':obj,'state':state})                
 
