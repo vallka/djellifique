@@ -41,6 +41,9 @@
             <a class="navbar-item" href="/stats/products">
               Products
             </a>
+            <a class="navbar-item" href="/stats/stock">
+              Stock
+            </a>
 
           </div>
       
@@ -105,6 +108,9 @@ function draw_table(par,superpar="salestable") {
   if ($('#myPlot'+my_pos).length==0) {
     $('#myPlots').append('<div id="myPlot'+my_pos+'"  class="myPlot" style="display:none;"></div>');
   }
+  else {
+    $('#myPlot'+my_pos).html('');
+  }
 
   $.ajax({
     url: "/api/v1/stats/"+superpar+"/"+par,
@@ -118,7 +124,7 @@ function draw_table(par,superpar="salestable") {
   });
 }
 
-function draw_figure(par) {
+function draw_figure(par,superpar="salesfig") {
   const my_pos = plot_pos++;
 
   if ($('#myPlot'+my_pos).length==0) {
@@ -126,7 +132,7 @@ function draw_figure(par) {
   }
 
   $.ajax({
-    url: "/api/v1/stats/salesfig/"+par,
+    url: "/api/v1/stats/"+superpar+"/"+par,
     type: "GET",
     contentType: 'application/json;charset=UTF-8',
     dataType:"json",

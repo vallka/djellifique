@@ -13,6 +13,7 @@ urlpatterns = [
     path('customers-behaviour', PageCustBhvrView.as_view(), name='stats-cust-bhvr'),
 
     path('products', PageProductsView.as_view(), name='stats-products'),
+    path('stock', PageStockView.as_view(), name='stats-stock'),
 
     
 

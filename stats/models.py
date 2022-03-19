@@ -669,3 +669,60 @@ ORDER BY aa.quantity DESC
             p.to_pickle(store_path)
 
         return p
+
+class StockData(models.Model):
+    id = models.IntegerField(primary_key=True)
+
+    @staticmethod
+    def SQL():
+        sql = """
+        SELECT id,id_product,reference,qnt,date_add,
+        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=18) bt,
+        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=60) gelclr,
+        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=78) acry,
+        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=79) hb,
+        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=87) apex,
+        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=111) qt        
+        FROM a_stock_history aa
+        order by id
+"""
+
+        return sql        
+
+    @staticmethod
+    def dtypes():
+        return {
+            'id':'i',
+            'id_product':'i',
+            'qnt':'i',
+            'date_add':'M',
+            'bt':'i',
+            'gelclr':'i',	
+            'acry':'i',	
+            'hb':'i',	
+            'apex':'i',	
+            'qt':'i',
+        }
+
+    @classmethod
+    def get_data(cls,par='c'):
+        print('par',par)
+        store_path = settings.MEDIA_ROOT + f'/stats-stock-v1.pkl'
+        
+        try:
+            tm = os.path.getmtime(store_path) 
+            if int(time.time())-int(tm) > 24 * 60 * 60:
+                raise Exception("Cache expired")
+
+            p = pd.read_pickle(store_path)
+        except Exception as e:
+            print (e)
+            print(cls.SQL())
+            queryset = cls.objects.using('presta').raw(cls.SQL())
+            p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
+            p = p.astype(cls.dtypes())
+
+            print (p[:10])
+            p.to_pickle(store_path)
+            
+        return p

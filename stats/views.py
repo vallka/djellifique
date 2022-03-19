@@ -27,3 +27,6 @@ class PageCustBhvrView(LoginRequiredMixin,generic.TemplateView):
 
 class PageProductsView(LoginRequiredMixin,generic.TemplateView):
     template_name = 'stats/stats-products.html'
+
+class PageStockView(LoginRequiredMixin,generic.TemplateView):
+    template_name = 'stats/stats-stock.html'

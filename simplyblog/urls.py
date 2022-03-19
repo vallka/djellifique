@@ -70,6 +70,8 @@ urlpatterns = [
     path('api/v1/stats/totalcustomerstable/<str:par>/', TotalCustomersTableView.as_view()),
     path('api/v1/stats/customersbehaviourtable/<str:par>/', CustomersBehaviourTableView.as_view()),
     path('api/v1/stats/productstable/<str:par>/', ProductsTableView.as_view()),
+    path('api/v1/stats/stocktable/<str:par>/', StockTableView.as_view()),
+    path('api/v1/stats/stockfig/<str:par>/', StockFigView.as_view()),
 
     re_path(r'^api/v1/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('api/v1/swagger/<slug:format>', schema_view.without_ui(cache_timeout=0), name='schema-json'),
