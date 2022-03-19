@@ -30,3 +30,8 @@ class PageProductsView(LoginRequiredMixin,generic.TemplateView):
 
 class PageStockView(LoginRequiredMixin,generic.TemplateView):
     template_name = 'stats/stats-stock.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['id_product'] = self.request.GET.get('id_product')
+        return context

@@ -334,15 +334,7 @@ class StockTableView(generics.ListAPIView):
                     na_rep=' ',
                     classes="table is-bordered is-striped is-narrow is-hoverable is-fullwidth",)
         else:
-            p=p[p['id_product']==int(par)]
-            q=-1
-            for i in p.index:
-                if i>0 and p.at[i,'qnt']==q:
-                    p.at[i,'qnt'] = -1
-                else:
-                    q = p.at[i,'qnt']
-
-            p=p[p['qnt']>0]        
+                  
             html=p.to_html(
                     index=False,
                     columns=['reference','qnt','date_add'],
@@ -358,46 +350,18 @@ class StockFigView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         par = self.kwargs.get('par')
 
+        print('StockFigView:'+par)
+
         p = StockData.get_data(par) 
+        print(p[0:5])
 
         if par!='*':
-            p=p[p['id_product']==int(par)]
-            q=-1
-            for i in p.index:
-                if i>0 and p.at[i,'qnt']==q:
-                    p.at[i,'qnt'] = None
-                else:
-                    q = p.at[i,'qnt']
-
-            p.reset_index(inplace=True)
-            first_dt=min(p['date_add'])
-            p['index'] = (p['date_add']-first_dt).dt.days
-
-
-            #p=p[p['qnt']>0]   
-            p=p[np.isfinite(p['qnt'])]
-
-
-            d = np.polyfit(p['index'],p['qnt'],1)
-            f = np.poly1d(d)
-
-            last_dt=max(p['date_add'])
-            last_ix=max(p['index'])           
-
-            p['ln']=f(p['index'])
-            for i in range(1,61):
-                if f(last_ix+i)>=0:
-                    p=p.append({'date_add':last_dt+pd.DateOffset(days=i),
-                                'index':last_ix+i,'ln':f(last_ix+i)},ignore_index=True)
-                else:
-                    p=p.append({'date_add':last_dt+pd.DateOffset(days=i),},ignore_index=True)
-
-            print(p)
-
+            
             fig = px.line(p,x=p['date_add'], y=['qnt','ln'],
                 title="Stock level: "+p.iloc[0]['reference'],
                 width=1200, height=500)
             fig.update_xaxes(rangeslider_visible=False, dtick='M1')
 
+            return JsonResponse(fig,safe=False,encoder=plotly.utils.PlotlyJSONEncoder)
 
-        return JsonResponse(fig,safe=False,encoder=plotly.utils.PlotlyJSONEncoder)
+        return HttpResponse('no id_product')

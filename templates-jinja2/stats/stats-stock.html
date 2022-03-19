@@ -32,55 +32,67 @@ By Category:
 
 {% block ajax_update %}
 
-var id_product = '*';
+var id_product = '*'; // {{id_product}}
 var cat = '';
 
+{% if id_product %}
+    draw_figure({{id_product}},'stockfig');
+    draw_table({{id_product}},'stocktable');
 
-draw_title('Stock');
-draw_table(id_product,'stocktable');
+    function after_build(){}
+{% else %}
+    draw_title('Stock');
+    draw_table(id_product,'stocktable');
 
-
-$('#a-by-cat a').click(function(){
-    $('#myPlot1').remove();
-    $('#myPlot2').remove();
-    plot_pos=2;
-    id_product = '*';
-    cat = $(this).attr('data-cat');
-    console.log('cat:'+$(this).attr('data-cat'));
-    redraw_table();
-})
-
-function redraw_table() {
-    plot_pos--;
-    draw_table(id_product + (cat?':'+cat:''),'stocktable');   
-    setTimeout(after_plots_build,1000); 
-
-    $('#a-by-cat a').removeClass('cat-active');
-    $('#a-by-cat a[data-cat='+cat+']').addClass('cat-active');
-}
-
-
-function after_build() {
-    $('table.dataframe tbody td').each(function(){
-        const title = $(this).text();
-        const col = $(this).attr('data-col');
-        $(this).html('<a href="#">'+title+'</a>');
-    })
-    
-    
-    $('table.dataframe tbody td').click(function(){
-        let id_p = $(this).parent('tr').find('td:nth-child(1)').text();
+    $('#a-by-cat a').click(function(){
+        $('#myPlot0').remove();
         $('#myPlot1').remove();
         $('#myPlot2').remove();
         plot_pos=1;
-    
-        id_product = id_p;
-        draw_figure(id_p,'stockfig');
-        draw_table(id_p,'stocktable');
-
+        id_product = '*';
+        cat = $(this).attr('data-cat');
+        console.log('cat:'+$(this).attr('data-cat'));
+        redraw_table();
     })
-    
-}
+
+    function redraw_table() {
+        $('#myPlot0').remove();
+        $('#myPlot1').remove();
+        $('#myPlot2').remove();
+        plot_pos=1;
+        $('#myPlot1').remove();
+        $('#myPlot2').remove();
+        plot_pos=1;
+        draw_table(id_product + (cat?':'+cat:''),'stocktable');   
+        setTimeout(after_plots_build,1000); 
+
+        $('#a-by-cat a').removeClass('cat-active');
+        $('#a-by-cat a[data-cat='+cat+']').addClass('cat-active');
+    }
+
+
+    function after_build() {
+        $('table.dataframe tbody td').each(function(){
+            const title = $(this).text();
+            const col = $(this).attr('data-col');
+            $(this).html('<a href="#">'+title+'</a>');
+        })
+        
+        
+        $('table.dataframe tbody td').click(function(){
+            let id_p = $(this).parent('tr').find('td:nth-child(1)').text();
+            $('#myPlot1').remove();
+            $('#myPlot2').remove();
+            plot_pos=1;
+        
+            id_product = id_p;
+            draw_figure(id_p,'stockfig');
+            draw_table(id_p,'stocktable');
+
+        })
+        
+    }
+{% endif %}
 
 {% endblock ajax_update %}
 
