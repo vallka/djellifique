@@ -334,7 +334,8 @@ class StockTableView(generics.ListAPIView):
                     na_rep=' ',
                     classes="table is-bordered is-striped is-narrow is-hoverable is-fullwidth",)
         else:
-                  
+            p.loc[p.index==max(p.index),'qnt']=p.iloc[-1]['reference']      
+            p.loc[p.index==max(p.index),'reference']=p.iloc[0]['reference']      
             html=p.to_html(
                     index=False,
                     columns=['reference','qnt','date_add'],
@@ -353,7 +354,7 @@ class StockFigView(generics.ListAPIView):
         print('StockFigView:'+par)
 
         p = StockData.get_data(par) 
-        print(p[0:5])
+        #print(p[0:5])
 
         if par!='*':
             

@@ -722,7 +722,7 @@ class StockData(models.Model):
             p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
             p = p.astype(cls.dtypes())
 
-            print (p[:10])
+            #print (p[:10])
             p.to_pickle(store_path)
             
         if par!='*':
@@ -731,7 +731,7 @@ class StockData(models.Model):
             refill=None
             p0=None
             for i in p.index:
-                if i>0 and p.at[i,'qnt']==q:
+                if i>0 and i<max(p.index) and p.at[i,'qnt']==q:
                     p.at[i,'qnt'] = None
                 else:
                     if q!=None and q<p.at[i,'qnt']:
@@ -760,19 +760,27 @@ class StockData(models.Model):
             last_ix=max(p['index'])           
 
             p['ln']=f(p['index'])
-            for i in range(1,91):
-                if f(last_ix+i)>=0:
+
+            last_adj = p.iloc[-1]['qnt']-p.iloc[-1]['ln']
+            #print('lastrow',p.iloc[-1]['qnt'],p.iloc[-1]['ln'])
+            #p.loc[p.index==max(p.index),'ln']=p.iloc[-1]['qnt']
+            #print('lastrow',p.iloc[-1]['qnt'],p.iloc[-1]['ln'])
+            p=p.append({'date_add':last_dt+pd.DateOffset(days=1),
+                                'index':last_ix+1,'reference':p.iloc[-1]['reference'],'ln':f(last_ix+1)+last_adj},ignore_index=True)
+
+            for i in range(2,191):
+                if f(last_ix+i)+last_adj>=0:
                     pass
                 else:
                     p=p.append({'date_add':last_dt+pd.DateOffset(days=i),
-                                'index':last_ix+i,'reference':'== 0 ==','ln':f(last_ix+i)},ignore_index=True)
+                                'index':last_ix+i,'reference':0,'ln':f(last_ix+i)+last_adj},ignore_index=True)
                     #p=p.append({'date_add':last_dt+pd.DateOffset(days=i),},ignore_index=True)
                     break;
 
             print(i)
-            if i>=90:
+            if i>=190:
                 p=p.append({'date_add':last_dt+pd.DateOffset(days=i),
-                            'index':last_ix+i,'ln':f(last_ix+i),'reference':f'== {int(f(last_ix+i))} ==',},ignore_index=True)
+                            'index':last_ix+i,'ln':f(last_ix+i),'reference':int(f(last_ix+i)),},ignore_index=True)
             
             if refill:
                 p=p0.append(p,ignore_index=True)
