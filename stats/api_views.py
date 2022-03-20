@@ -320,7 +320,8 @@ class StockTableView(generics.ListAPIView):
 
         if par=='*':
             last_dt=max(p['date_add'])
-            p=p[(p['date_add']==last_dt) & (p['qnt']<=10) & (p['qnt']>0)]
+            p=p[(p['date_add']==last_dt) & (p['qnt']>0)]
+            p=p[p['qnt']<20]
            
             if cat=='x':
                 p = p[(p['bt']==0) & (p['gelclr']==0) & (p['acry']==0) & (p['hb']==0) & (p['apex']==0) & (p['qt']==0)]
@@ -328,9 +329,21 @@ class StockTableView(generics.ListAPIView):
                 p = p[p[cat]>0]
             p.sort_values(['qnt','reference'],ascending=True,inplace=True)
 
+            #print (p['id_product'])
+            p['out_of_stock'] = ' '
+            if cat:
+                for id in p['id_product']:
+                    try:
+                        p1 =StockData.get_data(id)  
+                        if p1.iloc[-1]['reference']==0:
+                            #print (id,p1.iloc[-1]['date_add'],p1.iloc[-1]['reference'])
+                            p.loc[p['id_product']==id,'out_of_stock'] = p1.iloc[-1]['date_add'].date()
+                    except Exception as e:
+                        print (e)                    
+
             html=p.to_html(
                     index=False,
-                    columns=['id_product','reference','qnt'],
+                    columns=['id_product','reference','qnt','out_of_stock',],
                     na_rep=' ',
                     classes="table is-bordered is-striped is-narrow is-hoverable is-fullwidth",)
         else:
@@ -358,9 +371,12 @@ class StockFigView(generics.ListAPIView):
 
         if par!='*':
             
-            fig = px.line(p,x=p['date_add'], y=['qnt','ln'],
+            fig = px.line(p,x=p['date_add'], y=['qnt','predicton'],
                 title="Stock level: "+p.iloc[0]['reference'],
-                width=1200, height=500)
+                labels={
+                    'value':'Stock level',
+                    'variable':'Stock level',
+                },width=1200, height=500)
             fig.update_xaxes(rangeslider_visible=False, dtick='M1')
 
             return JsonResponse(fig,safe=False,encoder=plotly.utils.PlotlyJSONEncoder)

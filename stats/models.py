@@ -735,7 +735,7 @@ class StockData(models.Model):
                     p.at[i,'qnt'] = None
                 else:
                     if q!=None and q<p.at[i,'qnt']:
-                        print('<<<',i)
+                        #print('<<<',i)
                         refill=i
 
                     q = p.at[i,'qnt']
@@ -759,31 +759,31 @@ class StockData(models.Model):
             last_dt=max(p['date_add'])
             last_ix=max(p['index'])           
 
-            p['ln']=f(p['index'])
+            p['predicton']=f(p['index'])
 
-            last_adj = p.iloc[-1]['qnt']-p.iloc[-1]['ln']
-            #print('lastrow',p.iloc[-1]['qnt'],p.iloc[-1]['ln'])
-            #p.loc[p.index==max(p.index),'ln']=p.iloc[-1]['qnt']
-            #print('lastrow',p.iloc[-1]['qnt'],p.iloc[-1]['ln'])
+            last_adj = p.iloc[-1]['qnt']-p.iloc[-1]['predicton']
+            #print('lastrow',p.iloc[-1]['qnt'],p.iloc[-1]['predicton'])
+            #p.loc[p.index==max(p.index),'predicton']=p.iloc[-1]['qnt']
+            #print('lastrow',p.iloc[-1]['qnt'],p.iloc[-1]['predicton'])
             p=p.append({'date_add':last_dt+pd.DateOffset(days=1),
-                                'index':last_ix+1,'reference':p.iloc[-1]['reference'],'ln':f(last_ix+1)+last_adj},ignore_index=True)
+                                'index':last_ix+1,'reference':p.iloc[-1]['reference'],'predicton':f(last_ix+1)+last_adj},ignore_index=True)
 
             for i in range(2,191):
                 if f(last_ix+i)+last_adj>=0:
                     pass
                 else:
                     p=p.append({'date_add':last_dt+pd.DateOffset(days=i),
-                                'index':last_ix+i,'reference':0,'ln':f(last_ix+i)+last_adj},ignore_index=True)
+                                'index':last_ix+i,'reference':0,'predicton':f(last_ix+i)+last_adj},ignore_index=True)
                     #p=p.append({'date_add':last_dt+pd.DateOffset(days=i),},ignore_index=True)
                     break;
 
-            print(i)
+            #print(i)
             if i>=190:
                 p=p.append({'date_add':last_dt+pd.DateOffset(days=i),
-                            'index':last_ix+i,'ln':f(last_ix+i),'reference':int(f(last_ix+i)),},ignore_index=True)
+                            'index':last_ix+i,'predicton':f(last_ix+i),'reference':int(f(last_ix+i)),},ignore_index=True)
             
             if refill:
                 p=p0.append(p,ignore_index=True)
-                print (p)
+                #print (p)
 
         return p
