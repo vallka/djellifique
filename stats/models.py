@@ -726,64 +726,71 @@ class StockData(models.Model):
             p.to_pickle(store_path)
             
         if par!='*':
-            p=p[p['id_product']==int(par)]
-            q=None
-            refill=None
-            p0=None
-            for i in p.index:
-                if i>0 and i<max(p.index) and p.at[i,'qnt']==q:
-                    p.at[i,'qnt'] = None
-                else:
-                    if q!=None and q<p.at[i,'qnt']:
-                        #print('<<<',i)
-                        refill=i
+            store_path = settings.MEDIA_ROOT + f'/stats-stock-{par}-v1.pkl'
 
-                    q = p.at[i,'qnt']
-                    p.at[i,'qnt2']=q
+            try:
+                tm = os.path.getmtime(store_path) 
+                if int(time.time())-int(tm) > 24 * 60 * 60:
+                    raise Exception("Cache expired")
 
-            if refill:
-                p0=p[p.index<refill]  
-                p0.reset_index(inplace=True)
-                p0=p0[np.isfinite(p0['qnt'])]
-                p=p[p.index>=refill]        
+                p = pd.read_pickle(store_path)            
+            except Exception as e:
+                print (e)
+                p=p[p['id_product']==int(par)]
+                q=None
+                refill=None
+                p0=None
+                for i in p.index:
+                    if i>0 and i<max(p.index) and p.at[i,'qnt']==q:
+                        p.at[i,'qnt'] = None
+                    else:
+                        if q!=None and q<p.at[i,'qnt']:
+                            #print('<<<',i)
+                            refill=i
 
-            p.reset_index(inplace=True)
-            first_dt=min(p['date_add'])
-            p['index'] = (p['date_add']-first_dt).dt.days
+                        q = p.at[i,'qnt']
+                        p.at[i,'qnt2']=q
 
-            p=p[np.isfinite(p['qnt'])]
+                if refill:
+                    p0=p[p.index<refill]  
+                    p0.reset_index(inplace=True)
+                    p0=p0[np.isfinite(p0['qnt'])]
+                    p=p[p.index>=refill]        
 
-            d = np.polyfit(p['index'],p['qnt'],1)
-            f = np.poly1d(d)
+                p.reset_index(inplace=True)
+                first_dt=min(p['date_add'])
+                p['index'] = (p['date_add']-first_dt).dt.days
 
-            last_dt=max(p['date_add'])
-            last_ix=max(p['index'])           
+                p=p[np.isfinite(p['qnt'])]
 
-            p['predicton']=f(p['index'])
+                d = np.polyfit(p['index'],p['qnt'],1)
+                f = np.poly1d(d)
 
-            last_adj = p.iloc[-1]['qnt']-p.iloc[-1]['predicton']
-            #print('lastrow',p.iloc[-1]['qnt'],p.iloc[-1]['predicton'])
-            #p.loc[p.index==max(p.index),'predicton']=p.iloc[-1]['qnt']
-            #print('lastrow',p.iloc[-1]['qnt'],p.iloc[-1]['predicton'])
-            p=p.append({'date_add':last_dt+pd.DateOffset(days=1),
-                                'index':last_ix+1,'reference':p.iloc[-1]['reference'],'predicton':f(last_ix+1)+last_adj},ignore_index=True)
+                last_dt=max(p['date_add'])
+                last_ix=max(p['index'])           
 
-            for i in range(2,191):
-                if f(last_ix+i)+last_adj>=0:
-                    pass
-                else:
+                p['predicton']=f(p['index'])
+
+                last_adj = p.iloc[-1]['qnt']-p.iloc[-1]['predicton']
+                p=p.append({'date_add':last_dt+pd.DateOffset(days=1),
+                                    'index':last_ix+1,'reference':p.iloc[-1]['reference'],'predicton':f(last_ix+1)+last_adj},ignore_index=True)
+
+                for i in range(2,191):
+                    if f(last_ix+i)+last_adj>=0:
+                        pass
+                    else:
+                        p=p.append({'date_add':last_dt+pd.DateOffset(days=i),
+                                    'index':last_ix+i,'reference':0,'predicton':f(last_ix+i)+last_adj},ignore_index=True)
+                        break;
+
+                if i>=190:
                     p=p.append({'date_add':last_dt+pd.DateOffset(days=i),
-                                'index':last_ix+i,'reference':0,'predicton':f(last_ix+i)+last_adj},ignore_index=True)
-                    #p=p.append({'date_add':last_dt+pd.DateOffset(days=i),},ignore_index=True)
-                    break;
+                                'index':last_ix+i,'predicton':f(last_ix+i),'reference':int(f(last_ix+i)),},ignore_index=True)
+                
+                if refill:
+                    p=p0.append(p,ignore_index=True)
+                    #print (p)
 
-            #print(i)
-            if i>=190:
-                p=p.append({'date_add':last_dt+pd.DateOffset(days=i),
-                            'index':last_ix+i,'predicton':f(last_ix+i),'reference':int(f(last_ix+i)),},ignore_index=True)
-            
-            if refill:
-                p=p0.append(p,ignore_index=True)
-                #print (p)
+            p.to_pickle(store_path)
 
         return p
