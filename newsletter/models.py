@@ -296,6 +296,18 @@ footer .unsubscribe {
     filter: brightness(95%);
 }}
 
+.blog_body table {{
+  width: 100%;
+}}
+
+.blog_body td,.blog_body th{{
+  width: 50%;
+  max-width: 50%;
+  font-size: 16px;
+  text-transform: none;  
+  font-weight: 300;
+  padding:0;
+}}
 
 
             """

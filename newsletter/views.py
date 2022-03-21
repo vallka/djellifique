@@ -106,7 +106,7 @@ def sendtest(request,slug):
     post = Post.objects.get(slug=slug)
     #to_email = request.user.email
     to_email = 'info@gellifique.co.uk'
-    #to_email = 'vallka@vallka.com'
+    to_email = 'vallka@vallka.com'
 
     html = NewsShot.add_html(post.formatted_markdown,post.title,post.slug,post.title_color,post.title_bgcolor)
 

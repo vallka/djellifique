@@ -334,6 +334,19 @@ h1, h2, h3 {
   background-color: #d73672;
 }
 
+.blog_body table {
+  width: 100%;
+}
+
+.blog_body td,.blog_body th{
+  width: 50%;
+  max-width: 50%;
+  font-size: 16px;
+  text-transform: none;  
+  font-weight: 300;
+  padding:0;
+}
+
 hr.after-post {
   max-width: 500px;
   border-top: 3px solid #fff;
