@@ -298,17 +298,18 @@ footer .unsubscribe {
 
 .blog_body table {{
   width: 100%;
+  display: table;
+  table-layout: fixed;
 }}
 
 .blog_body td,.blog_body th{{
-  width: 50%;
-  max-width: 50%;
+  width: 100%;
   font-size: 16px;
   text-transform: none;  
   font-weight: 300;
   padding:0;
+  display: table-cell;
 }}
-
 
             """
 
