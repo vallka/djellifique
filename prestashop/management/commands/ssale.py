@@ -7,7 +7,7 @@ db = 'presta'
 id_shop = 1
 CATEGORY_OUTLET = 21
 CATEGORY_SALE = 135
-OUTLET_PC = 0.3
+OUTLET_PC = 0.5
 
 import logging
 logger = logging.getLogger(__name__)
