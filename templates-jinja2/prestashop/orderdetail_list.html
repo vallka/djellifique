@@ -106,9 +106,9 @@ $().ready(function() {
     html5QrCode = new Html5Qrcode(/* element id */ "qr-reader",false);
     
   $('#scan-start').click(function() {
-    $('#audio_no').get(0).volume = 0.1;
+    $('#audio_no').get(0).volume = 0.01;
     $('#audio_no').get(0).play();
-    $('#audio_yes').get(0).volume = 0.1;
+    $('#audio_yes').get(0).volume = 0.01;
     $('#audio_yes').get(0).play();
 
     $('#qr-reader').show();
