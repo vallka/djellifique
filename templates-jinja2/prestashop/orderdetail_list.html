@@ -34,7 +34,13 @@
 
 </style>
 
-<div id="qr-reader" style="width: 350px"></div>
+<div>
+  <button id="scan-start">Scan Start</button>
+  <button id="scan-stop" style="display: none;">Stop Scan</button>
+</div>
+  
+<div id="qr-reader" style="width: 350px; height: 300px;display: none;"></div>
+  
 
 <div class="gel_table" data-id_order="{{order.id_order}}">
   <div class="gel_thead">
@@ -88,37 +94,45 @@
 {% block javascript %}
 {{ super() }}
 <script>
-var qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
-  return {width: 200, height: 200};
-      // Square QR Box, with size = 80% of the min edge.
-      var minEdgeSizeThreshold = 250;
-      var edgeSizePercentage = 0.8;
-
-      var minEdgeSize = (viewfinderWidth > viewfinderHeight) ?
-          viewfinderHeight : viewfinderWidth;
-      var qrboxEdgeSize = Math.floor(minEdgeSize * edgeSizePercentage);
-      if (qrboxEdgeSize < minEdgeSizeThreshold) {
-          if (minEdgeSize < minEdgeSizeThreshold) {
-              return {width: minEdgeSize, height: minEdgeSize};
-          } else {
-              return {
-                  width: minEdgeSizeThreshold,
-                  height: minEdgeSizeThreshold
-              };
-          }
-      }
-      return {width: qrboxEdgeSize, height: qrboxEdgeSize};
-}  
-
 function onScanSuccess(decodedText, decodedResult) {
     console.log(`Code scanned = ${decodedText}`, decodedResult);
     process(decodedResult.decodedText);
 }
-var html5QrcodeScanner = new Html5QrcodeScanner(
-	"qr-reader", { fps: 10, qrbox: 250, aspectRatio: 1.777778  }
-  );
 
-  html5QrcodeScanner.render(onScanSuccess);
+var html5QrCode=null;
+const config = { fps: 10, qrbox: 250 };
+
+$().ready(function() {
+    html5QrCode = new Html5Qrcode(/* element id */ "qr-reader",false);
+    
+  $('#scan-start').click(function() {
+    $('#qr-reader').show();
+    html5QrCode.start(
+    { facingMode: "environment"} ,
+        config,
+        onScanSuccess,
+        (errorMessage) => {
+            // parse error, ignore it.
+        }).then((ignore) => {
+        // QR Code scanning is started.
+            $('#scan-start').hide();
+            $('#scan-stop').show();
+        })
+        .catch((err) => {
+        // Start failed, handle it.
+        });
+  });
+  $('#scan-stop').click(function() {
+    html5QrCode.stop().then((ignore) => {
+        // QR Code scanning is stopped.
+            $('#scan-start').show();
+            $('#scan-stop').hide();
+            $('#qr-reader').hide();
+        }).catch((err) => {
+        // Stop failed, handle it.
+     });
+  });
+});
 
 var order = {};
 var id_order;
