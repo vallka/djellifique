@@ -106,8 +106,10 @@ $().ready(function() {
     html5QrCode = new Html5Qrcode(/* element id */ "qr-reader",false);
     
   $('#scan-start').click(function() {
+    $('#audio_no').get(0).muted = true;
     $('#audio_no').get(0).volume = 0.01;
     $('#audio_no').get(0).play();
+    $('#audio_yes').get(0).muted = true;
     $('#audio_yes').get(0).volume = 0.01;
     $('#audio_yes').get(0).play();
 
@@ -323,10 +325,13 @@ function process(code) {
 
   });
   if (!found) {
+    $('#audio_no').get(0).muted = false;
     $('#audio_no').get(0).volume = 0.5;
     $('#audio_no').get(0).play();
   }
   else {
+    $('#audio_yes').get(0).muted = false;
+
     $('#audio_yes').get(0).volume = 0.5;
     $('#audio_yes').get(0).play();
     $(found).find('input[type=checkbox]').prop('checked',true);

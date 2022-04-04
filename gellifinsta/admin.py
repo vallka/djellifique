@@ -13,12 +13,13 @@ class ProductsAdmin(admin.ModelAdmin):
 @admin.register(Gellifinsta)
 class GellifinstaAdmin(admin.ModelAdmin):
     list_display = ['image_tag','shortcode','taken_at_datetime','is_video','tags_spaced',]
-    search_fields = ['shortcode','id']
-    #list_filter = ['tags',]
+    search_fields = ['shortcode','id','caption']
+    list_filter = ['taken_at_datetime',]
     fields = ['shortcode','taken_at_datetime','created_dt','updated_dt','username','is_active','is_video',
                 'file_path','caption','tags','url','image_tag']
 
     readonly_fields = ['image_tag','created_dt','updated_dt']
+    date_hierarchy = 'taken_at_datetime'
 
     def get_search_results(self, request, queryset, search_term):
         queryset, may_have_duplicates = super().get_search_results(request, queryset, search_term)

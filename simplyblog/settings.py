@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'prestashop',
     'newsletter',
     'gellifinsta',
+    'gellifihouse',
     'ups',
     'stats',
 
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'debug_toolbar',
     'markdownx',
+    'django_extensions',
 
     'rest_framework',
     'rest_framework.authtoken',

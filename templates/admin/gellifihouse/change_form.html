@@ -1,0 +1,36 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.app-gellifihouse.model-missgelorders.change-form .field-color_number input, 
+.app-gellifihouse.model-missgelorders.change-form .field-packing input
+{
+    width: 40px;   
+}
+.app-gellifihouse.model-missgelorders.change-form .field-price input, 
+.app-gellifihouse.model-missgelorders.change-form .field-quantity input, 
+.app-gellifihouse.model-missgelorders.change-form .field-total_cost input,
+.app-gellifihouse.model-missgelorders.change-form .field-gellifique_id input
+{
+    width: 40px;   
+}
+.app-gellifihouse.model-missgelorders.change-form .field-product input, 
+.app-gellifihouse.model-missgelorders.change-form .field-name input, 
+.app-gellifihouse.model-missgelorders.change-form .field-gellifique_name input,
+.app-gellifihouse.model-missgelorders.change-form .field-gellifique_ean13 input
+{
+    width: 100px;   
+}
+</style>
+{% endblock %}
+
+
+{% block submit_buttons_bottom %}
+{{ block.super }}
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+{% endblock %}

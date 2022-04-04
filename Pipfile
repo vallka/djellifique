@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-django = "*"
+django = ">=3.2, <4.0"
 mysqlclient = "*"
 whitenoise = "*"
 requests = "*"
@@ -34,6 +34,10 @@ django-markdownx = {git = "https://github.com/vallka/django-markdownx.git", edit
 ipykernel = "*"
 python-barcode = {git = "https://github.com/vallka/python-barcode.git", editable = true}
 nbformat = "*"
+openpyxl = "*"
+django-extensions = "*"
+ipython = "*"
+notebook = "*"
 
 [requires]
 python_version = "3"
