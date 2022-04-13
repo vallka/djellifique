@@ -77,6 +77,6 @@ class MissGelOrderDetail(models.Model):
         ordering = ['order', 'id',]
 
     def __str__(self):
-        return self.name
+        return self.name + ' ' + self.color_number + ' ' + self.packing
 
 

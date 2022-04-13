@@ -1,7 +1,7 @@
 {% extends "admin/change_form.html" %}
 {% load i18n admin_urls %}
 
-{% block extrahead %}
+{% block extrastyle %}
 {{ block.super }}
 <style>
 .app-gellifihouse.model-missgelorders.change-form .field-color_number input, 
@@ -16,12 +16,31 @@
 {
     width: 40px;   
 }
+.change-form .field-gellifique_id input
+{
+    width: 40px;   
+}
 .app-gellifihouse.model-missgelorders.change-form .field-product input, 
 .app-gellifihouse.model-missgelorders.change-form .field-name input, 
 .app-gellifihouse.model-missgelorders.change-form .field-gellifique_name input,
 .app-gellifihouse.model-missgelorders.change-form .field-gellifique_ean13 input
 {
     width: 100px;   
+}
+.app-gellifihouse.model-missgelorders.change-form .field-product a {
+    display: none;
+} 
+.app-gellifihouse.model-missgelorders.change-form td {
+    padding: 0px;
+}
+.app-gellifihouse.model-missgelorders.change-form th {
+    padding: 2px;
+}
+.app-gellifihouse.model-missgelorders.change-form .inline-group .tabular tr.has_original td {
+    padding-top: 19px;
+}
+.app-gellifihouse.model-missgelorders.change-form .inline-group .tabular tr td.original {
+    padding-top: 2px;
 }
 </style>
 {% endblock %}

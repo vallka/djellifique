@@ -26,6 +26,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 from ups.api_views import *
+from dhl.api_views import DHLListView
 from prestashop.api_views import *
 from stats.api_views import *
 
@@ -57,6 +58,10 @@ urlpatterns = [
     path('api/v1/ups/action/', UPSAction.as_view()),
     path('api/v1/ups/list/<str:ids>/', UPSListView.as_view()),
     path('api/v1/ups/label/', UPSLabelAction.as_view()),
+
+    path('api/v1/dhl/list/', DHLListView.as_view()),
+    path('api/v1/dhl/list/<str:ho>/', DHLListView.as_view()),
+    path('api/v1/dhl/list/<str:ho>/<str:ids>/', DHLListView.as_view()),
 
     path('api/v1/prestashop/product/update/', UpdateProduct.as_view()),
     path('api/v1/prestashop/product/<str:ids>/', ProductList.as_view()),

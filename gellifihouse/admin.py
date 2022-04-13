@@ -10,6 +10,11 @@ class MissGelProductsAdmin(admin.ModelAdmin):
     search_fields = ['name', 'color_number', 'packing', 'price', 'gellifique_name', 'gellifique_ean13', 'gellifique_id',
             'gellifique_old_names', 'gellifique_old_ean13', 'gellifique_old_ids']
     list_filter = ['packing', 'price', ]
+    list_editable = ['gellifique_id',]
+    formfield_overrides = {
+        models.FloatField: {'widget': admin.widgets.AdminTextInputWidget},
+        models.IntegerField: {'widget': admin.widgets.AdminTextInputWidget},
+    }
         
 
 class OrderDetailInline(admin.TabularInline):

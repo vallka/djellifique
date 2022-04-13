@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'gellifinsta',
     'gellifihouse',
     'ups',
+    'dhl',
     'stats',
 
     'django.contrib.admin',
