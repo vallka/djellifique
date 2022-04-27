@@ -24,11 +24,14 @@ from django.shortcuts import redirect
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from rest_framework.routers import DefaultRouter
+
 
 from ups.api_views import *
 from dhl.api_views import DHLListView
 from prestashop.api_views import *
 from stats.api_views import *
+from gellifihouse.api_views import *
 
 
 schema_view = get_schema_view(
@@ -44,6 +47,9 @@ schema_view = get_schema_view(
    permission_classes=(permissions.AllowAny,),
 )
 
+router = DefaultRouter()
+router.register('missgelproduct', ProductViewSet,)
+
 
 urlpatterns = [
     path('', lambda request: redirect('blog/')),
@@ -54,6 +60,8 @@ urlpatterns = [
     path('stats/', include('stats.urls')),
     path('admin/', admin.site.urls),
     path('markdownx/', include('markdownx.urls')),
+
+    path('api/v1/gellifihouse/', include(router.urls)),
 
     path('api/v1/ups/action/', UPSAction.as_view()),
     path('api/v1/ups/list/<str:ids>/', UPSListView.as_view()),

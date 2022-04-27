@@ -20,12 +20,18 @@
 {
     width: 40px;   
 }
-.app-gellifihouse.model-missgelorders.change-form .field-product input, 
 .app-gellifihouse.model-missgelorders.change-form .field-name input, 
-.app-gellifihouse.model-missgelorders.change-form .field-gellifique_name input,
+.app-gellifihouse.model-missgelorders.change-form .field-gellifique_name input
+{
+    width: 180px;   
+}
 .app-gellifihouse.model-missgelorders.change-form .field-gellifique_ean13 input
 {
     width: 100px;   
+}
+.app-gellifihouse.model-missgelorders.change-form .field-product select
+{
+    width: 270px;   
 }
 .app-gellifihouse.model-missgelorders.change-form .field-product a {
     display: none;
@@ -52,4 +58,101 @@
 
 {% block admin_change_form_document_ready %}
 {{ block.super }}
+
+<script>
+django.jQuery(function(){
+
+    django.jQuery('.field-total_cost input').dblclick(function(){
+        let tr=django.jQuery(this).parents('tr');
+        let price=parseFloat( tr.find('.field-price input').val() );
+        let quantity=parseInt( tr.find('.field-quantity input').val() );
+        django.jQuery(this).val(price*quantity);
+    });
+
+    django.jQuery('select[id^=id_missgelorderdetail_set-]').change(function(){
+        const token = getCookie('csrftoken');
+
+        let id=django.jQuery(this).val()
+        let tr=django.jQuery(this).parents('tr');
+
+        console.info('sending:' + id );
+
+        django.jQuery.ajax({
+            url: '/api/v1/gellifihouse/missgelproduct/'+id,
+            type: 'get',
+            headers: {
+                "X-CSRFToken": token
+            },
+            dataType: 'json',
+            success: function (gooddata) {
+                console.info(gooddata);
+
+                alert(gooddata['name'])
+
+                if (tr.find('td.field-name input').val() &&
+                    tr.find('td.field-color_number input').val() &&
+                    tr.find('td.field-packing input').val() &&
+                    (tr.find('td.field-name input').val()!=gooddata['name'] ||
+                    tr.find('td.field-color_number input').val()!=gooddata['color_number'] ||
+                    tr.find('td.field-packing input').val()!=gooddata['packing']))
+                {
+                    if (confirm('Update product row?')) {
+                        tr.find('td.field-name input').val(gooddata['name']);
+                        tr.find('td.field-color_number input').val(gooddata['color_number']);
+                        tr.find('td.field-packing input').val(gooddata['packing']);
+                        tr.find('td.field-price input').val(gooddata['price']);
+                        tr.find('td.field-gellifique_id input').val(gooddata['gellifique_id']);
+                        tr.find('td.field-gellifique_name input').val(gooddata['gellifique_name']);
+                        tr.find('td.field-gellifique_ean13 input').val(gooddata['gellifique_ean13']);
+                    }
+                }
+                else {
+                    if (!tr.find('td.field-name input').val()) 
+                        tr.find('td.field-name input').val(gooddata['name']);
+                    if (!tr.find('td.field-color_number input').val())
+                        tr.find('td.field-color_number input').val(gooddata['color_number']);
+                    if (!tr.find('td.field-packing input').val())
+                        tr.find('td.field-packing input').val(gooddata['packing']);
+                    if (!tr.find('td.field-price input').val()) 
+                        tr.find('td.field-price input').val(gooddata['price']);
+                    if (!tr.find('td.field-gellifique_id input').val())
+                        tr.find('td.field-gellifique_id input').val(gooddata['gellifique_id']);
+                    if (!tr.find('td.field-gellifique_name input').val())
+                        tr.find('td.field-gellifique_name input').val(gooddata['gellifique_name']);
+                    if (!tr.find('td.field-gellifique_ean13 input').val())
+                        tr.find('td.field-gellifique_ean13 input').val(gooddata['gellifique_ean13']);
+                }
+
+            },
+            error:  function (errdata) {
+                console.info('error');
+                console.info(errdata);
+                alert(errdata.statusText)
+            },
+        });
+
+
+    });
+
+});
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+</script>
+
+
 {% endblock %}

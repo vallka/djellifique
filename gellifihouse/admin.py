@@ -37,11 +37,11 @@ class MissGelOrdersAdmin(admin.ModelAdmin):
     inlines = [OrderDetailInline]
 
 
-#@admin.register(MissGelOrderDetail)
-#class MissGelOrderDetailAdmin(admin.ModelAdmin):
-#    list_display = ['order', 'product','name', 'color_number', 'packing', 'quantity', 'price', 'total_cost']
-#    list_display_links = ['order', ]
-#    search_fields = ['order', 'product', 'quantity', 'price', 'total_cost']
-#    list_filter = ['order', ]
-#    list_editable = ['product','quantity', 'price', 'total_cost']
+@admin.register(MissGelOrderDetail)
+class MissGelOrderDetailAdmin(admin.ModelAdmin):
+    list_display = ['order', 'product','gellifique_name', 'gellifique_ean13', 'gellifique_id', 'quantity', 'price', 'total_cost']
+    list_display_links = ['order', ]
+    search_fields = ['order', 'product', 'quantity', 'price', 'total_cost']
+    search_fields = ['order', 'name', 'color_number', 'packing', 'price', 'gellifique_name', 'gellifique_ean13', 'gellifique_id',]
+    list_filter = ['order', ]
 
