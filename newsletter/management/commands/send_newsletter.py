@@ -31,6 +31,7 @@ def my_replace(match):
 
 class Command(BaseCommand):
     help = 'send newsletter'
+    good_customers = []
 
     def add_arguments(self, parser):
         pass
@@ -40,11 +41,10 @@ class Command(BaseCommand):
         print(self.help)
 
 
-        good_customers = pd.read_csv(settings.MEDIA_ROOT + '/customer database to notify.csv',usecols=[0],names=['customer_name'],skiprows=1,skipfooter=1    )
+        self.good_customers = pd.read_csv(settings.MEDIA_ROOT + '/customer database to notify.csv',usecols=[0],names=['customer_name'],skiprows=1,skipfooter=1    )
 
-        print (good_customers)
-        print (good_customers['customer_name'].to_list())
-        return
+        #print (good_customers)
+        #print (good_customers['customer_name'].to_list())
 
         sent = 0
         not_sent = 0
@@ -61,7 +61,8 @@ class Command(BaseCommand):
             html = NewsShot.add_html(newsletter_post[0].formatted_markdown,newsletter_post[0].title,newsletter_post[0].slug,newsletter_post[0].title_color,newsletter_post[0].title_bgcolor)
             #print(self.add_html(newsletter_post[0].formatted_markdown,newsletter_post[0].title,newsletter_post[0].slug))
 
-            custs = self.get_customers(newsletter_post[0].id)
+            custs = self.get_customers_special(newsletter_post[0].id)
+            #custs = self.get_customers(newsletter_post[0].id)
             #custs = self.get_customers_eu(newsletter_post[0].id)
 
             if len(custs):
@@ -72,19 +73,25 @@ class Command(BaseCommand):
                     newsletter_post[0].save()
 
                 for i,c in enumerate(custs):
-                    print(f"{i+1}, customer:{c[0]}:{c[1]}")
+                    customer_name = c[2] + ' ' + c[3]
+                    good = 1 if customer_name in self.good_customers['customer_name'].to_list() else 0
+
+                    print(f"{i+1}, customer:{c[0]}:{c[1]}: {customer_name} : {good}")
                     #logger.info(f"{i+1}, customer:{c[0]}:{c[1]}")
 
-                    shot = NewsShot(blog=newsletter_post[0],customer_id=c[0])
+                    sent += good
+                    not_sent += (1-good)    
 
-                    if self.send(c,html,newsletter_post[0].title,shot.uuid):
+                    #shot = NewsShot(blog=newsletter_post[0],customer_id=c[0])
 
-                        shot.send_dt = timezone.now()
-                        shot.save() 
+                    #if self.send(c,html,newsletter_post[0].title,shot.uuid):
 
-                        sent += 1
-                    else:
-                        not_sent += 1
+                    #    shot.send_dt = timezone.now()
+                    #    shot.save() 
+
+                    #    sent += 1
+                    #else:
+                    #    not_sent += 1
 
             else:
                 dolog = True
@@ -133,6 +140,29 @@ class Command(BaseCommand):
 
         return True
 
+
+    def get_customers_special(self,blog_id):
+
+        if not MOCK:
+            with connections['default'].cursor() as cursor:
+                sql = """
+                SELECT id_customer,email,firstname,lastname,id_lang FROM gellifique_new.ps17_customer c 
+                    where active=1 and newsletter=1 and id_shop=1
+                    and c.id_customer not IN (
+                    select customer_id from dj.newsletter_newsshot where customer_id=c.id_customer
+                    and blog_id=99999
+                    )
+                    ORDER BY c.id_customer  DESC
+                    limit 0,100
+                """
+
+                cursor.execute(sql,[blog_id,])
+                rows = cursor.fetchall()
+
+                print (f"found:{len(rows)}")
+                return rows
+        
+        return []
 
 
     def get_customers(self,blog_id):
