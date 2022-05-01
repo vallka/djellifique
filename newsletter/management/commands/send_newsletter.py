@@ -3,6 +3,8 @@ import urllib
 import re
 import time
 
+import pandas as pd
+
 from django.core.management.base import BaseCommand, CommandError
 from django.core.mail import send_mail,EmailMessage,EmailMultiAlternatives
 from django.conf import settings
@@ -16,6 +18,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 MOCK = False
+MOCK_SEND = True
 
 
 def my_replace(match):
@@ -35,6 +38,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         logger.info(self.help)
         print(self.help)
+
+
+        good_customers = pd.read_csv(settings.MEDIA_ROOT + '/customer database to notify.csv')
+
+        print (good_customers)
+        return
 
         sent = 0
         not_sent = 0
@@ -104,17 +113,24 @@ class Command(BaseCommand):
         html = self.encode_urls(html,str(uuid))
 
         #print (html)
-        if not MOCK:
+        if MOCK:
+            print(f"MOCK: {to_email}")
+            return True
+        elif MOCK_SEND:
+            print(f"MOCK_SEND: {to_email}")
+            return True
+        else:
             email = EmailMultiAlternatives( title, title, settings.EMAIL_FROM_USER, [to_email], headers = {'X-gel-id': str(uuid)}   )
             email.attach_alternative(html, "text/html") 
             #if attachment_file: email.attach_file(attachment_file)
             
+            print(f"SENDING: {to_email}...")
             send_result = email.send()
             print('send_result',send_result)
             time.sleep(0.5)
             return send_result
 
-        return 1
+        return True
 
 
 
