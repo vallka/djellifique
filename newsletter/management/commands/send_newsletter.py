@@ -147,7 +147,7 @@ class Command(BaseCommand):
             with connections['default'].cursor() as cursor:
                 sql = """
                 SELECT id_customer,email,firstname,lastname,id_lang FROM gellifique_new.ps17_customer c 
-                    where active=1 and newsletter=1 and id_shop=1
+                    where active=1 and id_shop=1
                     and c.id_customer not IN (
                     select customer_id from dj.newsletter_newsshot where customer_id=c.id_customer
                     and blog_id=%s
