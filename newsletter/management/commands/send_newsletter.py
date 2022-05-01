@@ -76,7 +76,7 @@ class Command(BaseCommand):
                     customer_name = c[2] + ' ' + c[3]
                     good = 1 if customer_name in self.good_customers['customer_name'].to_list() else 0
 
-                    if good: print(f"{i+1}, customer:{c[0]}:{c[1]}: {customer_name} : {good}")
+                    if good: print(f"{i+1},{c[0]},{c[1]},{customer_name},{good}")
                     #logger.info(f"{i+1}, customer:{c[0]}:{c[1]}")
 
                     sent += good
