@@ -76,26 +76,22 @@ class Command(BaseCommand):
                 for i,c in enumerate(custs):
                     customer_name = c[2] + ' ' + c[3]
                     good = 1 if customer_name in self.good_customers else 0
+                    #sent += good
+                    #not_sent += (1-good)    
 
                     if good: 
                         print(f"{i+1},{c[0]},{c[1]},{customer_name},{good}")
                         self.good_customers.remove(customer_name)
 
-                    #logger.info(f"{i+1}, customer:{c[0]}:{c[1]}")
+                        logger.info(f"{i+1}, customer:{c[0]}:{c[1]}")
 
-                    sent += good
-                    not_sent += (1-good)    
-
-                    #shot = NewsShot(blog=newsletter_post[0],customer_id=c[0])
-
-                    #if self.send(c,html,newsletter_post[0].title,shot.uuid):
-
-                    #    shot.send_dt = timezone.now()
-                    #    shot.save() 
-
-                    #    sent += 1
-                    #else:
-                    #    not_sent += 1
+                        shot = NewsShot(blog=newsletter_post[0],customer_id=c[0])
+                        if self.send(c,html,newsletter_post[0].title,shot.uuid):
+                            shot.send_dt = timezone.now()
+                            #shot.save() 
+                            sent += 1
+                        else:
+                            not_sent += 1
 
             else:
                 dolog = True
