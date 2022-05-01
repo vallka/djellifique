@@ -153,7 +153,7 @@ class Command(BaseCommand):
                     and blog_id=%s
                     )
                     ORDER BY c.id_customer  DESC
-                    limit 0,100
+                    limit 0,5000
                 """
 
                 cursor.execute(sql,[blog_id,])
