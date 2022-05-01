@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 MOCK = False
-MOCK_SEND = True
+MOCK_SEND = False
 
 
 def my_replace(match):
