@@ -40,7 +40,7 @@ class Command(BaseCommand):
         print(self.help)
 
 
-        good_customers = pd.read_csv(settings.MEDIA_ROOT + '/customer database to notify.csv',usecols=[0],header=1)
+        good_customers = pd.read_csv(settings.MEDIA_ROOT + '/customer database to notify.csv',usecols=[0],)
 
         print (good_customers)
         return
