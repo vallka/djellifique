@@ -43,7 +43,7 @@ class Command(BaseCommand):
         good_customers = pd.read_csv(settings.MEDIA_ROOT + '/customer database to notify.csv',usecols=[0],names=['customer_name'],skiprows=1,skipfooter=1    )
 
         print (good_customers)
-        print (good_customers['customer_name'])
+        print (good_customers['customer_name'].to_list())
         return
 
         sent = 0
