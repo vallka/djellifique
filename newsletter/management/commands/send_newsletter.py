@@ -150,7 +150,7 @@ class Command(BaseCommand):
                     where active=1 and newsletter=1 and id_shop=1
                     and c.id_customer not IN (
                     select customer_id from dj.newsletter_newsshot where customer_id=c.id_customer
-                    and blog_id=99999
+                    and blog_id=%s
                     )
                     ORDER BY c.id_customer  DESC
                     limit 0,100
