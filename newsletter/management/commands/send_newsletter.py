@@ -40,12 +40,10 @@ class Command(BaseCommand):
         logger.info(self.help)
         print(self.help)
 
-
-        good_customers = pd.read_csv(settings.MEDIA_ROOT + '/customer database to notify.csv',usecols=[0],names=['customer_name'],skiprows=1,skipfooter=1    )
-
+        #good_customers = pd.read_csv(settings.MEDIA_ROOT + '/customer database to notify.csv',usecols=[0],names=['customer_name'],skiprows=1,skipfooter=1    )
         #print (good_customers)
         #print (good_customers['customer_name'].to_list())
-        self.good_customers = good_customers['customer_name'].to_list()
+        #self.good_customers = good_customers['customer_name'].to_list()
 
         sent = 0
         not_sent = 0
@@ -62,8 +60,8 @@ class Command(BaseCommand):
             html = NewsShot.add_html(newsletter_post[0].formatted_markdown,newsletter_post[0].title,newsletter_post[0].slug,newsletter_post[0].title_color,newsletter_post[0].title_bgcolor)
             #print(self.add_html(newsletter_post[0].formatted_markdown,newsletter_post[0].title,newsletter_post[0].slug))
 
-            custs = self.get_customers_special(newsletter_post[0].id)
-            #custs = self.get_customers(newsletter_post[0].id)
+            custs = self.get_customers(newsletter_post[0].id)
+            #custs = self.get_customers_special(newsletter_post[0].id)
             #custs = self.get_customers_eu(newsletter_post[0].id)
 
             if len(custs):
@@ -74,24 +72,22 @@ class Command(BaseCommand):
                     newsletter_post[0].save()
 
                 for i,c in enumerate(custs):
-                    customer_name = c[2] + ' ' + c[3]
-                    good = 1 if customer_name in self.good_customers else 0
-                    #sent += good
-                    #not_sent += (1-good)    
+                    #customer_name = c[2] + ' ' + c[3]
+                    #good = 1 if customer_name in self.good_customers else 0
 
-                    if good: 
-                        print(f"{i+1},{c[0]},{c[1]},{customer_name},{good}")
-                        self.good_customers.remove(customer_name)
+                    #if good: 
+                    #    print(f"{i+1},{c[0]},{c[1]},{customer_name},{good}")
+                    #    self.good_customers.remove(customer_name)
 
-                        logger.info(f"{i+1}, customer:{c[0]}:{c[1]}")
+                    logger.info(f"{i+1}, customer:{c[0]}:{c[1]}")
 
-                        shot = NewsShot(blog=newsletter_post[0],customer_id=c[0])
-                        if self.send(c,html,newsletter_post[0].title,shot.uuid):
-                            shot.send_dt = timezone.now()
-                            #shot.save() 
-                            sent += 1
-                        else:
-                            not_sent += 1
+                    shot = NewsShot(blog=newsletter_post[0],customer_id=c[0])
+                    if self.send(c,html,newsletter_post[0].title,shot.uuid):
+                        shot.send_dt = timezone.now()
+                        shot.save() 
+                        sent += 1
+                    else:
+                        not_sent += 1
 
             else:
                 dolog = True
