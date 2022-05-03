@@ -6,11 +6,11 @@ from gellifihouse.models import *
 @admin.register(MissGelProducts)
 class MissGelProductsAdmin(admin.ModelAdmin):
     list_display = ['id','name', 'color_number', 'packing', 'price', 'gellifique_name', 'gellifique_ean13', 'gellifique_id']
-    list_display_links = ['name', 'color_number', 'packing', 'price', 'gellifique_name', 'gellifique_ean13', ]
+    list_display_links = ['name', 'color_number', 'packing', 'price', ]
     search_fields = ['name', 'color_number', 'packing', 'price', 'gellifique_name', 'gellifique_ean13', 'gellifique_id',
             'gellifique_old_names', 'gellifique_old_ean13', 'gellifique_old_ids']
     list_filter = ['packing', 'price', ]
-    list_editable = ['gellifique_id',]
+    list_editable = ['gellifique_name', 'gellifique_ean13', 'gellifique_id',]
     formfield_overrides = {
         models.FloatField: {'widget': admin.widgets.AdminTextInputWidget},
         models.IntegerField: {'widget': admin.widgets.AdminTextInputWidget},
