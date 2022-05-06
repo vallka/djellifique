@@ -169,7 +169,7 @@ a {
 }
 
 .blog_post p {
-  text-align: left;
+  text-align: justify;
   margin-left: 0;
   margin-right: 0;
 }
@@ -217,9 +217,9 @@ a {
 
 .blog_post ol, .blog_post ul {
     margin-top: 0;
-    text-align: left;
-    margin-left: 1rem;
-    margin-right: 1rem;
+    text-align: justify;
+    margin-left: 0;
+    margin-right: 2rem;
 }
 
 .blog_post s, .blog_post del {
