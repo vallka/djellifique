@@ -350,7 +350,7 @@ footer .unsubscribe {
 
     <hr />
 
-    <p>
+    <p style="margin: 0 3rem; text-align: center;">
     Products with the highest quality assurance in the nail industry. 
     Uniquely formulated and uniquely tested. Discover our honey-like textured formula today.
     </p>
