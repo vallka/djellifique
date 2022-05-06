@@ -348,6 +348,12 @@ footer .unsubscribe {
     {text}
     <!-- end text -->
 
+    <hr />
+
+    <p>
+    Products with the highest quality assurance in the nail industry. 
+    Uniquely formulated and uniquely tested. Discover our honey-like textured formula today.
+    </p>
 
     <p><img width="80%" src="https://blog.gellifique.co.uk/static/images/newsletter_footer2.png"</p>
     <hr />
