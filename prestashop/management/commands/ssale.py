@@ -192,7 +192,7 @@ VALUES
                     #value_id = 12196
                     #cursor.execute(sql,[id_product,feature_id,value_id])
 
-    def set_outlet_label():
+    def set_outlet_label(self):
         print('set_outlet_label')
         sql="""
 SELECT id_product FROM ps17_category_product WHERE id_category=%s
