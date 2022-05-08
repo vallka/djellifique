@@ -8,6 +8,8 @@ id_shop = 1
 CATEGORY_OUTLET = 21
 CATEGORY_SALE = 135
 OUTLET_PC = 0.5
+FEATURE_OUTLET = 24
+FEATURE_OUTLET_VALUE = 12196
 
 import logging
 logger = logging.getLogger(__name__)
@@ -29,6 +31,7 @@ class Command(BaseCommand):
         self.unsale_past_and_future()
         self.sale_present()
         self.set_price_outlet()
+        self.set_outlet_label()
         self.set_onsale_table()
 
         print('done')
@@ -188,3 +191,25 @@ VALUES
                     #feature_id = 24
                     #value_id = 12196
                     #cursor.execute(sql,[id_product,feature_id,value_id])
+
+    def set_outlet_label():
+        print('set_outlet_label')
+        sql="""
+SELECT id_product FROM ps17_category_product WHERE id_category=%s
+AND id_product NOT IN (
+SELECT id_product FROM ps17_feature_product WHERE id_feature=%s
+)
+ORDER BY id_product
+                """
+        result = None
+        with connections[db].cursor() as cursor:
+            cursor.execute(sql,[CATEGORY_OUTLET,FEATURE_OUTLET,])
+            result = cursor.fetchall()
+
+            print (len(result))
+            if result and len(result):
+                for row in result:
+                    sql2 = """
+INSERT IGNORE INTO ps17_feature_product(id_product,id_feature,id_feature_value) VALUES(%s,%s,%s)                    
+"""
+                    cursor.execute(sql2,[row[0],FEATURE_OUTLET,FEATURE_OUTLET_VALUE])
