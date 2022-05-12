@@ -20,14 +20,18 @@ logger = logging.getLogger(__name__)
 MOCK = False
 MOCK_SEND = False
 
+_post_title = ''
+_post_id = 0
 
 def my_replace(match):
     match1 = match.group(1)
     match2 = match.group(2)
     match3 = match.group(3)
-    match3 = urllib.parse.quote_plus(match3)
 
-    return f'{match1}{match2}blog/newsletter/click/####uuid####/?path={match3}'
+    url = f"{match3}?utm_source=newsletter&utm_medium=email&utm_campaign={_post_title}&utm_id={_post_id}"
+    url = urllib.parse.quote_plus(url)
+
+    return f'{match1}{match2}blog/newsletter/click/####uuid####/?path={url}'
 
 class Command(BaseCommand):
     help = 'send newsletter'
@@ -82,7 +86,7 @@ class Command(BaseCommand):
                     logger.info(f"{i+1}, customer:{c[0]}:{c[1]}")
 
                     shot = NewsShot(blog=newsletter_post[0],customer_id=c[0])
-                    if self.send(c,html,newsletter_post[0].title,shot.uuid):
+                    if self.send(c,html,newsletter_post[0].title,newsletter_post[0].id,shot.uuid):
                         shot.send_dt = timezone.now()
                         shot.save() 
                         sent += 1
@@ -105,16 +109,20 @@ class Command(BaseCommand):
 
 
 
-    def encode_urls(self,html,uuid):
+    def encode_urls(self,html,title,id,uuid):
+        global _post_title,_post_id
+        _post_title = title
+        _post_id = id
         html = re.sub(r'(<a\s+href=")(https://www\.gellifique\.co.uk/)([^"]*)',my_replace,html)
         html = html.replace('####uuid####',uuid)
         return html
 
 
-    def send(self,cust,html,title,uuid):
+    def send(self,cust,html,title,id,uuid):
         #to_email = 'vallka@vallka.com'
         to_email = cust[1]
-        html = self.encode_urls(html,str(uuid))
+
+        html = self.encode_urls(html,title,id,str(uuid))
 
         #print (html)
         if MOCK:
