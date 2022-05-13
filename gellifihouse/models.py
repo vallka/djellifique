@@ -15,13 +15,14 @@ class MissGelProducts(models.Model):
     gellifique_old_ean13 = models.CharField(max_length=500,blank=True,null=True)
     gellifique_id = models.IntegerField(blank=True,null=True)
     gellifique_old_ids = models.CharField(max_length=500,blank=True,null=True)
+    notes = models.CharField(max_length=500,blank=True,null=True)
 
     class Meta:
         unique_together = ('name', 'color_number', 'packing',)
         ordering = ['name', 'color_number', 'packing',]
 
     def __str__(self):
-        return self.name + ' ' + self.color_number + ' ' + self.packing
+        return self.name + ' ' + self.color_number + ' ' + self.packing + ' - ' + str(self.gellifique_name)
 
     def save(self, *args, **kwargs):
         self.name = self.name.upper()
@@ -71,12 +72,51 @@ class MissGelOrderDetail(models.Model):
     price = models.FloatField(default=0)
     quantity = models.IntegerField(default=0)
     total_cost = models.FloatField(default=0)
+    notes = models.CharField(max_length=500,blank=True,null=True)
 
     class Meta:
         unique_together = ('order', 'name','color_number','packing',)
         ordering = ['order', 'id',]
 
     def __str__(self):
-        return self.name + ' ' + self.color_number + ' ' + self.packing
+        #return self.name + ' ' + self.color_number + ' ' + self.packing
+        return self.gellifique_name + ' (' + self.packing + ')'
 
+    def allocateToShop(self,shop='Gellifique UK',quantity=-1):
+        if quantity == -1:
+            quantity = self.quantity
+
+        sa = ShopAllocation(shop=shop,
+                order_detail=self,
+                order=self.order,
+                gellifique_name=self.gellifique_name,
+                gellifique_ean13=self.gellifique_ean13,
+                quantity=quantity,
+                quantity_left=quantity,)
+        sa.save()
+
+
+
+class ShopAllocation(models.Model):  
+    shop = models.CharField(max_length=50)
+    order_detail = models.ForeignKey(MissGelOrderDetail,on_delete=models.CASCADE)
+    order = models.ForeignKey(MissGelOrders,on_delete=models.CASCADE,)
+    gellifique_name = models.CharField(max_length=50,blank=True,null=True)
+    gellifique_ean13 = models.CharField(max_length=13,blank=True,null=True)
+    quantity = models.IntegerField(default=0)
+    quantity_left = models.IntegerField(default=0)
+    quantity_just_added = models.IntegerField(default=0)
+    created_dt = models.DateTimeField(auto_now_add=True)
+    updated_dt = models.DateTimeField(auto_now=True)
+
+    @property
+    def order_name(self):
+        return self.order_detail.order.name
+
+    @property
+    def batch_code(self):
+        return self.order_detail.order.batch_code
+
+    def __str__(self):
+        return self.order.name+': ' + self.shop + ': ' + self.gellifique_name + ': ' + self.quantity.__str__()
 
