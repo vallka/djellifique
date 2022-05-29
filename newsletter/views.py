@@ -109,7 +109,7 @@ def sendtest(request,slug):
 
     html = NewsShot.add_html(post.formatted_markdown,post.title,post.slug,post.title_color,post.title_bgcolor)
 
-    email = EmailMultiAlternatives( '[TEST NEWSLETTER] ' + post.title, post.title, settings.EMAIL_FROM_USER, to_emails, headers = {'X-gel-id': f'xxx-{to_email}-xxx'}  )
+    email = EmailMultiAlternatives( '[TEST NEWSLETTER] ' + post.title, post.title, settings.EMAIL_FROM_USER, to_emails, headers = {'X-gel-id': f'xxx-{to_emails[0]}-xxx'}  )
     email.attach_alternative(html, "text/html") 
     #if attachment_file: email.attach_file(attachment_file)
     
