@@ -169,7 +169,8 @@ a {
 }
 
 .blog_post p {
-  text-align: justify;
+  /*text-align: justify;*/
+  text-align: center;
   margin-left: 0;
   margin-right: 0;
 }
@@ -217,7 +218,8 @@ a {
 
 .blog_post ol, .blog_post ul {
     margin-top: 0;
-    text-align: justify;
+    /*text-align: justify;*/
+    text-align: left;
     margin-left: 0;
     margin-right: 2rem;
 }
