@@ -13,6 +13,7 @@
 
  -->
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/barcodes/JsBarcode.ean-upc.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js"></script>
 {% endblock %}
 
 {
@@ -41,6 +42,12 @@
 
 
 {% block submit_buttons_bottom %}
+<div id="qr-reader" style="width: 350px; height: 300px;display: none;"></div>
+<div>
+    <span id="scan-start">Scan Start</span>
+    <span id="scan-stop" style="display: none;">Stop Scan</span>
+</div>
+  
 <hr>
 {{ block.super }}
 {% endblock %}
@@ -51,6 +58,8 @@
 
 
 <script>
+var html5QrCode=null;
+const config = { fps: 10, qrbox: 250 };
 
 var product_list;
 var code='';
@@ -148,6 +157,11 @@ function calc_total() {
 
 }
 
+function onScanSuccess(decodedText, decodedResult) {
+    console.log(`Code scanned = django.jQuery{decodedText}`, decodedResult);
+    process(decodedResult.decodedText);
+}
+
 django.jQuery(function(){
     setTimeout(function(){
         django.jQuery( "input" ).blur();
@@ -155,6 +169,38 @@ django.jQuery(function(){
     },200);
 
     if (django.jQuery('#id_status').val() == 0) {
+        html5QrCode = new Html5Qrcode(/* element id */ "qr-reader",false);
+    
+        django.jQuery('#scan-start').click(function() {
+    
+        django.jQuery('#qr-reader').show();
+        html5QrCode.start(
+        { 
+            facingMode: "environment"} ,
+            config,
+            onScanSuccess,
+            (errorMessage) => {
+                // parse error, ignore it.
+            }).then((ignore) => {
+            // QR Code scanning is started.
+            django.jQuery('#scan-start').hide();
+            django.jQuery('#scan-stop').show();
+            })
+            .catch((err) => {
+            // Start failed, handle it.
+            });
+        });
+        django.jQuery('#scan-stop').click(function() {
+            html5QrCode.stop().then((ignore) => {
+                // QR Code scanning is stopped.
+                django.jQuery('#scan-start').show();
+                django.jQuery('#scan-stop').hide();
+                django.jQuery('#qr-reader').hide();
+                }).catch((err) => {
+                // Stop failed, handle it.
+            });
+        });
+
 
         django.jQuery.ajax ({
             url: '{% url "pos:posproductlistjson" %}',
