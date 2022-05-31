@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'ups',
     'dhl',
     'stats',
+    'pos',
 
     'django.contrib.admin',
     'django.contrib.auth',

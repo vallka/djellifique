@@ -1,0 +1,218 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block extrahead %}{{ block.super }}
+<script src="{% url 'admin:jsi18n' %}"></script>
+<!-- 
+
+ adminform.model_admin   {{ adminform.model_admin }}
+ {{ adminform.prepopulated_fields }}
+
+ {{ opts.model_name }}
+ {{ opts.id }}
+
+ -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/barcodes/JsBarcode.ean-upc.min.js"></script>
+{% endblock %}
+
+{
+{% block extrastyle %}{{ block.super }}
+<style>
+.dynamic-orderdetail_set select {
+    width: 380px;
+}   
+.dynamic-orderdetail_set a.change-related, 
+.dynamic-orderdetail_set a.add-related, 
+.dynamic-orderdetail_set a.delete-related 
+{
+    display: none;
+}
+
+.dynamic-orderdetail_set .field-product p {
+    height: 20px;
+    overflow: hidden;
+}
+
+.dynamic-orderdetail_set td.original p {
+    display: none;
+}
+    </style>
+{% endblock %}
+
+
+{% block submit_buttons_bottom %}
+<hr>
+{{ block.super }}
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+
+
+
+<script>
+
+var product_list;
+var code='';
+
+function process(c) {
+    console.log('*** '+c)
+
+    let product_id='';
+    for(var i=0; i<product_list.length; i++) {
+        if(product_list[i].ean13.indexOf(c)>=0) {
+            console.log(product_list[i].id_product)
+            product_id=product_list[i].id_product;
+            break;
+        }
+    }
+
+    let done = false;
+
+    for (i=0; i<django.jQuery('.dynamic-orderdetail_set').length; i++) {
+        let tr = django.jQuery('.dynamic-orderdetail_set')[i];
+
+        console.log(i)
+        let sel = django.jQuery(tr).find('select')
+        //console.log(sel)
+        if (sel.val()=='') {
+            console.log(sel.find('option'))
+            sel.find('option').each(function(){
+                console.log(this.text)
+                if (this.value==product_id) {
+                    console.log('!')
+                    sel.val(this.value)
+                }
+            });
+            done = true;
+            break;
+        }
+        else {
+            let selid = sel.val();
+            let seltext = sel.find('option[value='+selid+']');
+            console.log(seltext.attr('value'))
+            if (seltext.attr('value') == product_id) {
+                console.log('seltext:'+ seltext)
+                let qnt = django.jQuery(tr).find('input[name*=quantity]');
+                qnt.val(parseInt(qnt.val())+1)
+                done = true;
+                break;
+            }
+        }
+    }
+
+    if (!done) {
+        django.jQuery('tr.add-row a').click();
+        let tr = django.jQuery('.dynamic-orderdetail_set').last();
+        let sel = tr.find('select');
+        if (sel.val()=='') {
+            console.log(sel.find('option'))
+            sel.find('option').each(function(){
+                console.log(this.text)
+                if (this.value==product_id) {
+                    console.log('!!')
+                    sel.val(this.value)
+                }
+            });
+            done = true;
+        }
+
+    }
+    calc_total();
+}
+
+function calc_total() {
+    let tot=0;
+    for (i=0; i<django.jQuery('.dynamic-orderdetail_set').length; i++) {
+        let tr = django.jQuery('.dynamic-orderdetail_set')[i];
+
+        console.log(tr)
+        let sel = django.jQuery(tr).find('select option:selected')
+        console.log(sel)
+        let seltext = sel.text();
+        console.log(seltext)
+        let qnt = parseInt(django.jQuery(tr).find('input[name*=quantity]').val());
+
+        let price = seltext.match(/\|\s*£([0-9.]+)\s*\|/);
+        if (price) {
+            console.log(parseFloat(price[1]))
+            tot += qnt*parseFloat(price[1]);
+            console.log(tot)
+        }
+    }
+    console.log(tot)
+    django.jQuery('#id_subtotal').val(tot.toFixed(2))
+    let disc_pc = parseInt(django.jQuery('#id_discount_pc').val())/100*tot;
+    let disc_gbp = parseFloat(django.jQuery('#id_discount_gbp').val());
+    django.jQuery('#id_total').val((tot-disc_pc-disc_gbp).toFixed(2))
+
+}
+
+django.jQuery(function(){
+    setTimeout(function(){
+        django.jQuery( "input" ).blur();
+        django.jQuery( "#id_customer_name" ).blur();
+    },200);
+
+    if (django.jQuery('#id_status').val() == 0) {
+
+        django.jQuery.ajax ({
+            url: '{% url "pos:posproductlistjson" %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'id': '{{ opts.id }}',
+            },
+            success: function(data) {
+                console.log(data)
+                product_list = data;
+            },
+            error: function(data) {
+                console.log(data)
+            }
+        });                                        
+
+        django.jQuery('#id_discount_pc').click(calc_total);
+        django.jQuery('#id_discount_gbp').click(calc_total);
+        django.jQuery('#id_discount_pc').blur(calc_total);
+        django.jQuery('#id_discount_gbp').blur(calc_total);
+
+        django.jQuery('tr.add-row a').click(function() {
+            django.jQuery('.dynamic-orderdetail_set').last().find('select').change(calc_total);
+            django.jQuery('.dynamic-orderdetail_set').last().find('input').change(calc_total);
+
+        });
+
+        django.jQuery( "body" ).keyup(function( event ) {
+            //console.log( event.originalEvent.key + ' --- ' + code);
+        
+            if (event.originalEvent.key=='0' ||
+                event.originalEvent.key=='1' ||
+                event.originalEvent.key=='2' ||
+                event.originalEvent.key=='3' ||
+                event.originalEvent.key=='4' ||
+                event.originalEvent.key=='5' ||
+                event.originalEvent.key=='6' ||
+                event.originalEvent.key=='7' ||
+                event.originalEvent.key=='8' ||
+                event.originalEvent.key=='9') {
+                    code += event.originalEvent.key;
+            }
+        
+            else if (event.originalEvent.key=='Enter' && code.length==13) {
+                event.preventDefault();
+                const ccode = code;
+                code = '';
+                process(ccode);
+            }
+            else {
+                code = '';
+            }
+        
+        });
+    }
+
+});
+
+</script>
+
+{% endblock %}

@@ -58,6 +58,7 @@ urlpatterns = [
     path('blog/', include('blog.urls')),
     path('prestashop/', include('prestashop.urls')),
     path('stats/', include('stats.urls')),
+    path('pos/', include('pos.urls')),
     path('admin/', admin.site.urls),
     path('markdownx/', include('markdownx.urls')),
 

@@ -1,0 +1,25 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrastyle %}
+  {{ block.super }}
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/barcodes/JsBarcode.ean-upc.min.js"></script>
+<script>
+django.jQuery(function(){
+  let tot=0;
+  for (i=0; i<django.jQuery('.field-total a').length; i++) {
+    if (django.jQuery('.field-status a')[i].text=='Paid') {
+      console.log(django.jQuery('.field-total a')[i].text);
+      tot += parseFloat(django.jQuery('.field-total a')[i].text);
+    }
+  }
+  console.log(tot.toFixed(2));
+  django.jQuery('#changelist-form p').text(django.jQuery('#changelist-form p').text()+' -- £'+tot.toFixed(2))
+});
+</script>
+{% endblock %}
+
