@@ -13,7 +13,7 @@
 
  -->
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/barcodes/JsBarcode.ean-upc.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.2.1/html5-qrcode.min.js" type="text/javascript"></script>
 {% endblock %}
 
 {
@@ -42,7 +42,7 @@
 
 
 {% block submit_buttons_bottom %}
-<div id="qr-reader" style="width: 350px; height: 300px;display: none;"></div>
+<div id="qr-reader" style="width: 350px; height: 350px;display: none;"></div>
 <div>
     <span id="scan-start">Scan Start</span>
     <span id="scan-stop" style="display: none;">Stop Scan</span>

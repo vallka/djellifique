@@ -136,3 +136,4 @@ dmypy.json
 .pyre/
 sent-emails/
 Pipfile.lock.0
+some.xml

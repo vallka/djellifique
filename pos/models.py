@@ -4,10 +4,11 @@ from django.utils.html import mark_safe
 # Create your models here.
 class Product(models.Model):
     class Meta:
-        ordering = ['reference']
+        ordering = ['brand','name']
 
   
     id_product = models.IntegerField('id',primary_key=True)
+    brand  = models.CharField('brand',max_length=50,choices=[('GellifiQue','GellifiQue'),('Siberica','Siberica'),('Staleks','Staleks')],default='GellifiQue')
     reference = models.CharField('reference',max_length=100)
     name  = models.CharField('name',max_length=500)
     price = models.DecimalField('price',max_digits=8, decimal_places=2)
@@ -41,7 +42,7 @@ class Product(models.Model):
 
 
     def __str__(self):
-        return self.reference + ' | £'+ str(self.price)
+        return self.name + ' -- £'+ str(self.price)
 
 class Order(models.Model):
     customer_name = models.CharField('customer_name',max_length=100,default='-')
