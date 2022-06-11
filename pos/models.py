@@ -42,7 +42,7 @@ class Product(models.Model):
 
 
     def __str__(self):
-        return self.name + ' -- £'+ str(self.price)
+        return self.name + ' | £'+ str(self.price)
 
 class Order(models.Model):
     customer_name = models.CharField('customer_name',max_length=100,default='-')
