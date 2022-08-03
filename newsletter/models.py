@@ -376,7 +376,7 @@ footer .unsubscribe {
                 <a href="https://uk.pinterest.com/gellifique/" target="_blank"><img src="https://blog.gellifique.co.uk/static/images/pinterest-square-brands-bl.png"></a>
             </div>
             <div class="unsubscribe">
-                <a href="https://www.gellifique.co.uk/en/identity">unsubscribe from this list</a> |     
+                <a href="https://blog.gellifique.co.uk/blog/newsletter/unsubscribe/####email####/####uuid####/">unsubscribe from this list</a> |     
                 <a href="https://www.gellifique.co.uk/en/identity">update subscription preferences</a>
             </div>
         </footer>

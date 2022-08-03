@@ -1,16 +1,19 @@
+from turtle import done
 import uuid
 import os
 import json
 
 from django.core.mail import send_mail,EmailMessage,EmailMultiAlternatives
 from django.core.exceptions import ValidationError
-from django.shortcuts import redirect
+from django.shortcuts import redirect,render
+from django.views import generic
+
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse,JsonResponse
 from django.conf import settings
-from django.db import connection
+from django.db import connection,connections
 
 import logging
 logger = logging.getLogger(__name__)
@@ -56,6 +59,32 @@ def click_redirect(request,uuid):
 
     return redirect('https://www.gellifique.co.uk/' + path)
 
+class UnsubscribePageView(generic.TemplateView):
+    template_name = 'prestashop/unsubscribe.html'
+
+    def post(self, request, email, uuid):
+        done = False
+        try:
+            ns = NewsShot.objects.get(uuid=uuid)
+            print(ns.customer_id,ns.note)
+            if not 'unsubscribed' in ns.note:
+                db = 'presta'
+
+                sql="update ps17_customer set newsletter=0 where newsletter=1 and id_customer=%s and email=%s"
+                #sql="select * from ps17_customer where newsletter=1 and id_customer=%s and email=%s"
+                with connections[db].cursor() as cursor:
+                    cursor.execute(sql,[ns.customer_id,email])
+                    #result = cursor.fetchall()
+                    #print(result)
+
+                ns.note = ns.note + '/unsubscribed'
+                ns.save()
+                done = True
+
+        except Exception as e:
+            logger.error("NewsShot.DoesNotExist:%s or Exception:%s",uuid,e)
+            print("NewsShot.DoesNotExist:%s or Exception:%s" % (uuid,e))
+        return render(request, self.template_name, {'email':email,'uuid':uuid,'done':done})
 
 @csrf_exempt
 @require_POST

@@ -109,12 +109,14 @@ class Command(BaseCommand):
 
 
 
-    def encode_urls(self,html,title,id,uuid):
+    def encode_urls(self,html,title,id,uuid,to_email):
         global _post_title,_post_id
         _post_title = title
         _post_id = id
         html = re.sub(r'(<a\s+href=")(https://www\.gellifique\.co.uk/)([^"]*)',my_replace,html)
         html = html.replace('####uuid####',uuid)
+        html = html.replace('####email####',to_email)
+        
         return html
 
 
@@ -122,7 +124,7 @@ class Command(BaseCommand):
         #to_email = 'vallka@vallka.com'
         to_email = cust[1]
 
-        html = self.encode_urls(html,title,id,str(uuid))
+        html = self.encode_urls(html,title,id,str(uuid),to_email)
 
         #print (html)
         if MOCK:

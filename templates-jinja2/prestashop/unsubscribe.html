@@ -1,0 +1,75 @@
+{% extends "base_skinned.html" %}
+
+{% block title %}Unsubscribe{% endblock title %}
+
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+<style>
+.content {
+    background-color: #f6f6f6;
+    padding: 1rem;
+}
+
+.file-uploads {
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    display: block;
+    width: 90%;
+    height: 250px;
+    border: solid 1px #3e9bc8;
+    margin: auto;
+}
+
+#unsubs {
+    text-align: center;
+    position: relative;
+    padding: 20px;
+}
+
+#app div.upload-div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.btn-primary {
+  background-color:  #f766a2;
+}
+
+a {
+  color:  #f766a2;
+
+}
+
+</style>  
+{% endblock %}
+
+{% block content %}
+
+<div id="unsubs">
+    {% if done  %}
+        <h1>You have been unsubscribed</h1>
+    {% else %}
+        <form method="post">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <div class="upload-div">
+        <button class="btn btn-primary">
+            Unsubscribe from GellifiQue Newsletter
+        </button>
+        </div>
+        </form>
+    {% endif %}
+</div>
+
+
+{% endblock content %}
+
+{% block footer %}
+{% endblock footer %}
+
+{% block javascript %}
+{{ super() }}
+{% endblock javascript %}
