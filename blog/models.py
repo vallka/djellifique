@@ -119,7 +119,7 @@ class Post(models.Model):
 
             for prod in prods:
                 print (prod[1])
-                prod_html = requests.get(prod[1])
+                prod_html = requests.get(prod[1].replace('\\','')) # '\\' started to be inserted for unknown reason by frontend js
                 if prod_html.status_code == 200:
                     print ('soup::')
                     prod_html = prod_html.text
