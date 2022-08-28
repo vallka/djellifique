@@ -86,7 +86,7 @@ class Command(BaseCommand):
                     logger.info(f"{i+1}, customer:{c[0]}:{c[1]}")
 
                     shot = NewsShot(blog=newsletter_post[0],customer_id=c[0])
-                    if self.send(c,html,newsletter_post[0].title,newsletter_post[0].id,shot.uuid):
+                    if self.send(c,html,newsletter_post[0].email_subject,newsletter_post[0].title,newsletter_post[0].id,shot.uuid):
                         shot.send_dt = timezone.now()
                         shot.save() 
                         sent += 1
@@ -120,7 +120,7 @@ class Command(BaseCommand):
         return html
 
 
-    def send(self,cust,html,title,id,uuid):
+    def send(self,cust,html,subj,title,id,uuid):
         #to_email = 'vallka@vallka.com'
         to_email = cust[1]
 
@@ -134,7 +134,7 @@ class Command(BaseCommand):
             print(f"MOCK_SEND: {to_email}")
             return True
         else:
-            email = EmailMultiAlternatives( title, title, settings.EMAIL_FROM_USER, [to_email], headers = {'X-gel-id': str(uuid)}   )
+            email = EmailMultiAlternatives( subj if subj else title, title, settings.EMAIL_FROM_USER, [to_email], headers = {'X-gel-id': str(uuid)}   )
             email.attach_alternative(html, "text/html") 
             #if attachment_file: email.attach_file(attachment_file)
             
