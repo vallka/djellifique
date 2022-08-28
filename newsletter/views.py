@@ -25,7 +25,7 @@ from blog.models import *
 def my_image(request):
     uuid=request.GET['uuid']
 
-    logger.error("my_image - uuid:%s",uuid)
+    logger.error("my_image - uuid:%s, ua:%s",uuid,request.headers['user-agent'])
     try:
         ns = NewsShot.objects.get(uuid=uuid)
         if ns.opened_dt==None:
