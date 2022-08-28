@@ -159,8 +159,11 @@ def stats(request,slug):
     logger.info("stats:%s",slug)
 
     with connection.cursor() as cursor:
-        cursor.execute("SELECT COUNT(send_dt),COUNT(received_dt),COUNT(opened_dt),COUNT(clicked_dt) " + 
-            "FROM newsletter_newsshot WHERE blog_id=%s", [post.id])
+        cursor.execute("SELECT COUNT(send_dt),COUNT(received_dt),COUNT(opened_dt),COUNT(clicked_dt), " + 
+            "(SELECT COUNT(id) FROM newsletter_newsshot WHERE blog_id=ns.blog_id AND note = 'Bounce') bounces, " + 
+            "(SELECT COUNT(id) FROM newsletter_newsshot WHERE blog_id=ns.blog_id AND note LIKE '%%unsubscribed%%') unsubscribed, " + 
+            "(SELECT COUNT(id) FROM newsletter_newsshot WHERE blog_id=ns.blog_id AND note = 'Complaint') complaints " + 
+            "FROM newsletter_newsshot ns WHERE blog_id=%s", [post.id])
 
         row = cursor.fetchone()
         return JsonResponse({'result':'ok','data':row})        
