@@ -30,6 +30,7 @@ def my_image(request):
         ns = NewsShot.objects.get(uuid=uuid)
         if ns.opened_dt==None:
             ns.opened_dt = timezone.now()
+            ns.user_agent = request.headers['user-agent']
             ns.save()
     except NewsShot.DoesNotExist:
         logger.error("NewsShot.DoesNotExist:%s",uuid)

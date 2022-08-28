@@ -40,6 +40,7 @@ class Post(models.Model):
     blog = models.BooleanField(_("Publish to blog"),default=False)
     blog_start_dt = models.DateTimeField(_("Published"), blank=True, null=True)
     email = models.BooleanField(_("Send as newsletter"),default=False)
+    email_subject = models.CharField(_("Subject"), max_length=100, blank=True, null=False, default='')
     email_send_dt = models.DateTimeField(_("Sent"), blank=True, null=True)
 
     class EmailStatus(models.IntegerChoices):
