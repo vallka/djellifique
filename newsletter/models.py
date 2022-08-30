@@ -28,7 +28,7 @@ class NewsShot(models.Model):
     def add_html_x(text,title,slug,title_color,title_bgcolor):
         pass
         #html = requests.get("http://localhost:8000/blog/newsletter/"+slug)
-        html = requests.get("https://www.ellifique.co.uk/blog/newsletter/"+slug)
+        html = requests.get("https://www.gellifique.co.uk/blog/newsletter/"+slug)
         if html.status_code==200:
             html = html.text
 
