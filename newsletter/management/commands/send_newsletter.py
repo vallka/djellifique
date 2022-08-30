@@ -61,7 +61,7 @@ class Command(BaseCommand):
 
 
         if len(newsletter_post) > 0:
-            html = NewsShot.add_html(newsletter_post[0].formatted_markdown,newsletter_post[0].title,newsletter_post[0].slug,newsletter_post[0].title_color,newsletter_post[0].title_bgcolor)
+            html = NewsShot.add_html_x(newsletter_post[0].formatted_markdown,newsletter_post[0].title,newsletter_post[0].slug,newsletter_post[0].title_color,newsletter_post[0].title_bgcolor)
             #print(self.add_html(newsletter_post[0].formatted_markdown,newsletter_post[0].title,newsletter_post[0].slug))
 
             custs = self.get_customers(newsletter_post[0].id)
@@ -109,13 +109,14 @@ class Command(BaseCommand):
 
 
 
-    def encode_urls(self,html,title,id,uuid,to_email):
+    def encode_urls(self,html,title,id,uuid,to_email,firstname):
         global _post_title,_post_id
         _post_title = title
         _post_id = id
         html = re.sub(r'(<a\s+href=")(https://www\.gellifique\.co.uk/)([^"]*)',my_replace,html)
         html = html.replace('####uuid####',uuid)
         html = html.replace('####email####',to_email)
+        html = html.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
         
         return html
 
@@ -123,8 +124,9 @@ class Command(BaseCommand):
     def send(self,cust,html,subj,title,id,uuid):
         #to_email = 'vallka@vallka.com'
         to_email = cust[1]
+        firstname = cust[2]
 
-        html = self.encode_urls(html,title,id,str(uuid),to_email)
+        html = self.encode_urls(html,title,id,str(uuid),to_email,firstname)
 
         #print (html)
         if MOCK:

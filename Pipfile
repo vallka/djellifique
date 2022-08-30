@@ -38,6 +38,7 @@ openpyxl = "*"
 django-extensions = "*"
 ipython = "*"
 notebook = "*"
+css_inline = "*"
 
 [requires]
 python_version = "3"

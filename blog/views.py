@@ -240,5 +240,8 @@ class PostView(generic.DetailView):
 
         return context        
 
+class NewsletterView(generic.DetailView):
+    model = Post
+    template_name = "blog/newsletter_detail.html"
 
 

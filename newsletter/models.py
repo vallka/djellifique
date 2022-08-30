@@ -1,4 +1,7 @@
 import uuid
+import requests
+
+import css_inline
 
 from django.db import models
 
@@ -19,6 +22,21 @@ class NewsShot(models.Model):
     clicked_qnt = models.IntegerField(blank=True, null=True)
     note = models.CharField(blank=True, null=True, max_length=25)
     user_agent = models.CharField(blank=True, null=True, max_length=500)
+
+
+    @staticmethod
+    def add_html_x(text,title,slug,title_color,title_bgcolor):
+        pass
+        #html = requests.get("http://localhost:8000/blog/newsletter/"+slug)
+        html = requests.get("https://www.ellifique.co.uk/blog/newsletter/"+slug)
+        if html.status_code==200:
+            html = html.text
+
+            inliner = css_inline.CSSInliner(remove_style_tags=True)
+            return inliner.inline(html)
+
+        return None
+
 
     @staticmethod
     def add_html(text,title,slug,title_color,title_bgcolor):

@@ -136,7 +136,8 @@ def sendtest(request,slug):
     #to_emails = [request.user.email]
     to_emails = ['info@gellifique.co.uk','vallka@vallka.com','larisa.eccles@btinternet.com']
 
-    html = NewsShot.add_html(post.formatted_markdown,post.title,post.slug,post.title_color,post.title_bgcolor)
+    html = NewsShot.add_html_x(post.formatted_markdown,post.title,post.slug,post.title_color,post.title_bgcolor)
+    html = html.replace('<!-- Hi Firstname -->',"Hi Firstname,")
 
     email = EmailMultiAlternatives( '[TEST NEWSLETTER] ' + post.email_subject if post.email_subject else post.title, post.title, settings.EMAIL_FROM_USER, to_emails, headers = {'X-gel-id': f'xxx-{to_emails[0]}-xxx'}  )
     email.attach_alternative(html, "text/html") 

@@ -10,6 +10,7 @@ urlpatterns = [
     path('', HomeView.as_view(), name='list'),
     path('search/', SearchView.as_view(), name='search'),
     path('<str:slug>/', PostView.as_view(), name='post'),
+    path('newsletter/<str:slug>/', NewsletterView.as_view(), name='newsletter'),
     #path('category/<str:slug>/', ListView.as_view(), name='post-by-cat'),
     path('category/<str:slug>/', HomeView.as_view(), name='post-by-cat'),
 ]
