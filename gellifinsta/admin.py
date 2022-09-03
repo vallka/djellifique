@@ -12,7 +12,8 @@ class ProductsAdmin(admin.ModelAdmin):
 
 @admin.register(Gellifinsta)
 class GellifinstaAdmin(admin.ModelAdmin):
-    list_display = ['image_tag','shortcode','taken_at_datetime','is_video','tags_spaced',]
+    list_display = ['image_tag','shortcode','taken_at_datetime','is_active','is_video','tags_spaced',]
+    list_editable = ['is_active',]
     search_fields = ['shortcode','id','caption']
     list_filter = ['taken_at_datetime',]
     fields = ['shortcode','taken_at_datetime','created_dt','updated_dt','username','is_active','is_video',
