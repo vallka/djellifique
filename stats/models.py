@@ -51,6 +51,7 @@ ROUND(SUM((total_paid_real)/conversion_rate) ,2) GBP_paid
 FROM `ps17_orders` o
 WHERE current_state IN
 (SELECT id_order_state FROM ps17_order_state WHERE paid=1)
+AND NOT EXISTS (SELECT id_order_history FROM ps17_order_history WHERE id_order=o.id_order AND id_order_state IN (29,30))
 and date_add>='2019-01-01'
 GROUP BY date(date_add)
 ORDER BY date_add DESC
