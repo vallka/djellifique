@@ -47,12 +47,11 @@ class Command(BaseCommand):
             tags = [t[1:] for t in tags]
             tags = [re.sub('^gellifique','',t) for t in tags if re.sub('^gellifique','',t)]
 
-            for n in names:
-                #if text.find(n)>=0:
-                if re.search(r'\W'+n+r'\W',text,re.S):
-                    tag = n.replace(' ','')
-                    print('****'+tag)
-                    if not tag in tags: tags.append(tag)
+            #for n in names:
+            #    if re.search(r'\W'+n+r'\W',text,re.S):
+            #        tag = n.replace(' ','')
+            #        print('****'+tag)
+            #        if not tag in tags: tags.append(tag)
 
             tags = ['#' + t for t in tags]
 
