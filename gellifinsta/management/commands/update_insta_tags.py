@@ -61,5 +61,5 @@ class Command(BaseCommand):
 
 
 
-        logger.error("DONE - %s! - %s, %s",self.help,)
+        logger.error("DONE - %s! - %s",self.help,len(gfs))
 
