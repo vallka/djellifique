@@ -300,7 +300,24 @@ body {
     display: table-cell;
   }         
   
+  .blog_post .product p {
+    text-align: center;
+    margin: 0 0 8px 0;
+  }
+
+  .blog_post .product del {
+    text-decoration: line-through;
+    background-color: transparent;
+  }
+
+  .blog_post .product .discount {
+    background: #f39d72;
+    color: #fff;
+    padding: 5px;
+  }
   
+
+
   {% if post.title_color %}
       .blog_post .blog_header a {
         color: {{post.title_color}} !important;

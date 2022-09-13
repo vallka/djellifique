@@ -1,4 +1,5 @@
 import re
+from this import d
 import requests
 
 from bs4 import BeautifulSoup
@@ -126,14 +127,29 @@ class Post(models.Model):
                     prod_html = prod_html.text
 
                     soup = BeautifulSoup(prod_html, 'html.parser')
-                    prod_name = soup.find('h1',attrs={'itemprop':'name'})
-                    prod_price = soup.find(attrs={'itemprop':'price'})
-                    prod_img = soup.find('img',attrs={'itemprop':'image'})
+                    prod_name = soup.find('h1',attrs={'itemprop':'name','class':'h1'})
+                    prod_price = prod_name.parent.find(attrs={'itemprop':'price'})
+                    prod_img = prod_name.parent.parent.find('img',attrs={'itemprop':'image'})
+
+                    old_price = prod_name.parent.find('span',attrs={'class':'regular-price'})
+                    discount = prod_name.parent.find('span',attrs={'class':'discount'})
+
+                    if old_price and discount:
+                        discount_p = f"<p><del>{old_price.text}</del> <span class='discount'>{discount.text}</span</</p>"
+                    else:
+                        discount_p = ''
 
                     print (prod_img['src'])
 
                     #self.text = re.sub(product_re,f"![]({prod_img['src']})\n[<h4>{prod_name.text} - {prod_price.text}</h4>]({prod[1]})",self.text,1)
                     #self.text = re.sub(product_re,f"![]({prod_img['src']})\n####[{prod_name.text} - {prod_price.text}]({prod[1]})",self.text,1)
-                    self.text = re.sub(product_re,f"<img src=\"{prod_img['src']}\"><p>{prod_name.text} - {prod_price.text}</p><h4><a href=\"{prod[1]}\">BUY NOW</a></h4>",self.text,1)
+                    prod = f"""
+<div class="product">
+<img src="{prod_img['src']}">
+{discount_p}<p>{prod_name.text} - {prod_price.text}</p>
+<h4><a href="{prod[1]}">BUY NOW</a></h4>
+</div>
+"""
+                    self.text = re.sub(product_re,prod,self.text,1)
 
 
