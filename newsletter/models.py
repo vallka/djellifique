@@ -100,7 +100,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .blog_content .header {
-    max-width: 642px !important;
+    max-width: 610px !important;
     margin: 0 auto !important;
     background-color: #1a1a1a !important;
 }
