@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 MOCK = False
-MOCK_SEND = False
+MOCK_SEND = True
 
 _post_title = ''
 _post_id = 0
@@ -64,8 +64,8 @@ class Command(BaseCommand):
             html = NewsShot.add_html_x(newsletter_post[0].formatted_markdown,newsletter_post[0].title,newsletter_post[0].slug,newsletter_post[0].title_color,newsletter_post[0].title_bgcolor)
             #print(self.add_html(newsletter_post[0].formatted_markdown,newsletter_post[0].title,newsletter_post[0].slug))
 
-            custs = self.get_customers(newsletter_post[0].id)
-            #custs = self.get_customers_special(newsletter_post[0].id)
+            #custs = self.get_customers(newsletter_post[0].id)
+            custs = self.get_customers_special(newsletter_post[0].id)
             #custs = self.get_customers_eu(newsletter_post[0].id)
 
             if len(custs):
@@ -160,6 +160,7 @@ class Command(BaseCommand):
                     select customer_id from dj.newsletter_newsshot where customer_id=c.id_customer
                     and blog_id=%s
                     )
+                    AND c.id_customer>=1 AND c.id_customer<=4
                     ORDER BY c.id_customer  DESC
                     limit 0,5000
                 """
