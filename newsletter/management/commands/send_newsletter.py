@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 MOCK = False
-MOCK_SEND = True
+MOCK_SEND = False
 
 _post_title = ''
 _post_id = 0
