@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 MOCK = False
-MOCK_SEND = False
+MOCK_SEND = True
 
 _post_title = ''
 _post_id = 0
@@ -160,7 +160,7 @@ class Command(BaseCommand):
                     select customer_id from dj.newsletter_newsshot where customer_id=c.id_customer
                     and blog_id=%s
                     )
-                    AND c.id_customer>=1 AND c.id_customer<=4
+                    AND c.id_customer>=3705 AND c.id_customer<=3784
                     ORDER BY c.id_customer  DESC
                     limit 0,5000
                 """
