@@ -175,14 +175,14 @@ class Command(BaseCommand):
 
 
     def get_customers(self,blog_id):
-        extra_where = """
-            AND c.id_customer NOT IN (
-            SELECT id_customer FROM gellifique_new.ps17_orders o
-            WHERE current_state IN
-            (SELECT id_order_state FROM gellifique_new.ps17_order_state WHERE paid=1)
-            AND DATE_ADD>='2022-11-18' AND DATE_ADD<'2022-11-29')                    
-
-        """
+        #extra_where = """
+        #    AND c.id_customer NOT IN (
+        #    SELECT id_customer FROM gellifique_new.ps17_orders o
+        #    WHERE current_state IN
+        #    (SELECT id_order_state FROM gellifique_new.ps17_order_state WHERE paid=1)
+        #    AND DATE_ADD>='2022-11-18' AND DATE_ADD<'2022-11-29')                    
+        #"""
+        extra_where = ""
 
         if not MOCK:
             with connections['default'].cursor() as cursor:
