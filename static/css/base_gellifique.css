@@ -226,29 +226,50 @@ footer i,footer .copy {
   border: 0;
 }
 
+b, strong {
+  font-weight: bold;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-transform: initial !important;
+  letter-spacing: initial !important;
+}
+
 h1, h2, h3 {
-    margin-bottom: .5rem;
-    line-height: 1.1;
-    color: #d73672;
-    text-transform: initial;
-    letter-spacing: initial;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  color: #d73672 !important;
 }
 
 .h1, h1 {
-  margin-bottom: 1.563rem;
-  color: #1a1a1a;
-  font-size: 1.6rem;
-}
-.h2, h2 {
-  color: #d73672;
-  font-size: 1.5rem;
-}
-.h3, h3 {
-  font-size: 1.4rem;
-  color: #1a1a1a;
+  margin: 0 !important;
+  font-size: 32px !important;
+  padding-bottom: 0.5rem !important;
+  color: black !important;
 }
 
-.blog_post h4, .blog_post h5, .blog_post h6 {
+.h2, h2 {
+color: #d73672 !important;
+font-size: 26px !important;
+}
+.h3, h3 {
+color: #1a1a1a !important;
+font-size: 21px !important;
+}
+.h4, h4 {
+font-size: 18px !important;
+}
+.h5, h5 {
+font-size: 18px !important;
+color: #d73672 !important;
+}
+.h6, h6 {
+  font-size: 16px !important;
+  color: #d73672 !important;
+  font-weight: 200 !important;
+}
+
+.blog_post h4 {
   font-family: 'Open Sans', sans-serif;
   text-transform: initial;
   letter-spacing: initial;
@@ -260,16 +281,16 @@ h1, h2, h3 {
   border-radius: 5px;
 }
 
-.blog_post h4:hover, .blog_post h5:hover, .blog_post h6:hover {
+.blog_post h4:hover {
   background-color: #666;
   color: #fff;
   text-decoration: none;
 }
 
-.blog_post h4 a, .blog_post h5 a, .blog_post h6 a {
+.blog_post h4 a {
   color: white;
 }
-.blog_post h4 a:hover, .blog_post h5 a:hover, .blog_post h6 a:hover {
+.blog_post h4 a:hover {
   color: #fff;
   text-decoration: none;
 }
