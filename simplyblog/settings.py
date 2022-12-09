@@ -208,7 +208,7 @@ from datetime import datetime
 MARKDOWNX_MEDIA_PATH = datetime.now().strftime('markdownx/%Y/%m/%d')
 MARKDOWNX_IMAGE_MAX_SIZE = { 'size': (1500, 1500), 'quality': 80 }
 MARKDOWNX_MARKDOWN_EXTENSIONS = [
-    'tables','attr_list','fenced_code','md_in_html','nl2br','wikilinks',
+    'tables','attr_list','fenced_code','md_in_html','nl2br','wikilinks','footnotes',
 ]
 
 
