@@ -396,13 +396,52 @@ hr.after-post {
   margin-right: 0;
 }
 
-.blog_post p a {
+.blog_post p a, .blog_post li a {
   color: #5a5a5a;
   text-decoration: none;
   border-bottom: 2px solid #2fb5d2;
   font-weight: 600;
 }
 
+.blog_post .footnote p {
+  text-align: left;
+}
+.blog_post .footnote li {
+  font-size: 15px;
+}
+
+.blog_post .footnote li::marker {
+  color: #7a7a7a !important;
+}
+
+.blog_post sup a,.blog_post .footnote a {
+  text-decoration: none;
+  border-bottom: none;
+}
+
+.blog_post sup:before {
+  content: '[';
+}
+.blog_post sup:after {
+  content: ']';
+}
+
+.footnote ol {
+  counter-reset: list;
+}
+
+.footnote ol > li {
+  list-style: none;
+  counter-increment: list;
+}
+
+.footnote ol > li::marker {
+  content: counter(list) ")\a0";
+}
+
+.footnote .footnote-backref {
+  font-weight: normal;
+}
 
 .blog_date {
   font-style: italic;
