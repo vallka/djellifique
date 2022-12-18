@@ -167,7 +167,8 @@ body {
 
   .blog_post p a, .blog_post li a {
     color: #5a5a5a;
-    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 3px solid #2fb5d2;    font-weight: 600;
   }
   
 h1, h2, h3, h4, h5, h6 {
@@ -342,7 +343,19 @@ h1, h2, h3, h4, h5, h6 {
       .blog_post .blog_header {
         background-color: {{post.title_bgcolor}} !important;
       }
+      .blog_post p a {
+          border-bottom-color: {{post.title_bgcolor}} !important;
+          filter: brightness(95%);
+      }
+      .blog_post li::marker {
+        color: {{post.title_bgcolor}} !important;
+        filter: brightness(95%);
+      }
       .blog_post h2 {
+        color: {{post.title_bgcolor}} !important;
+        filter: brightness(95%);
+      }
+      .blog_post .read_more a {
         color: {{post.title_bgcolor}} !important;
         filter: brightness(95%);
       }
