@@ -140,7 +140,6 @@ body {
   }
   
   .blog_body img {
-    /*border: solid 1px #aaa;*/
   }
   
   .footer-img {
@@ -234,6 +233,7 @@ h1, h2, h3, h4, h5, h6 {
       display: inline-block !important;
       padding: 1rem !important;
       border-radius: 5px !important;
+      margin: 0.3rem;
   }
   
   .blog_post ol, .blog_post ul {
@@ -316,6 +316,17 @@ h1, h2, h3, h4, h5, h6 {
     display: table-cell;
   }         
   
+  .blog_post .product img {
+    max-height: 452px !important;
+    border: solid 1px #d6d4d4;
+
+  }
+
+  
+  .blog_post .product {
+    padding: 0 15px;
+  }
+
   .blog_post .product p {
     text-align: center;
     margin: 0 0 8px 0;
@@ -332,8 +343,13 @@ h1, h2, h3, h4, h5, h6 {
     padding: 5px;
   }
   
+  sup a, .footnote a {
+    border:none !important;
+  }
 
-
+  .blog_post .footnote li::marker {
+    color: #232323 !important;
+  }
   {% if post.title_color %}
       .blog_post .blog_header a {
         color: {{post.title_color}} !important;
