@@ -108,6 +108,82 @@ class Post(models.Model):
     def look_up_gellifique_product(self):
         # [](https://www.gellifique.co.uk/en/pro-limited-edition/-periwinkle-hema-free(1342).html)
 
+        print ('look_up_gellifique_product')
+        #print (self.text)
+
+        #product_re = r"(\r?\n<<<<\r?\n)(https:\/\/www.gellifique.co.uk\/.+?\.html)\r?\n([^\n]*\r?\n)?"
+        product_re = r"(\r?\n((<<<<)|(>>>>))\r?\n)(https:\/\/www.gellifique.co.uk\/.+?\.html)\r?\n"
+
+        prods = re.findall(product_re,self.text)
+        
+        if prods:
+            print (prods)
+
+            for prod in prods:
+                print (prod[0],prod[4])
+                prod_html = requests.get(prod[4].replace('\\','')) # '\\' started to be inserted for unknown reason by frontend js
+                if prod_html.status_code == 200:
+                    print ('soup::')
+                    prod_html = prod_html.text
+                    prod_href = prod[4]
+
+                    soup = BeautifulSoup(prod_html, 'html.parser')
+                    prod_name = soup.find('h1',attrs={'itemprop':'name','class':'h1'})
+                    prod_descr = soup.find('div',attrs={'class':'product-description'})
+                    prod_descr_pp = prod_descr.find_all('p')
+
+                    if prod_descr_pp[0].text!='PRODUCT DESCRIPTION':
+                        prod_descr = prod_descr_pp[0].text.strip()
+                    else:
+                        prod_descr = prod_descr_pp[1].text.strip()
+
+                    print(prod_descr)
+
+                    prod_price = prod_name.parent.find(attrs={'itemprop':'price'})
+                    prod_img = prod_name.parent.parent.find('img',attrs={'itemprop':'image'})
+
+                    old_price = prod_name.parent.find('span',attrs={'class':'regular-price'})
+                    discount = prod_name.parent.find('span',attrs={'class':'discount'})
+
+                    if old_price and discount:
+                        discount_p = f"<p><del>{old_price.text}</del> <span class='discount'>{discount.text}</span></p>\n"
+                    else:
+                        discount_p = ''
+
+                    if '<' in prod[0]:
+                        product = f"""
+<!-- {prod[0].strip()}{prod_href}
+--><table class="product"><tr><td>	
+<a href="{prod_href}"><img src="{prod_img['src']}"></a>
+</td><td>	
+<h3>{prod_name.text} - {prod_price.text}</h3>
+{discount_p}<p>
+{prod_descr}
+</p>
+<h4><a href="{prod_href}">BUY NOW</a></h4>
+</td></tr></table>
+"""
+                    else:
+                        product = f"""
+<!-- {prod[0].strip()}{prod_href}
+--><table class="product"><tr><td>	
+<h3>{prod_name.text} - {prod_price.text}</h3>
+{discount_p}<p>
+{prod_descr}
+</p>
+<h4><a href="{prod_href}">BUY NOW</a></h4>
+</td><td>	
+<a href="{prod_href}"><img src="{prod_img['src']}"></a>
+</td></tr></table>
+"""
+
+                    self.text = re.sub(product_re,product,self.text,1)
+
+
+
+    def look_up_gellifique_product__old(self):
+        # [](https://www.gellifique.co.uk/en/pro-limited-edition/-periwinkle-hema-free(1342).html)
+
         #print ('look_up_gellifique_product')
 
         product_re = r"(\[\])\((https:\/\/gellifique.eu\/.+?\.html)\)"
@@ -135,7 +211,7 @@ class Post(models.Model):
                     discount = prod_name.parent.find('span',attrs={'class':'discount'})
 
                     if old_price and discount:
-                        discount_p = f"<p><del>{old_price.text}</del> <span class='discount'>{discount.text}</span</</p>"
+                        discount_p = f"<p><del>{old_price.text}</del> <span class='discount'>{discount.text}</span></p>"
                     else:
                         discount_p = ''
 
