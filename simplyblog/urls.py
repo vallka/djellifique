@@ -32,6 +32,7 @@ from dhl.api_views import DHLListView
 from prestashop.api_views import *
 from stats.api_views import *
 from gellifihouse.api_views import *
+from gtranslator.api_views import *
 
 
 schema_view = get_schema_view(
@@ -86,6 +87,7 @@ urlpatterns = [
     path('api/v1/stats/productstable/<str:par>/', ProductsTableView.as_view()),
     path('api/v1/stats/stocktable/<str:par>/', StockTableView.as_view()),
     path('api/v1/stats/stockfig/<str:par>/', StockFigView.as_view()),
+    path('api/v1/translate/', translate, name='translate'),
 
     re_path(r'^api/v1/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('api/v1/swagger/<slug:format>', schema_view.without_ui(cache_timeout=0), name='schema-json'),

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'dhl',
     'stats',
     'pos',
+    'gtranslator',
 
     'django.contrib.admin',
     'django.contrib.auth',
