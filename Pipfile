@@ -31,15 +31,15 @@ pandas = "*"
 plotly = "*"
 plotly-express = "*"
 django-markdownx = {git = "https://github.com/vallka/django-markdownx.git", editable = true}
-ipykernel = "*"
+#ipykernel = "*"
 python-barcode = {git = "https://github.com/vallka/python-barcode.git", editable = true}
 nbformat = "*"
 openpyxl = "*"
 django-extensions = "*"
-ipython = "*"
-notebook = "*"
+#ipython = "*"
+#notebook = "*"
 css_inline = "*"
-google-cloud-translate = "3"
+google-cloud-translate = "*"
 
 [requires]
 python_version = "3"
