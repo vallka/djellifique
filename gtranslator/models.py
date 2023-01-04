@@ -11,11 +11,8 @@ class Usage(models.Model):
         ordering = ['-id']
 
 class GTransCache(models.Model):
-    hash = models.CharField("Hash",max_length=100)
-    source = models.TextField("Source")
+    hash = models.CharField("Hash",max_length=100,primary_key=True)
+    lang = models.CharField("Language",max_length=5,default='en')
+    source = models.TextField("Text",default='')
 
-class GTransCacheLang(models.Model):
-    source = models.ForeignKey(GTransCache,on_delete=models.CASCADE)
-    lang = models.CharField("Language",max_length=5)
-    target = models.TextField("Target")
 
