@@ -118,7 +118,7 @@ class Post(models.Model):
         #print (self.text)
 
         #product_re = r"(\r?\n<<<<\r?\n)(https:\/\/www.gellifique.co.uk\/.+?\.html)\r?\n([^\n]*\r?\n)?"
-        product_re = r"(\r?\n((<<<<)|(>>>>))\r?\n)(https:\/\/www.gellifique.co.uk\/.+?\.html)\r?\n"
+        product_re = r"(\r?\n((<<<<)|(>>>>))\r?\n?)(https:\/\/www\.gellifique\.[couke.]+/.+?\.html)((\r?\n)|($))"
 
         prods = re.findall(product_re,self.text)
         
