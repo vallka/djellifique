@@ -42,6 +42,12 @@ class NewsShot(models.Model):
         if html.status_code==200:
             html = html.text
 
+            # replace '/en/' in html with 'f"/{lang}/"'
+            if lang:
+                html = re.sub(r'(https://www\.gellifique\.co\.uk/)(en)/',f"\g<1>{lang}/",html)
+                html = re.sub(r'(https://www\.gellifique\.eu/)(en)/',f"\g<1>{lang}/",html)
+
+
             inliner = css_inline.CSSInliner(remove_style_tags=True)
             return inliner.inline(html)
 

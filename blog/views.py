@@ -290,6 +290,9 @@ class NewsletterView(generic.DetailView):
         if post_lang.email_subject: post.email_subject = post_lang.email_subject
         if post_lang.text: post.text = post_lang.text
 
+        post.text = re.sub(r'(https://www\.gellifique\.co\.uk/)(en)/',f"\g<1>{lang}/",post.text)
+        post.text = re.sub(r'(https://www\.gellifique\.eu/)(en)/',f"\g<1>{lang}/",post.text)
+
         post.lang = lang
 
         return post
