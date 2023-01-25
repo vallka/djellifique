@@ -30,7 +30,7 @@ class NewsShot(models.Model):
     @staticmethod
     def add_html_x(slug,lang=None):
         url = "https://blog.gellifique.co.uk/blog/newsletter/"
-        url = "http://localhost:8000/blog/newsletter/"
+        #url = "http://localhost:8000/blog/newsletter/"
 
         url += slug
 
