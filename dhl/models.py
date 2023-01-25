@@ -40,6 +40,7 @@ class DHLParcel(models.Model):
 	length = models.CharField(max_length=200,blank=True,null=True)
 	width = models.CharField(max_length=200,blank=True,null=True)
 	depth = models.CharField(max_length=200,blank=True,null=True)
+	id_order = models.CharField(max_length=200,blank=True,null=True)
 
 
 class ShippingNumber(models.Model):
