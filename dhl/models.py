@@ -109,7 +109,8 @@ def DHL_sql(ho='o',ids=''):
 				if (a.id_country!=17,'PRO','') invoice_type,
 				20 length,
 				15 width,
-				10 depth
+				10 depth,
+				o.id_order
 			FROM ps17_orders o
 				join ps17_address a on a.id_address=o.id_address_delivery
 				join ps17_customer c on o.id_customer=c.id_customer

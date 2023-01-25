@@ -180,6 +180,7 @@ django.jQuery(function(){
     django.jQuery('.submit-row').append('<input type="button" value="Preview Newsletter" id="btn-preview-nl">')
     django.jQuery('.submit-row').append('<input type="button" value="Send Test" id="btn-send-test">')
     django.jQuery('.submit-row').append('<input type="button" value="Stats" id="btn-stats">')
+    django.jQuery('.submit-row').append('<input type="button" value="Translate" id="btn-translate">')
     django.jQuery('#btn-preview').click(function(){
         window.open('/blog/'+django.jQuery('#id_slug').val())
     });
@@ -235,7 +236,7 @@ django.jQuery(function(){
         
 
     django.jQuery('#btn-send-test').click(function(e){
-        if (!confirm("Are you sure to do this?"))
+        if (!confirm("Are you sure to send test emails?"))
             return;
 
         const slug = django.jQuery('#id_slug').val()
@@ -244,6 +245,38 @@ django.jQuery(function(){
 
         django.jQuery.ajax({
             url: '/blog/newsletter/sendtest/'+slug,
+            type: 'post',
+            headers: {
+                "X-CSRFToken": token
+            },
+            dataType: 'json',
+            success: function (gooddata) {
+                console.info(gooddata);
+
+                if (gooddata['result']=='ok') {
+                    alert('ok')
+                }
+                else {
+                    alert(gooddata['error'])
+                }
+            },
+            error:  function (errdata) {
+                console.info('error');
+                console.info(errdata);
+                alert(errdata.statusText)
+            },
+        });
+    });
+    django.jQuery('#btn-translate').click(function(e){
+        if (!confirm("Are you sure to translate the post (it may cost you a few pence)?"))
+            return;
+
+        const slug = django.jQuery('#id_slug').val()
+        const token = getCookie('csrftoken');
+        console.info('sending:' + slug );
+
+        django.jQuery.ajax({
+            url: '/blog/translate/'+slug,
             type: 'post',
             headers: {
                 "X-CSRFToken": token

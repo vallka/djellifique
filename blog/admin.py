@@ -10,13 +10,18 @@ from .models import *
 # Register your models here.
 #admin.site.register(Post, MarkdownxModelAdmin)
 admin.site.register(Category)
-
+class PostLangInline(admin.TabularInline):
+    model = PostLang
+    fields = ['lang_iso_code','title','email_subject',]
+    readonly_fields = ['lang_iso_code','title','email_subject',]
+    extra = 0
 @admin.register(Post)
 class PostAdmin(MarkdownxModelAdmin):
     list_display = ['id','slug','title','blogged','blog_start_dt','newsletter','email_send_dt','created_dt']
     list_display_links = ['id','slug','title',]
     search_fields = ['title', ]
     list_filter = ['blog','email']
+    inlines = [PostLangInline]
 
 
     def blogged(self,instance):

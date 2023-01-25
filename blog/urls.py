@@ -9,8 +9,11 @@ urlpatterns = [
     #path('home/', HomeView.as_view(), name='home'),
     path('', HomeView.as_view(), name='list'),
     path('search/', SearchView.as_view(), name='search'),
-    path('<str:slug>/', PostView.as_view(), name='post'),
-    path('newsletter/<str:slug>/', NewsletterView.as_view(), name='newsletter'),
+    path('newsletter/<str:slug>/<str:lang>/', NewsletterView.as_view(), name='newsletter'),
+    path('newsletter/<str:slug>/', NewsletterView.as_view(), name='newsletter_en'),
+    path('<str:slug>/', PostView.as_view(), name='post_en'),
+    path('<str:slug>/<str:lang>/', PostView.as_view(), name='post'),
     #path('category/<str:slug>/', ListView.as_view(), name='post-by-cat'),
     path('category/<str:slug>/', HomeView.as_view(), name='post-by-cat'),
+    path('translate/<str:slug>', translate, name='translate'),
 ]

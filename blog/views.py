@@ -1,9 +1,18 @@
 import re
+from django.http import JsonResponse
 from django.utils import timezone
 from django.views import generic
 from django.db import connections
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404
+
+import logging
+logger = logging.getLogger(__name__)
 
 from .models import *
+from gtranslator.models import *
+from newsletter.models import *
 
 
 class ListView(generic.ListView):
@@ -203,6 +212,29 @@ class HomeView(generic.ListView):
 class PostView(generic.DetailView):
     model = Post
 
+    def get_object(self, queryset=None):
+        post = get_object_or_404(Post, slug=self.kwargs['slug'])
+        lang = self.kwargs.get('lang')
+
+        if not lang or lang == 'en':
+            post.lang = lang
+            return post
+
+        #post_lang = get_object_or_404(PostLang, post=post, lang_iso_code=lang)
+        try:
+            post_lang = PostLang.objects.get(post=post, lang_iso_code=lang)
+        except PostLang.DoesNotExist:
+            post.lang = lang
+            return post
+
+        if post_lang.title: post.title = post_lang.title
+        if post_lang.email_subject: post.email_subject = post_lang.email_subject
+        if post_lang.text: post.text = post_lang.text
+
+        post.lang = lang
+
+        return post
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['breadcrumb'] = re.sub(r'[^\x00-\x7F]',' ', context['post'].title)
@@ -244,4 +276,76 @@ class NewsletterView(generic.DetailView):
     model = Post
     template_name = "blog/newsletter_detail.html"
 
+    def get_object(self, queryset=None):
+        post = get_object_or_404(Post, slug=self.kwargs['slug'])
+        lang = self.kwargs.get('lang')
 
+        if not lang or lang == 'en':
+            post.lang = lang
+            return post
+
+        post_lang = get_object_or_404(PostLang, post=post, lang_iso_code=lang)
+
+        if post_lang.title: post.title = post_lang.title
+        if post_lang.email_subject: post.email_subject = post_lang.email_subject
+        if post_lang.text: post.text = post_lang.text
+
+        post.lang = lang
+
+        return post
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['trustpilot'] = NewsShot.get_trustpilot()
+        
+        if context['post'].domain==Post.Domains.EU:
+            context['www_gellifique'] = 'www.gellifique.eu'
+        else:
+            context['www_gellifique'] = 'www.gellifique.co.uk'
+            
+        return context
+
+@require_POST
+def translate(request,slug):
+
+    print('translate:',slug)
+    logger.info("translate:%s",slug)
+
+    post = Post.objects.get(slug=slug)
+
+    langs = ['es','fr','de','it','ro','pl','pt','uk']
+
+    text = post.formatted_markdown
+    text = text.replace('<h3>','<h3 [')
+    text = text.replace('</h3>','] /h3>')
+
+    result = GTranslator.translate( [post.title,post.email_subject,text], langs, 'en' )
+    print(result)
+
+    for lang in langs:
+        text = result[lang][2]
+        text = text.replace('<h3 [','<h3>',)
+        text = text.replace('] /h3>','</h3>',)
+
+        try:
+            postlang = PostLang.objects.get(post=post,lang_iso_code=lang)
+            postlang.title = result[lang][0]
+            postlang.email_subject = result[lang][1]
+            postlang.text = text
+            postlang.save()
+
+        except PostLang.DoesNotExist:   
+            postlang = PostLang(post=post,lang_iso_code=lang)
+            postlang.title = result[lang][0]
+            postlang.email_subject = result[lang][1]
+            postlang.text = text
+            postlang.save()
+
+
+
+    logger.info(result)
+
+    logger.error("translate_result:%s",post.slug)
+
+
+    return JsonResponse({'result':'ok'})    

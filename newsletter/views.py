@@ -136,18 +136,19 @@ def sendtest(request,slug):
     #to_emails = [request.user.email]
     to_emails = ['info@gellifique.co.uk','vallka@vallka.com','larisa.eccles@btinternet.com']
 
-    html = NewsShot.add_html_x(post.formatted_markdown,post.title,post.slug,post.title_color,post.title_bgcolor)
-    html = html.replace('<!-- Hi Firstname -->',"Hi Firstname,")
+    for l in ['','es','uk']:
+        html = NewsShot.add_html_x(post.slug,l)
+        html = html.replace('<!-- Hi Firstname -->',"Hi Firstname,")
 
-    email = EmailMultiAlternatives( '[TEST] ' + (post.email_subject if post.email_subject else post.title), post.title, settings.EMAIL_FROM_USER, to_emails, headers = {'X-gel-id': f'xxx-{to_emails[0]}-xxx'}  )
-    email.attach_alternative(html, "text/html") 
-    #if attachment_file: email.attach_file(attachment_file)
-    
-    send_result = email.send()
-    message_id = email.extra_headers.get('X-gel-id','-')
-    print('send_result',send_result,message_id)
-    logger.info(email.extra_headers)
-    logger.error("send_result:%s:%s",send_result,message_id)
+        email = EmailMultiAlternatives( '[TEST] ' + (post.email_subject if post.email_subject else post.title), post.title, settings.EMAIL_FROM_USER, to_emails, headers = {'X-gel-id': f'xxx-{to_emails[0]}-xxx'}  )
+        email.attach_alternative(html, "text/html") 
+        #if attachment_file: email.attach_file(attachment_file)
+        
+        send_result = email.send()
+        message_id = email.extra_headers.get('X-gel-id','-')
+        print('send_result',send_result,message_id)
+        logger.info(email.extra_headers)
+        logger.error("send_result:%s:%s",send_result,message_id)
 
 
     return JsonResponse({'result':'ok'})    

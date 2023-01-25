@@ -1,5 +1,8 @@
 import uuid
 import requests
+import re
+import requests
+from bs4 import BeautifulSoup
 
 import css_inline
 
@@ -25,10 +28,17 @@ class NewsShot(models.Model):
 
 
     @staticmethod
-    def add_html_x(text,title,slug,title_color,title_bgcolor):
-        pass
-        #html = requests.get("http://localhost:8000/blog/newsletter/"+slug)
-        html = requests.get("https://www.gellifique.co.uk/blog/newsletter/"+slug)
+    def add_html_x(slug,lang=None):
+        url = "https://blog.gellifique.co.uk/blog/newsletter/"
+        url = "http://localhost:8000/blog/newsletter/"
+
+        url += slug
+
+        if lang: url += '/' + lang
+
+        print (url)
+
+        html = requests.get(url)
         if html.status_code==200:
             html = html.text
 
@@ -471,3 +481,11 @@ footer .unsubscribe {
 
 
 
+    @staticmethod
+    def get_trustpilot():
+        tp = requests.get('https://uk.trustpilot.com/review/gellifique.co.uk?utm_medium=trustbox&utm_source=MicroReviewCount')
+        soup = BeautifulSoup(tp.text, 'html.parser')
+        p=soup.find('p',attrs={'data-reviews-count-typography':'true'})
+        if p:
+            return re.sub('\D?','',p.text)
+        return 257

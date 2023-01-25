@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{post.lang or 'en'}}">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -400,18 +400,18 @@ h1, h2, h3, h4, h5, h6 {
             <img class="logo img-responsive" src="https://www.gellifique.co.uk/img/logo-professional-263.png" alt="GellifiQue Professional">
           </div>
           <div class="navbar">
-            <a class="navbar-item" href="https://www.gellifique.co.uk/en/100-gel-polish-colour(60)">GEL COLOUR</a>
-            <a class="navbar-item" href="https://www.gellifique.co.uk/en/base-and-top-coat(18)">BASE &amp; TOP</a>
-            <a class="navbar-item" href="https://www.gellifique.co.uk/en/apex-gel-builder-in-a-bottle(87)">APEX GEL</a>
-            <a class="navbar-item" href="https://www.gellifique.co.uk/en/brushes-(116)">BRUSHES</a>
+            <a class="navbar-item" href="https://{{www_gellifique}}/{{post.lang or 'en'}}/100-gel-polish-colour(60)">GEL COLOUR</a>
+            <a class="navbar-item" href="https://{{www_gellifique}}/{{post.lang or 'en'}}/base-and-top-coat(18)">BASE &amp; TOP</a>
+            <a class="navbar-item" href="https://{{www_gellifique}}/{{post.lang or 'en'}}/apex-gel-builder-in-a-bottle(87)">APEX GEL</a>
+            <a class="navbar-item" href="https://{{www_gellifique}}/{{post.lang or 'en'}}/brushes-(116)">BRUSHES</a>
           </div>
             
         </div>
         <div class="blog_post">
 
             <div class="blog_header">
-                <h1><a href="{% url 'blog:newsletter' post.slug %}">{{post.title}}</a></h1>
-            </div>
+                <h1><a href="{% if post.lang %}{% url 'blog:newsletter' post.slug post.lang %}{% else %}{% url 'blog:newsletter_en' post.slug %}{% endif %}">{{post.title|capitalize}}</a></h1>
+              </div>
             <div class="blog_body">
 
                 {% block content %}
@@ -425,26 +425,72 @@ h1, h2, h3, h4, h5, h6 {
 
         <footer>
             <div class="www">
-                <a href="https://www.gellifique.co.uk/">www.gellifique.co.uk</a>
+                <a href="https://{{www_gellifique}}/">{{www_gellifique}}</a>
             </div>
             <div class="footer-text">
-                Products with the highest quality assurance in the nail industry. 
-                Uniquely formulated and uniquely tested. Discover our honey-like textured formula today.
+
+
+
+                {% if post.lang=='it' %}
+                  Prodotti con la massima garanzia di qualità nel settore delle unghie. Formulato in modo univoco e testato in modo univoco. Scopri oggi la nostra formula testurizzata simile al miele.
+                {% elif post.lang=='ro' %}
+                  Produse cu cea mai înaltă asigurare a calității din industria unghiilor. Formulat unic și testat în mod unic. Descoperă astăzi formula noastră texturată asemănătoare mierii.
+                {% elif post.lang=='pl' %}
+                  Produkty z gwarancją najwyższej jakości w branży paznokciowej. Wyjątkowo sformułowane i wyjątkowo przetestowane. Już dziś odkryj naszą teksturowaną formułę przypominającą miód.
+                {% elif post.lang=='es' %}
+                  Productos con la más alta garantía de calidad en la industria de las uñas. Formulado de forma única y probado de forma única. Descubre nuestra fórmula con textura similar a la miel hoy.
+                {% elif post.lang=='fr' %}
+                  Produits avec la plus haute assurance qualité dans l'industrie des ongles. Formule unique et testée de manière unique. Découvrez dès aujourd'hui notre formule à la texture miellée.
+                {% elif post.lang=='de' %}
+                  Produkte mit der höchsten Qualitätssicherung in der Nagelindustrie. Einzigartig formuliert und einzigartig getestet. Entdecken Sie noch heute unsere honigähnliche Texturformel.
+                {% elif post.lang=='pt' %}
+                  Produtos com a mais alta garantia de qualidade na indústria de unhas. Formulado de forma única e testado de forma única. Descubra hoje nossa fórmula com textura semelhante ao mel.
+                {% elif post.lang=='uk' %}
+                  Продукти з найвищою гарантією якості в нігтьовій індустрії. Унікальна формула та унікальне тестування. Відкрийте для себе сьогодні нашу формулу з текстурою меду.
+                {% else %}
+                  Products with the highest quality assurance in the nail industry. 
+                  Uniquely formulated and uniquely tested. Discover our honey-like textured formula today.
+                {% endif %}
+
+
+
+
             </div>
             <div class="footer-text">
-                <a href="https://uk.trustpilot.com/review/gellifique.co.uk">See our 252 reviews on Trustpilot</a>
+                <a href="https://uk.trustpilot.com/review/gellifique.co.uk">
+
+                {% if post.lang=='it' %}
+                  Guarda le nostre {{trustpilot}} recensioni su Trustpilot
+                {% elif post.lang=='ro' %}
+                  Vedeți cele {{trustpilot}} de recenzii ale noastre pe Trustpilot                
+                {% elif post.lang=='pl' %}
+                  Zobacz nasze {{trustpilot}} recenzji na portalu Trustpilot
+                {% elif post.lang=='es' %}
+                  Vea nuestras {{trustpilot}} reseñas en Trustpilot
+                {% elif post.lang=='fr' %}
+                  Voir nos {{trustpilot}} avis sur Trustpilot
+                {% elif post.lang=='de' %}
+                  Sehen Sie sich unsere {{trustpilot}} Bewertungen auf Trustpilot an
+                {% elif post.lang=='pt' %}
+                  Veja nossas {{trustpilot}} avaliações no Trustpilot
+                {% elif post.lang=='uk' %}
+                  Перегляньте наші {{trustpilot}} відгуків на Trustpilot
+                {% else %}
+                  See our {{trustpilot}} reviews on Trustpilot
+                {% endif %}
+                </a>
             </div>
             <div><img class="footer-img" width="80%" src="https://blog.gellifique.co.uk/static/images/newsletter_footer2.png"</div>
             <div class="social">
                 <a href="https://www.facebook.com/gellifiqueltd/" target="_blank"><img src="https://blog.gellifique.co.uk/static/images/facebook-square-brands-bl.png"></a>
-                <a href="https://www.instagram.com/gellifique_gel_colour/" target="_blank"><img src="https://blog.gellifique.co.uk/static/images/instagram-square-brands-bl.png"></a>
+                <a href="https://www.instagram.com/gellifique_professional/" target="_blank"><img src="https://blog.gellifique.co.uk/static/images/instagram-square-brands-bl.png"></a>
                 <a href="https://www.youtube.com/channel/UC8EB7U4DV4n_8BY8wprBXOQ" target="_blank"><img src="https://blog.gellifique.co.uk/static/images/youtube-square-brands-bl.png"></a>
                 <a href="https://twitter.com/gellifique" target="_blank"><img src="https://blog.gellifique.co.uk/static/images/twitter-square-brands-bl.png"></a>
                 <a href="https://uk.pinterest.com/gellifique/" target="_blank"><img src="https://blog.gellifique.co.uk/static/images/pinterest-square-brands-bl.png"></a>
             </div>
             <div class="unsubscribe">
                 <a href="https://blog.gellifique.co.uk/blog/newsletter/unsubscribe/####email####/####uuid####/">unsubscribe from this list</a> |     
-                <a href="https://www.gellifique.co.uk/en/identity">update subscription preferences</a>
+                <a href="https://{{www_gellifique}}/{{post.lang or 'en'}}/identity">update subscription preferences</a>
             </div>
         </footer>
     </div>

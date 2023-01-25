@@ -51,6 +51,12 @@ class Post(models.Model):
 
     email_status = models.IntegerField(default=EmailStatus.NONE,choices=EmailStatus.choices)
 
+    class Domains(models.IntegerChoices):
+        CO_UK = 1
+        EU = 2
+
+    domain = models.IntegerField(default=Domains.CO_UK,choices=Domains.choices)
+
     category = models.ManyToManyField(Category, )
 
     title_color = models.CharField(_("Title Color"),max_length=20, blank=True, null=False, default='#232323')
@@ -228,4 +234,17 @@ class Post(models.Model):
 """
                     self.text = re.sub(product_re,prod,self.text,1)
 
+class PostLang(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    lang_iso_code = models.CharField(_("Language ISO Code"), max_length=5)
+    title = models.CharField(_("Title"), max_length=100, default='')
+    email_subject = models.CharField(_("Subject"), max_length=100, blank=True, null=False, default='')
+    text = models.TextField(_("Text"), blank=True, null=False, default='')
+    description = models.TextField(_("Meta Description"), blank=True, null=False, default='')
+    keywords  = models.TextField(_("Meta Keywords"), blank=True, null=False, default='')
+    json_ld  = models.TextField(_("script ld+json"), blank=True, null=False, default='')
+    class Meta:
+        unique_together = ('post', 'lang_iso_code')
 
+
+    langs = ['es','fr','de','it','ro','pl','pt','uk']

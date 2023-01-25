@@ -61,12 +61,15 @@ class Command(BaseCommand):
 
 
         if len(newsletter_post) > 0:
-            html = NewsShot.add_html_x(newsletter_post[0].formatted_markdown,newsletter_post[0].title,newsletter_post[0].slug,newsletter_post[0].title_color,newsletter_post[0].title_bgcolor)
+            html = NewsShot.add_html_x(newsletter_post[0].slug)
             #print(self.add_html(newsletter_post[0].formatted_markdown,newsletter_post[0].title,newsletter_post[0].slug))
 
-            custs = self.get_customers(newsletter_post[0].id)
+            if newsletter_post[0].Domains==Post.Domains.EU:
+                custs = self.get_customers_eu(newsletter_post[0].id)
+            else:
+                custs = self.get_customers(newsletter_post[0].id)
+
             #custs = self.get_customers_special(newsletter_post[0].id)
-            #custs = self.get_customers_eu(newsletter_post[0].id)
 
             if len(custs):
                 dolog = True
@@ -113,11 +116,16 @@ class Command(BaseCommand):
         global _post_title,_post_id
         _post_title = title
         _post_id = id
-        html = re.sub(r'(<a\s+href=")(https://www\.gellifique\.co.uk/)([^"]*)',my_replace,html)
+        html = re.sub(r'(<a\s+href=")(https://www\.gellifique\.co\.uk/)([^"]*)',my_replace,html)
         html = html.replace('####uuid####',uuid)
         html = html.replace('####email####',to_email)
         html = html.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
-        
+
+        html = re.sub(r'(<a\s+href=")(https://www\.gellifique\.eu/)([^"]*)',my_replace,html)
+        html = html.replace('####uuid####',uuid)
+        html = html.replace('####email####',to_email)
+        html = html.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
+
         return html
 
 
@@ -212,7 +220,7 @@ class Command(BaseCommand):
                 with connections['default'].cursor() as cursor:
                     sql = """
                     SELECT id_customer,email,firstname,lastname,id_lang FROM gellifique_eu.ps17_customer c 
-                        where active=1 and id_shop=2
+                        where active=1 and newsletter=1 and id_shop=2
                         and c.id_customer not IN (
                         select customer_id from dj.newsletter_newsshot where customer_id=c.id_customer
                         and blog_id=%s
@@ -229,3 +237,55 @@ class Command(BaseCommand):
 
             return row
 
+
+
+
+############
+
+class NewsShotSender:
+
+    def send(self, *args, **options):
+        sent = 0
+        not_sent = 0
+
+        # get nex newsletter_post which status is not SENT
+        newsletter_post = Post.objects.filter(email=True,email_send_dt__lt=timezone.now(),email_status__in=[Post.EmailStatus.NONE,Post.EmailStatus.SENDING]).order_by('id')
+
+        # we will send only 1st newsletter_post
+        if len(newsletter_post) > 0:
+            # make html from the newsletter_post content
+            html = NewsShot.add_html_x(newsletter_post[0].formatted_markdown,newsletter_post[0].title,newsletter_post[0].slug,newsletter_post[0].title_color,newsletter_post[0].title_bgcolor)
+
+            # get next 50 customers
+            custs = self.get_customers(newsletter_post[0].id,50)
+
+            if len(custs):
+
+                if newsletter_post[0].email_status==Post.EmailStatus.NONE:
+                    newsletter_post[0].email_status = Post.EmailStatus.SENDING
+                    newsletter_post[0].save()
+
+                for i,c in enumerate(custs):
+
+                    # make personalized newsletter_post for a customer
+                    shot = NewsShot(blog=newsletter_post[0],customer_id=c[0])
+
+                    # send it!
+                    if self.send(c,html,newsletter_post[0].email_subject,newsletter_post[0].title,newsletter_post[0].id,shot.uuid):
+                        # save in customers's history
+                        shot.send_dt = timezone.now()
+                        shot.save() 
+                        sent += 1
+                    else:
+                        not_sent += 1
+
+            else:
+                print('no more customers! - setting SENT status')
+
+                #mark newsletter_post as fully sent
+                newsletter_post[0].email_status = Post.EmailStatus.SENT
+                newsletter_post[0].save()
+        else:
+            print('no newsletters to send!')
+
+        print("DONE! Sent:%s, Not sent:%s" % (str(sent),str(not_sent)))
