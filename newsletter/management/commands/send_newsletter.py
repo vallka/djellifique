@@ -70,7 +70,7 @@ class Command(BaseCommand):
             html = {}
             html[1] = NewsShot.add_html_x(newsletter_post[0].slug)
 
-            limit = 5
+            limit = 50
             if newsletter_post[0].domain==Post.Domains.EU:
                 custs = self.get_customers_eu(newsletter_post[0].id,limit)
             else:
@@ -120,10 +120,14 @@ class Command(BaseCommand):
         global _post_title,_post_id
         _post_title = title
         _post_id = id
+
+        #TODO: for some reason doesn't replace links in top menu
+
         html = re.sub(r'(<a\s+href=")(https://www\.gellifique\.[couke.]+/)([^"]*)',my_replace,html)
         html = html.replace('####uuid####',uuid)
         html = html.replace('####email####',to_email)
         html = html.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
+
 
         return html
 
