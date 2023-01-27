@@ -31,7 +31,9 @@ def my_replace(match):
     url = f"{match3}?utm_source=newsletter&utm_medium=email&utm_campaign={_post_title}&utm_id={_post_id}"
     url = urllib.parse.quote_plus(url)
 
-    return f'{match1}{match2}blog/newsletter/click/####uuid####/?path={url}'
+    url = 'https://blog.gellifique.co.uk/'
+
+    return f'{match1}{url}blog/newsletter/click/####uuid####/?path={url}'
 
 class Command(BaseCommand):
     help = 'send newsletter'
