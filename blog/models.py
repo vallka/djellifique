@@ -247,4 +247,13 @@ class PostLang(models.Model):
         unique_together = ('post', 'lang_iso_code')
 
 
-    langs = ['es','fr','de','it','ro','pl','pt','uk']
+class AllLanguages:
+    # needs to match table content: ps17_lang
+    langs = ['','','es','de','fr','pt','pl','ro','it','uk']
+
+    @classmethod
+    def getById(cls,id):
+        return cls.langs[id]
+
+        
+
