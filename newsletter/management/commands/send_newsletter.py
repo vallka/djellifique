@@ -120,12 +120,7 @@ class Command(BaseCommand):
         global _post_title,_post_id
         _post_title = title
         _post_id = id
-        html = re.sub(r'(<a\s+href=")(https://www\.gellifique\.co\.uk/)([^"]*)',my_replace,html)
-        html = html.replace('####uuid####',uuid)
-        html = html.replace('####email####',to_email)
-        html = html.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
-
-        html = re.sub(r'(<a\s+href=")(https://www\.gellifique\.eu/)([^"]*)',my_replace,html)
+        html = re.sub(r'(<a\s+href=")(https://www\.gellifique\.[couke]+/)([^"]*)',my_replace,html)
         html = html.replace('####uuid####',uuid)
         html = html.replace('####email####',to_email)
         html = html.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
