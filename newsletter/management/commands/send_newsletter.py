@@ -101,7 +101,7 @@ class Command(BaseCommand):
 
             else:
                 dolog = True
-                if not MOCK_SEND and MOCK:
+                if not MOCK_SEND and not MOCK:
                     print('no more customers! - setting SENT status')
                     logger.info('no more customers! - setting SENT status')
                     newsletter_post[0].email_status = Post.EmailStatus.SENT
