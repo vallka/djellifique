@@ -33,7 +33,7 @@ def my_replace(match):
 
     blog_url = 'https://blog.gellifique.co.uk/'
 
-    return f'{match1}{blog_url}blog/newsletter/click/####uuid####/?path={match1}{url}'
+    return f'{match1}{blog_url}blog/newsletter/click/####uuid####/?path={match2}{url}'
 
 class Command(BaseCommand):
     help = 'send newsletter'
