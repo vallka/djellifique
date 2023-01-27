@@ -99,10 +99,11 @@ class Command(BaseCommand):
 
             else:
                 dolog = True
-                print('no more customers! - setting SENT status')
-                logger.info('no more customers! - setting SENT status')
-                newsletter_post[0].email_status = Post.EmailStatus.SENT
-                newsletter_post[0].save()
+                if not MOCK_SEND and MOCK:
+                    print('no more customers! - setting SENT status')
+                    logger.info('no more customers! - setting SENT status')
+                    newsletter_post[0].email_status = Post.EmailStatus.SENT
+                    newsletter_post[0].save()
         else:
             #logger.info('no newsletters to send!')
             print('no newsletters to send!')
@@ -141,10 +142,10 @@ class Command(BaseCommand):
         #print (html)
         if MOCK:
             print(f"MOCK: {to_email} / {lang}")
-            return True
+            return False
         elif MOCK_SEND:
             print(f"MOCK_SEND: {to_email} / {lang}")
-            return True
+            return False
         else:
             email = EmailMultiAlternatives( subj if subj else title, title, settings.EMAIL_FROM_USER, [to_email], headers = {'X-gel-id': str(uuid)}   )
             email.attach_alternative(html, "text/html") 
