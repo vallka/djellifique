@@ -57,7 +57,8 @@ def click_redirect(request,uuid):
     except NewsShot.DoesNotExist:
         logger.error("NewsShot.DoesNotExist:%s",uuid)
 
-    return redirect('https://www.gellifique.co.uk/' + path)
+    #return redirect('https://www.gellifique.co.uk/' + path)
+    return redirect(path)
 
 class UnsubscribePageView(generic.TemplateView):
     template_name = 'prestashop/unsubscribe.html'
