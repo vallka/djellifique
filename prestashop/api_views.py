@@ -25,6 +25,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 db = 'presta'
+CATEGORY_OUTLET = 21
+CATEGORY_SALE = 135
 
 class OrderList(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)     
@@ -529,48 +531,36 @@ class UpdateProduct(APIView):
 
                     if dt2<dt1: dt1,dt2 = dt2,dt1
 
-                for p in queryset:
-                    n += 1
+                    for p in queryset:
+                        cursor.execute("select id_product from ps17_category_produce where id_category=%s and id_product=%s",
+                                [CATEGORY_OUTLET,p.id_product])
+                        outlet = cursor.fetchone()[0]
 
-                    logger.info(f"{n} {p.id_product}: {new_price}/{dt1}/{dt2}:{id_shop}")
+                        n += 1
+                        logger.info(f"{n} {p.id_product}: {new_price}/{dt1}/{dt2}:{id_shop}")
+                        
+                        if not outlet:
 
-                    if id_shop:
-                        sql1 = "DELETE FROM `ps17_specific_price` where `id_product`=%s and `id_shop`=%s"
+                            if id_shop:
+                                sql1 = "DELETE FROM `ps17_specific_price` where `id_product`=%s and `id_shop`=%s"
 
-                        sql2 = """
+                                sql2 = """
 INSERT ignore INTO ps17_specific_price
 (id_specific_price_rule,id_cart,id_product,id_shop,id_shop_group,id_currency,id_country,id_group,id_customer,id_product_attribute,price,from_quantity,reduction,reduction_tax,reduction_type,`from`,`to`) 
 VALUES
 (0, 0, %s, %s, 0, 0, 0, 0, 0, 0, '-1.000000', 1, %s, 1, 'percentage', %s, %s);
 """
-                        with connections[db].cursor() as cursor:
-                            cursor.execute(sql1,[p.id_product,id_shop])
-                            if new_price: cursor.execute(sql2,[p.id_product,id_shop,new_price,dt1,dt2])
+                                with connections[db].cursor() as cursor:
+                                    cursor.execute(sql1,[p.id_product,id_shop])
+                                    if new_price: cursor.execute(sql2,[p.id_product,id_shop,new_price,dt1,dt2])
 
-                    else:
-                        logger.error('id_shop is not set')
+                            else:
+                                logger.error('id_shop is not set')
 
-
-                    #sql = sql.format(dt1,dt2,)
-                    #cursor.execute(sql, (idProduct,perCent,))
-
-                    #if id_shop:
-                    #    logger.info("update ps17_product_shop set wholesale_price=%s where id_product=%s and id_shop=%s")
-                    #    logger.info(f"pars:{new_price},{p.id_product},{id_shop}")
-#
-                    #    with connections[db].cursor() as cursor:
-                    #        cursor.execute("update ps17_product_shop set wholesale_price=%s where id_product=%s and id_shop=%s",[new_price,p.id_product,id_shop])
-                    #else:
-                    #    logger.info("update ps17_product_shop set wholesale_price=%s where id_product=%s")
-                    #    logger.info(f"pars:{new_price},{p.id_product}")
-#
-                    #    with connections[db].cursor() as cursor:
-                    #        cursor.execute("update ps17_product_shop set wholesale_price=%s where id_product=%s",[new_price,p.id_product])
-                    #        cursor.execute("update ps17_product set wholesale_price=%s where id_product=%s",[new_price,p.id_product])
-
-
-                    n_updated += 1
-                    logger.info(f'saved:{p.id_product}')
+                            n_updated += 1
+                            logger.info(f'saved:{p.id_product}')
+                        else:
+                            logger.info('--outlet')
 
             if obj['what']=='feature':
                 queryset = Ps17Product.objects.using(db).filter(id_product__in=ids,)
