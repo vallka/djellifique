@@ -532,15 +532,16 @@ class UpdateProduct(APIView):
                     if dt2<dt1: dt1,dt2 = dt2,dt1
 
                     for p in queryset:
-                        cursor.execute("select id_product from ps17_category_produce where id_category=%s and id_product=%s",
+                        outlet = None
+                        with connections[db].cursor() as cursor:                        
+                            cursor.execute("select id_product from ps17_category_produce where id_category=%s and id_product=%s",
                                 [CATEGORY_OUTLET,p.id_product])
-                        outlet = cursor.fetchone()[0]
+                            outlet = cursor.fetchone()[0]
 
                         n += 1
                         logger.info(f"{n} {p.id_product}: {new_price}/{dt1}/{dt2}:{id_shop}")
                         
                         if not outlet:
-
                             if id_shop:
                                 sql1 = "DELETE FROM `ps17_specific_price` where `id_product`=%s and `id_shop`=%s"
 
