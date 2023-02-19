@@ -536,7 +536,7 @@ class UpdateProduct(APIView):
                         with connections[db].cursor() as cursor:                        
                             cursor.execute("select id_product from ps17_category_product where id_category=%s and id_product=%s",
                                 [CATEGORY_OUTLET,p.id_product])
-                            outlet = cursor.fetchone()[0]
+                            outlet = cursor.fetchone()
 
                         n += 1
                         logger.info(f"{n} {p.id_product}: {new_price}/{dt1}/{dt2}:{id_shop}")
