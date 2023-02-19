@@ -86,10 +86,13 @@ class Command(BaseCommand):
                 for i,c in enumerate(custs):
                     print(f"{i+1}, customer:{c[0]}:{c[1]}:{c[4]}")
                     logger.info(f"{i+1}, customer:{c[0]}:{c[1]}:{c[4]}")
-                    lang_id= c[4]
-
-                    if not html.get(lang_id):
-                        html[lang_id] = NewsShot.add_html_x(newsletter_post[0].slug,AllLanguages.getById(lang_id))
+                    
+                    if newsletter_post[0].domain==Post.Domains.EU:
+                        lang_id = c[4]
+                        if not html.get(lang_id):
+                            html[lang_id] = NewsShot.add_html_x(newsletter_post[0].slug,AllLanguages.getById(lang_id))
+                    else:
+                        lang_id = 1
 
                     shot = NewsShot(blog=newsletter_post[0],customer_id=c[0])
                     if self.send(c,html[lang_id],newsletter_post[0].email_subject,newsletter_post[0].title,newsletter_post[0].id,shot.uuid):

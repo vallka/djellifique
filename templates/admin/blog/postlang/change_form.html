@@ -1,0 +1,37 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{% block extrahead %}{{ block.super }}
+<style>
+#id_text {
+    min-width: 99%;
+    height: 50vw;
+}
+</style>
+
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+<script>
+  // Add line breaks to the textarea on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    const textarea = document.getElementById('id_text');
+    textarea.value = textarea.value.replace(/</g, '\n<')
+      .replace(/>/g, '>\n')
+      .replace(/\n+/g, '\n')
+      .trim();
+  });
+
+  // Remove extra line breaks before form submission
+  const form = document.getElementById('postlang_form');
+  form.addEventListener('submit', () => {
+    const textarea = document.getElementById('id_text');
+    textarea.value = textarea.value.replace(/\n+/g, '\n')
+      .replace(/\n</g, '<')
+      .replace(/>\n/g, '>')
+      .trim();
+  });
+</script>
+{% endblock %}
+

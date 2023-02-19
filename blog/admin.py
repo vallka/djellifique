@@ -4,17 +4,33 @@ from markdownx.models import MarkdownxField
 from django.db import models
 from django.forms.widgets import Textarea
 from django.utils import timezone
+from django.urls import reverse
+from django.utils.html import format_html
 
 from .models import *
 
 # Register your models here.
 #admin.site.register(Post, MarkdownxModelAdmin)
 admin.site.register(Category)
+@admin.register(PostLang)
+class PostLangAdmin(MarkdownxModelAdmin):
+    list_display = ['post','lang_iso_code','title']
+    list_display_links = ['post','title',]
+    list_filter = ['post']
+    
 class PostLangInline(admin.TabularInline):
     model = PostLang
-    fields = ['lang_iso_code','title','email_subject',]
-    readonly_fields = ['lang_iso_code','title','email_subject',]
+    fields = ['lang_iso_code','title','email_subject','edit_link']
+    readonly_fields = ['lang_iso_code','title','email_subject','edit_link',]
     extra = 0
+    
+    def edit_link(self, obj):
+        url = reverse('admin:blog_postlang_change', args=[obj.pk])
+        return format_html('<a href="{}" target="_blank">Edit</a>', url)
+
+    edit_link.short_description = 'Edit'
+
+
 @admin.register(Post)
 class PostAdmin(MarkdownxModelAdmin):
     list_display = ['id','slug','title','blogged','blog_start_dt','newsletter','email_send_dt','created_dt']
