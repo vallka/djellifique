@@ -24,10 +24,10 @@ class GTranslator:
     @staticmethod
     def translate(texts,target_languages,source_language):
         translate_client = translate.Client()
-        chars = 0
 
         translated_texts = {}
         for target_language in target_languages:
+            chars = 0
             # Translate the texts
             translated_texts[target_language] = []
             for text in texts:
@@ -58,8 +58,8 @@ class GTranslator:
                 translated_texts[target_language].append(result)
                 chars += len(text)
 
-        u = Usage(chars=chars,lang=target_language,cached=was_in_cache)
-        u.save()
+            u = Usage(chars=chars,lang=target_language,cached=was_in_cache)
+            u.save()
 
         # Return the translated texts in the response
         return translated_texts
