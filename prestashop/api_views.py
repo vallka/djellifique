@@ -534,7 +534,7 @@ class UpdateProduct(APIView):
                     for p in queryset:
                         outlet = None
                         with connections[db].cursor() as cursor:                        
-                            cursor.execute("select id_product from ps17_category_produce where id_category=%s and id_product=%s",
+                            cursor.execute("select id_product from ps17_category_product where id_category=%s and id_product=%s",
                                 [CATEGORY_OUTLET,p.id_product])
                             outlet = cursor.fetchone()[0]
 
