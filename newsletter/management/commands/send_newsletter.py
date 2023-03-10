@@ -38,6 +38,7 @@ def my_replace(match):
 class Command(BaseCommand):
     help = 'send newsletter'
     good_customers = []
+    current_post = None
 
     def add_arguments(self, parser):
         pass
@@ -66,6 +67,7 @@ class Command(BaseCommand):
             print(newsletter_post[0].slug)
             print(newsletter_post[0].title)
             print(newsletter_post[0].domain)
+            current_post = newsletter_post[0]
 
             html = {}
             html[1] = NewsShot.add_html_x(newsletter_post[0].slug)
@@ -119,7 +121,7 @@ class Command(BaseCommand):
 
 
 
-    def encode_urls(self,html,title,id,uuid,to_email,firstname):
+    def encode_urls(self,html,title,id,uuid,to_email,firstname,id_customer):
         global _post_title,_post_id
         _post_title = title
         _post_id = id
@@ -131,17 +133,23 @@ class Command(BaseCommand):
         html = html.replace('####email####',to_email)
         html = html.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
 
+        host = 'https://www.gellifique.co.uk' if self.current_post.domain==Post.Domains.EU else 'https://www.gellifique.eu'
+        referral_url = host + '/?rid=' + (id_customer+1000)
+        
+        html = html.replace('<referral_url>',referral_url)
+        html = html.replace('<firstname>',firstname)
 
         return html
 
 
     def send(self,cust,html,subj,title,id,uuid):
         #to_email = 'vallka@vallka.com'
+        id_cust = cust[0]
         to_email = cust[1]
         firstname = cust[2]
         lang = cust[4]
 
-        html = self.encode_urls(html,title,id,str(uuid),to_email,firstname)
+        html = self.encode_urls(html,title,id,str(uuid),to_email,firstname,id_cust)
 
         #print (html)
         if MOCK:

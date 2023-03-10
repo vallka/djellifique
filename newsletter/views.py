@@ -141,7 +141,12 @@ def sendtest(request,slug):
         html = NewsShot.add_html_x(post.slug,l)
 
         if html:
-            html = html.replace('<!-- Hi Firstname -->',"Hi Firstname,")
+            firstname = 'Margarita'
+            referral_url = 'https://www.gellifique.co.uk/?rid=1064'
+
+            html = html.replace('<referral_url>',referral_url)
+            html = html.replace('<firstname>',firstname)
+            html = html.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
 
             email = EmailMultiAlternatives( '[TEST] ' + (post.email_subject if post.email_subject else post.title), post.title, settings.EMAIL_FROM_USER, to_emails, headers = {'X-gel-id': f'xxx-{to_emails[0]}-xxx'}  )
             email.attach_alternative(html, "text/html") 

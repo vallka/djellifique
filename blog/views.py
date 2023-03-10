@@ -270,6 +270,10 @@ class PostView(generic.DetailView):
             if len(prev): 
                 context['prev'] = prev[0].slug
 
+        context['post'].text = context['post'].text.replace('<referral_url>','')
+        context['post'].text = context['post'].text.replace('<firstname>','')
+        context['post'].text = context['post'].text.replace('<!-- Hi Firstname -->','')
+
         return context        
 
 class NewsletterView(generic.DetailView):
@@ -305,7 +309,14 @@ class NewsletterView(generic.DetailView):
             context['www_gellifique'] = 'www.gellifique.eu'
         else:
             context['www_gellifique'] = 'www.gellifique.co.uk'
-            
+
+        firstname = 'Margarita'
+        referral_url = 'https://www.gellifique.co.uk/?rid=1064'
+
+        context['post'].text = context['post'].text.replace('<referral_url>',referral_url)
+        context['post'].text = context['post'].text.replace('<firstname>',firstname)
+        context['post'].text = context['post'].text.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
+
         return context
 
 @require_POST
