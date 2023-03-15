@@ -67,7 +67,7 @@ class Command(BaseCommand):
             print(newsletter_post[0].slug)
             print(newsletter_post[0].title)
             print(newsletter_post[0].domain)
-            current_post = newsletter_post[0]
+            self.current_post = newsletter_post[0]
 
             html = {}
             html[1] = NewsShot.add_html_x(newsletter_post[0].slug)
