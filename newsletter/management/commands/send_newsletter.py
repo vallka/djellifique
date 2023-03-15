@@ -134,7 +134,7 @@ class Command(BaseCommand):
         html = html.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
 
         host = 'https://www.gellifique.co.uk' if self.current_post.domain==Post.Domains.EU else 'https://www.gellifique.eu'
-        referral_url = host + '/?rid=' + (id_customer+1000)
+        referral_url = host + '/?rid=' + str(id_customer+1000)
         
         html = html.replace('<referral_url>',referral_url)
         html = html.replace('<firstname>',firstname)
