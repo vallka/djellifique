@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 MOCK = False
-MOCK_SEND = True
+MOCK_SEND = False
 
 _post_title = ''
 _post_id = 0
@@ -72,7 +72,7 @@ class Command(BaseCommand):
             html = {}
             html[1] = NewsShot.add_html_x(newsletter_post[0].slug)
 
-            limit = 1
+            limit = 5
             if newsletter_post[0].domain==Post.Domains.EU:
                 custs = self.get_customers_eu(newsletter_post[0].id,limit)
             else:
@@ -146,7 +146,7 @@ class Command(BaseCommand):
         #to_email = 'vallka@vallka.com'
         id_cust = cust[0]
         to_email = cust[1]
-        firstname = cust[2]
+        firstname = cust[2].strip()
         lang = cust[4]
 
         html = self.encode_urls(html,title,id,str(uuid),to_email,firstname,id_cust)
