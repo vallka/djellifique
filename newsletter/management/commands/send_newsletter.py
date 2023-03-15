@@ -133,7 +133,7 @@ class Command(BaseCommand):
         html = html.replace('####email####',to_email)
         html = html.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
 
-        host = 'https://www.gellifique.co.uk' if self.current_post.domain==Post.Domains.EU else 'https://www.gellifique.eu'
+        host = 'https://www.gellifique.co.uk' if self.current_post.domain==Post.Domains.CO_UK else 'https://www.gellifique.eu'
         referral_url = host + '/?rid=' + str(id_customer+1000)
         
         html = html.replace('<referral_url>',referral_url)
