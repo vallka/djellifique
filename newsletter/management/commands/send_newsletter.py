@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 MOCK = False
-MOCK_SEND = False
+MOCK_SEND = True
 
 _post_title = ''
 _post_id = 0
@@ -72,7 +72,7 @@ class Command(BaseCommand):
             html = {}
             html[1] = NewsShot.add_html_x(newsletter_post[0].slug)
 
-            limit = 50
+            limit = 1
             if newsletter_post[0].domain==Post.Domains.EU:
                 custs = self.get_customers_eu(newsletter_post[0].id,limit)
             else:
@@ -157,6 +157,7 @@ class Command(BaseCommand):
             return False
         elif MOCK_SEND:
             print(f"MOCK_SEND: {to_email} / {lang}")
+            print(html)
             return False
         else:
             email = EmailMultiAlternatives( subj if subj else title, title, settings.EMAIL_FROM_USER, [to_email], headers = {'X-gel-id': str(uuid)}   )

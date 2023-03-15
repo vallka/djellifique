@@ -310,12 +310,12 @@ class NewsletterView(generic.DetailView):
         else:
             context['www_gellifique'] = 'www.gellifique.co.uk'
 
-        firstname = 'Margarita'
-        referral_url = 'https://www.gellifique.co.uk/?rid=1064'
+        #firstname = 'Margarita'
+        #referral_url = 'https://www.gellifique.co.uk/?rid=1064'
 
-        context['post'].text = context['post'].text.replace('<referral_url>',referral_url)
-        context['post'].text = context['post'].text.replace('<firstname>',firstname)
-        context['post'].text = context['post'].text.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
+        #context['post'].text = context['post'].text.replace('<referral_url>',referral_url)
+        #context['post'].text = context['post'].text.replace('<firstname>',firstname)
+        #context['post'].text = context['post'].text.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
 
         return context
 
