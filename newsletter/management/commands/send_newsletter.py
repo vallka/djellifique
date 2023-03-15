@@ -72,7 +72,7 @@ class Command(BaseCommand):
             html = {}
             html[1] = NewsShot.add_html_x(newsletter_post[0].slug)
 
-            limit = 5
+            limit = 50
             if newsletter_post[0].domain==Post.Domains.EU:
                 custs = self.get_customers_eu(newsletter_post[0].id,limit)
             else:
