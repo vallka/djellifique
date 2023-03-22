@@ -43,7 +43,7 @@ class Command(BaseCommand):
         self.sale_present()
         self.set_price_outlet()
         self.set_outlet_label()
-        self.set_onsale_table()
+        #self.set_onsale_table()
 
         print('done')
         logger.error("DONE - %s! - %s",self.help,str(today))
@@ -65,8 +65,9 @@ class Command(BaseCommand):
 
             print (result1,result2,result3)
 
-            cursor.execute("insert ignore into a_products_onsale(dt,products_onsale,products_outlet,products_total) values " +
-                "(date(now()),%s,%s,%s)",[result1[0],result2[0],result3[0]])
+            if db=='presta':
+                cursor.execute("insert ignore into a_products_onsale(dt,products_onsale,products_outlet,products_total) values " +
+                    "(date(now()),%s,%s,%s)",[result1[0],result2[0],result3[0]])
 
     def unsale_past_and_future(self):
         print('unsale_past_and_future')
