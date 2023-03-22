@@ -24,9 +24,9 @@ class OrderListView(generic.ListView):
         """
         """
         sql = Order.SQL()
-        logger.error(f'get_queryset sql:{sql}')
+        #logger.error(f'get_queryset sql:{sql}')
         qs = Order.objects.using('presta').raw(sql)
-        logger.error(qs)
+        #logger.error(qs)
         return qs
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -40,16 +40,16 @@ class OrderDetailListView(generic.ListView):
         """
         """
         sql = OrderDetail.SQL()
-        logger.error(f'get_queryset sql:{sql}')
+        #logger.error(f'get_queryset sql:{sql}')
         qs = OrderDetail.objects.using('presta').raw(sql,[self.kwargs['id_order']])
-        logger.error(qs)
+        #logger.error(qs)
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         sql = Order.SQL(one=True)
-        logger.error(f'get_queryset in context sql:{sql}')
+        #logger.error(f'get_queryset in context sql:{sql}')
         qs = Order.objects.using('presta').raw(sql,[self.kwargs['id_order']])
 
         context['order'] = qs[0]
@@ -63,11 +63,11 @@ class CertListView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
 
         cert_dir = os.path.join(settings.MEDIA_ROOT,'customer-certificates',self.kwargs['email'])
-        logger.error(f"CertListView:{cert_dir}")
+        #logger.error(f"CertListView:{cert_dir}")
 
 
         if os.path.isdir(cert_dir):
-            logger.error(os.listdir(cert_dir))
+            #logger.error(os.listdir(cert_dir))
             context['cert_dir'] = cert_dir
         
             files = []

@@ -36,7 +36,7 @@ class OrderList(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
 
         sql = Order.SQL()
-        logger.error(f'get sql:{sql}')
+        #logger.error(f'get sql:{sql}')
         qs = Order.objects.using(db).raw(sql)
        
         serializer = self.get_serializer(qs, many=True)
@@ -51,7 +51,7 @@ class OrderDetailList(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
 
         sql = OrderDetail.SQL()
-        logger.error(f'get sql:{sql}')
+        #logger.error(f'get sql:{sql}')
         qs = OrderDetail.objects.using(db).raw(sql,[kwargs['id_order']])
        
         serializer = self.get_serializer(qs, many=True)
@@ -69,7 +69,7 @@ class ProductList(generics.ListAPIView):
 
         queryset = Ps17Product.objects.using(db).filter(id_product__in=kwargs.get('ids', '').split(','))
 
-        logger.info(f'ProductList:{ids}')
+        #logger.info(f'ProductList:{ids}')
         #logger.error(queryset)
 
         serializer = self.get_serializer(queryset, many=True)
@@ -83,7 +83,7 @@ class UpdateOrderStatus(APIView):
     @swagger_auto_schema(operation_description="Update order status",)
     def post(self, request, format=None):
         obj = request.data
-        logger.info(f"UpdateOrderStatus:{obj['id_order']} | {obj['id_status']}")
+        #logger.info(f"UpdateOrderStatus:{obj['id_order']} | {obj['id_status']}")
 
         with connections[db].cursor() as cursor:
             cursor.execute("select current_state from ps17_orders where id_order=%s",[obj['id_order']])

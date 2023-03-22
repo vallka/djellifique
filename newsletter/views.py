@@ -25,7 +25,7 @@ from blog.models import *
 def my_image(request):
     uuid=request.GET['uuid']
 
-    logger.error("my_image - uuid:%s, ua:%s",uuid,request.headers['user-agent'])
+    #logger.error("my_image - uuid:%s, ua:%s",uuid,request.headers['user-agent'])
     try:
         ns = NewsShot.objects.get(uuid=uuid)
         if ns.opened_dt==None:
@@ -43,8 +43,8 @@ def my_image(request):
 
 def click_redirect(request,uuid):
     path=request.GET['path']
-    print ('click_redirect',uuid,path)
-    logger.error("click_redirect - uuid:%s, path:%s",uuid,path)
+    #print ('click_redirect',uuid,path)
+    #logger.error("click_redirect - uuid:%s, path:%s",uuid,path)
     try:
         ns = NewsShot.objects.get(uuid=uuid)
         if ns.clicked_dt==None:
@@ -169,8 +169,8 @@ def stats(request,slug):
 
     post = Post.objects.get(slug=slug)
 
-    print('stats:',slug,post.id)
-    logger.info("stats:%s",slug)
+    #print('stats:',slug,post.id)
+    #logger.info("stats:%s",slug)
 
     with connection.cursor() as cursor:
         cursor.execute("SELECT COUNT(send_dt),COUNT(received_dt),COUNT(opened_dt),COUNT(clicked_dt), " + 

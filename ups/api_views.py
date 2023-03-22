@@ -122,7 +122,7 @@ class UPSLabelAction(generics.ListAPIView):
         if not queryset[0].ShippingNumber:
             return Response({'status':'Error','message':f"Order id={obj['id_order']} has no tracking number"})
 
-        logger.error(queryset)
+        #logger.error(queryset)
 
         serializer = self.get_serializer(queryset, many=True)
 
@@ -157,7 +157,7 @@ def processLabelItem(dat,id_order):
         with open(f"{path}{id_order}.json", "w") as file:
             file.write(response.text)
 
-        logger.error(jsn)
+        #logger.error(jsn)
         with open(f"{path}{id_order}.gif", "wb") as file:
             file.write(base64.b64decode(jsn["LabelRecoveryResponse"]["LabelResults"]["LabelImage"]["GraphicImage"]))    
 
