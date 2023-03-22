@@ -22,12 +22,23 @@ class Command(BaseCommand):
         pass
 
     def handle(self, *args, **options):
+        global db,id_shop
         print (self.help)
         logger.info(self.help)
 
         today = datetime.today().date() # get a Date object
         logger.info(today)
 
+        db = 'presta'
+        id_shop = 1
+        self.unsale_past_and_future()
+        self.sale_present()
+        self.set_price_outlet()
+        self.set_outlet_label()
+        self.set_onsale_table()
+
+        db = 'presta_eu'
+        id_shop = 2
         self.unsale_past_and_future()
         self.sale_present()
         self.set_price_outlet()
