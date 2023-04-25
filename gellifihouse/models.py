@@ -1,7 +1,6 @@
 from functools import total_ordering
 from django.db import models
 from django.dispatch import receiver
-from instaloader import PostChangedException
 
 # Create your models here.
 class MissGelProducts(models.Model):  

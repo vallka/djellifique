@@ -6,7 +6,8 @@ from bs4 import BeautifulSoup
 
 from django.db import models
 from django.utils.text import slugify
-from django.utils.translation import ugettext_lazy as _
+#from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.urls import reverse
 from markdownx.models import MarkdownxField
@@ -35,7 +36,7 @@ class Post(models.Model):
     class Meta:
         ordering = ['-id']
 
-    title = models.CharField(_("Title"), max_length=100, unique=True)
+    title = models.CharField(_("Title"), max_length=100, unique=False)
     slug = models.SlugField(_("Slug"), unique=True, max_length=100, blank=True, null=False)
 
     blog = models.BooleanField(_("Publish to blog"),default=False)
@@ -102,7 +103,22 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            slug = slugify(self.title)
+
+            try:
+                Post.objects.get(slug=slug)
+                for i in range(1,1000):
+                    try:
+                        Post.objects.get(slug=slug+str(i))
+                        continue
+                    except Post.DoesNotExist:
+                        slug = slug+str(i)
+                        break
+
+            except Post.DoesNotExist:
+                None
+
+            self.slug = slug
 
         self.look_up_gellifique_product()
             

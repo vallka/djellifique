@@ -28,6 +28,8 @@
     position: relative;
     width: 340px;
     height: 340px;
+    margin:auto;
+    overflow:hidden;
   }
   
   .blog_card .card_title {
@@ -97,22 +99,21 @@
   }
   }
   .card_text {
-      height: 20%;
-      overflow: hidden;
-      position: absolute;
-      background-color: #fffd;
-      top: 79%;
-      left: 10%;
-      color: #403f3f;
-      padding: 6px;
-      border-radius: 5px;
-      margin-right: 6px;
-      border: solid 1px #a2a2a2;
+    overflow: hidden;
+    position: absolute;
+    background-color: #fff9;
+    top: 6px;
+    left: 6px;
+    right: 6px;
+    text-align: center;
+    color: #403f3f;
+    padding: 6px;
+    border-radius: 5px;
   }
   @media (min-width: 768px){
     .card_text {
-      height: 20%;
-      width: 80%;
+      /* height: 20%; */
+      /* width: 80%; */
     }
   }
   .card_text h1,.card_text h2,.card_text h3{
@@ -163,19 +164,15 @@
     <div class="blog_post blog_post_{{post.id}}">
       
       <div class="blog_card">
-        <div class="card_title">
-          <h1><a href="{{ post.get_absolute_url() }}">{{post.title|capitalize}}</a></h1>
-        </div>
         <div class="card_image"><a href="{{ post.get_absolute_url() }}">
           {% if post.first_image %}
             <img src="{{post.first_image}}">
           {% else %}
-            <img src="{% static 'images/flower-square.png' %}">
+            <img src="/static/images/flower-square.png">
           {% endif %}
         </a></div>
         <div class="card_text">
-          <a href="{{ post.get_absolute_url() }}">{{post.plain_text|safe}}</a>
-          <div class="card_text_after"></div>
+          <h1><a href="{{ post.get_absolute_url() }}">{{post.title}}</a></h1>
         </div>
       </div>
 

@@ -410,7 +410,7 @@ h1, h2, h3, h4, h5, h6 {
         <div class="blog_post">
 
             <div class="blog_header">
-                <h1><a href="https://blog.gellifique.co.uk{% if post.lang %}{% url 'blog:newsletter' post.slug post.lang %}{% else %}{% url 'blog:newsletter_en' post.slug %}{% endif %}">{{post.title}}</a></h1>
+                <h1><a href="https://blog.gellifique.co.uk{% if post.lang %}{{ url ('blog:newsletter',args=[post.slug,post.lang]) }}{% else %}{{ url ('blog:newsletter_en',args=[post.slug]) }}{% endif %}">{{post.title}}</a></h1>
               </div>
             <div class="blog_body">
 

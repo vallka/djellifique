@@ -19,7 +19,6 @@
   max-width: 550px;
   padding: 10px;
   background-color: initial;
-  margin-bottom: 10px;
 }
 
 .blog_card  {
@@ -28,6 +27,8 @@
   position: relative;
   width: 340px;
   height: 340px;
+  margin:auto;
+  overflow:hidden;
 }
 
 .blog_card .card_title {
@@ -97,22 +98,21 @@
 }
 }
 .card_text {
-    height: 20%;
     overflow: hidden;
     position: absolute;
-    background-color: #fffd;
-    top: 79%;
-    left: 10%;
+    background-color: #fff9;
+    top: 6px;
+    left: 6px;
+    right: 6px;
+    text-align: center;
     color: #403f3f;
     padding: 6px;
     border-radius: 5px;
-    margin-right: 6px;
-    border: solid 1px #a2a2a2;
 }
 @media (min-width: 768px){
   .card_text {
-    height: 20%;
-    width: 80%;
+    /* height: 20%; */
+    /* width: 80%; */
   }
 }
 .card_text h1,.card_text h2,.card_text h3{
@@ -183,7 +183,7 @@
 }
 
 .product_carousel h4 {
-    font-size: 13px;
+    font-size: 13px !important;
     margin: -10px 10px 5px 10px;
     text-align: center;
     letter-spacing: 1px;
@@ -202,19 +202,11 @@
           {% if post.first_image %}
             <img src="{{post.first_image}}">
           {% else %}
-            <img src="{% static 'images/flower-square.png' %}">
+            <img src="/static/images/flower-square.png">
           {% endif %}
         </a></div>
         <div class="card_text">
-          <h1><a href="{{ post.get_absolute_url() }}">{{post.title|capitalize}}</a></h1>
-          <a href="{{ post.get_absolute_url() }}">{{post.plain_text|safe}}</a>
-          <div class="card_text_after"></div>
-        </div>
-        <div class="blog_share">
-          <i class="fa fa-share-alt" aria-hidden="true"></i>
-          <a target="_blank" href="https://www.facebook.com/sharer.php?u={{ 'https://blog.gellifique.co.uk' + post.get_absolute_url() }}"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-          <a target="_blank" href="https://twitter.com/intent/tweet?text={{ 'https://blog.gellifique.co.uk' + post.get_absolute_url() }}"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-          <a target="_blank" href="https://www.pinterest.com/pin/create/button/?media={{ 'https://blog.gellifique.co.uk' + post.get_absolute_url() }}"><i class="fa fa-pinterest" aria-hidden="true"></i></a>
+          <h1><a href="{{ post.get_absolute_url() }}">{{post.title}}</a></h1>
         </div>
       </div>
 
@@ -262,7 +254,7 @@
 
   {% for list2 in post_list2 %}
     <div class="after_cat">
-      <a href="{% url 'blog:post-by-cat' list2['slug'] %}">{{list2['name']}}</a> >>
+      <a href="{{ url ('blog:post-by-cat' , args=[list2['slug']] ) }}">{{list2['name']}}</a> >>
     </div>
     {% for post in list2['posts'] %}
     <div class="blog_post blog_post_{{post.id}}">
@@ -272,19 +264,11 @@
           {% if post.first_image %}
             <img src="{{post.first_image}}">
           {% else %}
-            <img src="{% static 'images/flower-square.png' %}">
+            <img src="/static/images/flower-square.png">
           {% endif %}
         </a></div>
         <div class="card_text">
-          <h1><a href="{{ post.get_absolute_url() }}">{{post.title|capitalize}}</a></h1>
-          <a href="{{ post.get_absolute_url() }}">{{post.plain_text|safe}}</a>
-          <div class="card_text_after"></div>
-        </div>
-        <div class="blog_share">
-          <i class="fa fa-share-alt" aria-hidden="true"></i>
-          <a target="_blank" href="https://www.facebook.com/sharer.php?u={{ 'https://blog.gellifique.co.uk' + post.get_absolute_url() }}"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-          <a target="_blank" href="https://twitter.com/intent/tweet?text={{ 'https://blog.gellifique.co.uk' + post.get_absolute_url() }}"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-          <a target="_blank" href="https://www.pinterest.com/pin/create/button/?media={{ 'https://blog.gellifique.co.uk' + post.get_absolute_url() }}"><i class="fa fa-pinterest" aria-hidden="true"></i></a>
+          <h1><a href="{{ post.get_absolute_url() }}">{{post.title}}</a></h1>
         </div>
       </div>
 

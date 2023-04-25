@@ -33,12 +33,26 @@ class PostLangInline(admin.TabularInline):
 
 @admin.register(Post)
 class PostAdmin(MarkdownxModelAdmin):
-    list_display = ['id','slug','title','blogged','blog_start_dt','newsletter','email_send_dt','created_dt']
+    list_display = ['id','slug','title','domain','blogged','f_blog_start_dt','newsletter','f_email_send_dt','formatted_created_dt']
     list_display_links = ['id','slug','title',]
     search_fields = ['title', ]
-    list_filter = ['blog','email']
+    list_filter = ['blog','email','domain']
     inlines = [PostLangInline]
 
+    def formatted_created_dt(self, obj):
+        return obj.created_dt.strftime("%d-%m-%Y %H:%M")
+    formatted_created_dt.admin_order_field = 'created_dt'
+    formatted_created_dt.short_description = 'Created dt'
+
+    def f_blog_start_dt(self, obj):
+        return obj.blog_start_dt.strftime("%d-%m-%Y %H:%M") if obj.blog_start_dt else ""
+    f_blog_start_dt.admin_order_field = 'blog_start_dt'
+    f_blog_start_dt.short_description = 'Published'
+
+    def f_email_send_dt(self, obj):
+        return obj.email_send_dt.strftime("%d-%m-%Y %H:%M") if obj.email_send_dt else ""
+    f_email_send_dt.admin_order_field = 'email_send_dt'
+    f_email_send_dt.short_description = 'Sent'
 
     def blogged(self,instance):
         return True if instance.blog and instance.blog_start_dt and instance.blog_start_dt<=timezone.now() else False

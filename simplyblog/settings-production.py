@@ -8,7 +8,7 @@ DATABASES = {
         'NAME': 'dj',
         'USER': 'gellifique',
         'PASSWORD': os.environ['POLLS_DB_PASSWORD'],
-        'HOST': '127.0.0.1',
+        'HOST': '172.31.14.216',
         'OPTIONS': {'charset': 'utf8mb4'},
     },
     'presta': {
@@ -16,7 +16,7 @@ DATABASES = {
         'NAME': 'gellifique_new',
         'USER': 'gellifique',
         'PASSWORD': os.environ['POLLS_DB_PASSWORD'],
-        'HOST': '127.0.0.1',
+        'HOST': '172.31.14.216',
         'OPTIONS': {'charset': 'utf8mb4'},
     },
     'presta_eu': {
@@ -24,7 +24,7 @@ DATABASES = {
         'NAME': 'gellifique_eu',
         'USER': 'gellifique',
         'PASSWORD': os.environ['POLLS_DB_PASSWORD'],
-        'HOST': '127.0.0.1',
+        'HOST': '172.31.14.216',
         'OPTIONS': {'charset': 'utf8mb4'},
     },
 }  
@@ -47,7 +47,9 @@ EMAIL_FROM_USER = "GellifiQue Professional <info@gellifique.co.uk>"
 EMAIL_BCC_TO = None
 
 
-DEBUG = False
+DEBUG = True
+INTERNAL_IPS = ['127.0.0.1','90.253.213.37','87.74.227.238','88.23.238.60','88.23.211.80']
+
 
 
 sentry_sdk.init(

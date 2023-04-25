@@ -29,18 +29,18 @@
   <div class="gel_tbody">
     {% for order in order_list %}
       <div class="gel_row" data-id_order="{{order.id_order}}">
-          <div><a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.reference}}</a> <br />
-            <a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.id_order}}</a>
+          <div><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.reference}}</a> <br />
+            <a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.id_order}}</a>
           </div>
-          <div><a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.firstname}} {{order.lastname}}</a>
+          <div><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.firstname}} {{order.lastname}}</a>
             {% if order.is_new %}  
             *NEW*
             {% endif %}
             <br />
             {{order.country}}
           </div>
-          <div class="order_state"><a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.order_state}}</a></div>
-          <div><a href="{% url 'prestashop:order_detail' order.id_order %}">{{order.date_add.strftime("%d/%m/%y %H:%M")}}</a></div>
+          <div class="order_state"><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.order_state}}</a></div>
+          <div><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.date_add.strftime("%d/%m/%y %H:%M")}}</a></div>
       </div>
       {% endfor %}
   </div>
