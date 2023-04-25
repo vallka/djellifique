@@ -150,7 +150,7 @@ class Post(models.Model):
                     prod_href = prod[4]
 
                     soup = BeautifulSoup(prod_html, 'html.parser')
-                    prod_name = soup.find('h1',attrs={'itemprop':'name','class':'h1'})
+                    prod_name = soup.find('h1',attrs={'class':'h1'})
                     prod_descr = soup.find('div',attrs={'class':'product-description'})
                     prod_descr_pp = prod_descr.find_all('p')
 
@@ -161,8 +161,8 @@ class Post(models.Model):
 
                     print(prod_descr)
 
-                    prod_price = prod_name.parent.find(attrs={'itemprop':'price'})
-                    prod_img = prod_name.parent.parent.find('img',attrs={'itemprop':'image'})
+                    prod_price = prod_name.parent.find(attrs={'class':'current-price'}).find('span')
+                    prod_img = prod_name.parent.parent.find('img',attrs={'class':'js-qv-product-cover'})
 
                     old_price = prod_name.parent.find('span',attrs={'class':'regular-price'})
                     discount = prod_name.parent.find('span',attrs={'class':'discount'})
@@ -225,9 +225,9 @@ class Post(models.Model):
                     prod_html = prod_html.text
 
                     soup = BeautifulSoup(prod_html, 'html.parser')
-                    prod_name = soup.find('h1',attrs={'itemprop':'name','class':'h1'})
-                    prod_price = prod_name.parent.find(attrs={'itemprop':'price'})
-                    prod_img = prod_name.parent.parent.find('img',attrs={'itemprop':'image'})
+                    prod_name = soup.find('h1',attrs={'class':'h1'})
+                    prod_price = prod_name.parent.find(attrs={'class':'current-price'}).find('span')
+                    prod_img = prod_name.parent.parent.find('img',attrs={'class':'js-qv-product-cover'})
 
                     old_price = prod_name.parent.find('span',attrs={'class':'regular-price'})
                     discount = prod_name.parent.find('span',attrs={'class':'discount'})
