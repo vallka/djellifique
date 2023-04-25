@@ -40,6 +40,7 @@ django-extensions = "*"
 #notebook = "*"
 css_inline = "*"
 google-cloud-translate = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3"

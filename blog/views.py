@@ -180,10 +180,14 @@ class HomeView(generic.ListView):
     def getBlogProducts(self,pos=''):
         post = Post.objects.get(slug='_products_carousel'+pos)
 
+        post.look_up_gellifique_product_carousel()
+
         pp = post.text.split('!')
 
         pp = ['!' + p.strip() for p in pp if p]
         post.text = '\n-----\n'.join(pp)
+
+        #print(post.text)
         
         text = '<div>' + re.sub('<hr />','</div>\n<div>',post.formatted_markdown) + '</div>'
         return text

@@ -203,7 +203,7 @@ class Post(models.Model):
 
 
 
-    def look_up_gellifique_product__old(self):
+    def look_up_gellifique_product_carousel(self):
         # [](https://www.gellifique.co.uk/en/pro-limited-edition/-periwinkle-hema-free(1342).html)
 
         #print ('look_up_gellifique_product')
@@ -239,16 +239,7 @@ class Post(models.Model):
 
                     print (prod_img['src'])
 
-                    #self.text = re.sub(product_re,f"![]({prod_img['src']})\n[<h4>{prod_name.text} - {prod_price.text}</h4>]({prod[1]})",self.text,1)
-                    #self.text = re.sub(product_re,f"![]({prod_img['src']})\n####[{prod_name.text} - {prod_price.text}]({prod[1]})",self.text,1)
-                    prod = f"""
-<div class="product">
-<img src="{prod_img['src']}">
-{discount_p}<p>{prod_name.text} - {prod_price.text}</p>
-<h4><a href="{prod[1]}">BUY NOW</a></h4>
-</div>
-"""
-                    self.text = re.sub(product_re,prod,self.text,1)
+                    self.text = re.sub(product_re,f"![]({prod_img['src']})\n####[{prod_name.text} - {prod_price.text}]({prod[1]})",self.text,1)
 
 class PostLang(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
