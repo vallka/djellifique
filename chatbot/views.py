@@ -13,7 +13,6 @@ from llama_index import (
 
 
 def Bot(q):
-    os.environ['OPENAI_API_KEY']='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'
 
     storage_context = StorageContext.from_defaults(persist_dir=os.path.join(settings.MEDIA_ROOT,"blog_store"))
     # load index
