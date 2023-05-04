@@ -41,6 +41,9 @@ django-extensions = "*"
 css_inline = "*"
 google-cloud-translate = "*"
 python-dotenv = "*"
+llama-index = "*"
+transformers = "*"
+torch = "*"
 
 [requires]
 python_version = "3"
