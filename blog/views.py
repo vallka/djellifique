@@ -172,8 +172,8 @@ class HomeView(generic.ListView):
             context['breadcrumb'] = self.cat.category
 
         context['page_title'] = context['breadcrumb']
-        context['product_carousel'] = self.getBlogProducts()
-        context['product_carousel2'] = self.getBlogProducts('2')
+        #context['product_carousel'] = self.getBlogProducts()
+        #context['product_carousel2'] = self.getBlogProducts('2')
 
         return context        
 
