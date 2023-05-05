@@ -120,7 +120,10 @@ class Post(models.Model):
 
             self.slug = slug
 
-        self.look_up_gellifique_product()
+        if self.slug=='_products_carousel' or self.slug=='_products_carousel2':
+            self.look_up_gellifique_product_carousel()
+        else:
+            self.look_up_gellifique_product()
             
         super().save(*args, **kwargs)
 
@@ -215,13 +218,14 @@ class Post(models.Model):
         prods = re.findall(product_re,self.text)
         
         if prods:
-            print (prods)
+            #print (prods)
+
+            text = ''
 
             for prod in prods:
-                print (prod[1])
+                #print (prod[1])
                 prod_html = requests.get(prod[1].replace('\\','')) # '\\' started to be inserted for unknown reason by frontend js
                 if prod_html.status_code == 200:
-                    print ('soup::')
                     prod_html = prod_html.text
 
                     soup = BeautifulSoup(prod_html, 'html.parser')
@@ -237,9 +241,20 @@ class Post(models.Model):
                     else:
                         discount_p = ''
 
-                    print (prod_img['src'])
+                    #print (prod_img['src'])
 
-                    self.text = re.sub(product_re,f"![]({prod_img['src']})\n####[{prod_name.text} - {prod_price.text}]({prod[1]})",self.text,1)
+                    text += f"![]({prod_img['src']})\n####[{prod_name.text} - {prod_price.text}]({prod[1]})\n" 
+                
+            orig_text = self.text
+
+            orig_text = re.sub('===CACHED-HTML===.*$','',orig_text,flags=re.S).strip()
+
+            self.text = text
+            self.text = orig_text + "\n\n===CACHED-HTML===\n" + self.formatted_markdown
+            self.text = self.text.replace('<p><img','<div><p><img')
+            self.text = self.text.replace('</h4>','</h4></div>')
+
+
 
 class PostLang(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)

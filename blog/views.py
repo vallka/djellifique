@@ -172,24 +172,17 @@ class HomeView(generic.ListView):
             context['breadcrumb'] = self.cat.category
 
         context['page_title'] = context['breadcrumb']
-        #context['product_carousel'] = self.getBlogProducts()
-        #context['product_carousel2'] = self.getBlogProducts('2')
+        context['product_carousel'] = self.getBlogProducts()
+        context['product_carousel2'] = self.getBlogProducts('2')
 
         return context        
 
     def getBlogProducts(self,pos=''):
         post = Post.objects.get(slug='_products_carousel'+pos)
+        #text = '<div>' + re.sub('<hr />','</div>\n<div>',post.formatted_markdown) + '</div>'
+        text = post.text
+        text = re.sub('^.*\n\n===CACHED-HTML===\n','',text,flags=re.S)
 
-        post.look_up_gellifique_product_carousel()
-
-        pp = post.text.split('!')
-
-        pp = ['!' + p.strip() for p in pp if p]
-        post.text = '\n-----\n'.join(pp)
-
-        #print(post.text)
-        
-        text = '<div>' + re.sub('<hr />','</div>\n<div>',post.formatted_markdown) + '</div>'
         return text
 
 
