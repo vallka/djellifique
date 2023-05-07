@@ -137,32 +137,33 @@ class Post(models.Model):
         #print (self.text)
 
         #product_re = r"(\r?\n<<<<\r?\n)(https:\/\/www.gellifique.co.uk\/.+?\.html)\r?\n([^\n]*\r?\n)?"
-        product_re = r"(\r?\n((<<<<)|(>>>>))\r?\n?)(https:\/\/www\.gellifique\.[couke.]+/.+?\.html)((\r?\n)|($))"
+        #product_re = r"^((<{2,30})|(>{2,30}))\r?\n?(https:\/\/www\.gellifique\.[couke.]+/.+?\.html)$"
+        product_re = r"^\s*((<{2,30})|(>{2,30})|(<>))\s*(https:\/\/www\.gellifique\.[couke.]+/.+?\.html)\s*$"
 
-        prods = re.findall(product_re,self.text)
+        prods = re.findall(product_re,self.text,flags=re.M)
         
         if prods:
             print (prods)
 
+            #return
+
             for prod in prods:
-                print (prod[0],prod[4])
-                prod_html = requests.get(prod[4].replace('\\','')) # '\\' started to be inserted for unknown reason by frontend js
+                prod_href = prod[4]
+                print (prod[0],prod_href)
+                prod_html = requests.get(prod_href.replace('\\','')) # '\\' started to be inserted for unknown reason by frontend js
                 if prod_html.status_code == 200:
-                    print ('soup::')
                     prod_html = prod_html.text
-                    prod_href = prod[4]
 
                     soup = BeautifulSoup(prod_html, 'html.parser')
                     prod_name = soup.find('h1',attrs={'class':'h1'})
                     prod_descr = soup.find('div',attrs={'class':'product-description'})
                     prod_descr_pp = prod_descr.find_all('p')
 
-                    if prod_descr_pp[0].text!='PRODUCT DESCRIPTION':
-                        prod_descr = prod_descr_pp[0].text.strip()
-                    else:
+                    if prod_descr_pp[0].text.strip().find('PRODUCT')>=0:
                         prod_descr = prod_descr_pp[1].text.strip()
+                    else:
+                        prod_descr = prod_descr_pp[0].text.strip()
 
-                    print(prod_descr)
 
                     prod_price = prod_name.parent.find(attrs={'class':'current-price'}).find('span')
                     prod_img = prod_name.parent.parent.find('img',attrs={'class':'js-qv-product-cover'})
@@ -175,7 +176,23 @@ class Post(models.Model):
                     else:
                         discount_p = ''
 
-                    if '<' in prod[0]:
+                    print("**DESCR:",prod_descr,prod_price,prod_img)
+
+                    if '<>' in prod[0]:
+                        print('***<>')
+                        product = f"""
+<!-- {prod[0].strip()}{prod_href}
+--><table class="product"><tr><td>	
+<a href="{prod_href}"><img src="{prod_img['src']}"></a>
+<h3>{prod_name.text} - {prod_price.text}</h3>
+{discount_p}<p>
+{prod_descr}
+</p>
+<h4><a href="{prod_href}">BUY NOW</a></h4>
+</td></tr></table>
+"""
+                    elif '<<' in prod[0]:
+                        print('***<<')
                         product = f"""
 <!-- {prod[0].strip()}{prod_href}
 --><table class="product"><tr><td>	
@@ -189,6 +206,7 @@ class Post(models.Model):
 </td></tr></table>
 """
                     else:
+                        print('***>>')
                         product = f"""
 <!-- {prod[0].strip()}{prod_href}
 --><table class="product"><tr><td>	
@@ -202,7 +220,9 @@ class Post(models.Model):
 </td></tr></table>
 """
 
-                    self.text = re.sub(product_re,product,self.text,1)
+                    print ("***PRODUCT:",product)
+
+                    self.text = re.sub(product_re,product,self.text,1,flags=re.M)
 
 
 
