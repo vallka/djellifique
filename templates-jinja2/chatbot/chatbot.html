@@ -3,15 +3,38 @@
   <head>
     <meta charset="utf-8">
     <title>Chatbot</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+
   </head>
   <body>
-    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-    <input id="question" style="width:400px"><button onclick="sendQuestion()">Go!</button>
-    <div id="answer">Answer should appear here...</div>
+    <section class="section">
+      <div class="container">
 
-    <script>
+
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+    <div class="field">
+      <label class="label">Ask our Chatbot about GellifiQue</label>
+      <div class="control">
+        <input class="input" type="text" placeholder="Text input" id="question">
+      </div>
+    <div class="field">
+      <button class="button is-primary" id="btn-go" onclick="sendQuestion()">Go!</button>
+    </div>
+
+
+
+    <div id="answer"></div>
+
+  </div>
+</section>
+
+<script>
       function sendQuestion() {
+        document.getElementById('btn-go').disabled = true; 
+
         const question = document.getElementById('question').value;
+
         fetch('/api/v1/chatbot/', {
           method: 'POST',
           headers: {'Content-Type': 'application/json','X-CSRFToken': getCookie('csrftoken')},
@@ -19,7 +42,14 @@
         })
         .then(response => response.json())
         .then(data => {
-          document.getElementById('answer').textContent = data.answer;
+          const answDiv = document.createElement('div');
+          answDiv.innerHTML = 'A: ' + data.answer;
+          document.getElementById('answer').insertBefore(answDiv,document.getElementById('answer').firstChild)
+
+          const qDiv = document.createElement('div');
+          qDiv.innerHTML = 'Q: ' + question;
+          document.getElementById('answer').insertBefore(qDiv,document.getElementById('answer').firstChild)
+          document.getElementById('btn-go').disabled = false; 
         });
       }
 

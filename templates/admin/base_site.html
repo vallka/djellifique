@@ -6,4 +6,7 @@
 <h1 id="site-name"><a href="{% url 'admin:index' %}">GellifiQue Administration</a></h1>
 {% endblock %}
 
-{% block nav-global %}<h4><a href="{% url 'stats:stats' %}">GellifiQue Stats</a></h4>{% endblock %}
+{% block nav-global %}
+<h4><a href="{% url 'stats:stats' %}">GellifiQue Stats</a></h4>
+<h4><a href="{% url 'chatbot:chatbot' %}">GellifiQue Chatbot</a></h4>
+{% endblock %}

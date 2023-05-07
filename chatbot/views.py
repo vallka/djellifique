@@ -4,6 +4,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 
 import os
@@ -24,15 +26,15 @@ def Bot(q):
 
 
 # Create your views here.
-class PageView(generic.TemplateView):
+class PageView(LoginRequiredMixin,generic.TemplateView):
     template_name = 'chatbot/chatbot.html'
 
-@csrf_exempt
 @api_view(['POST'])
 def chatbot(request):
     question = request.data['question']
     print (question)
     answer = Bot(question)
-    print(answer)
+    #print(answer,answer.source_nodes)
+    
     #answer = f"Answer to {question}"
     return Response({'answer': str(answer)})
