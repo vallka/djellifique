@@ -114,6 +114,7 @@ class Command(BaseCommand):
         else:
             #logger.info('no newsletters to send!')
             print('no newsletters to send!')
+            logger.error('no newsletters to send!')
 
         print("DONE! - %s! Sent:%s, Not sent:%s" % (self.help,str(sent),str(not_sent)))
         if dolog:
