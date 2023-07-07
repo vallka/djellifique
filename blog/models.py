@@ -138,7 +138,7 @@ class Post(models.Model):
 
         #product_re = r"(\r?\n<<<<\r?\n)(https:\/\/www.gellifique.co.uk\/.+?\.html)\r?\n([^\n]*\r?\n)?"
         #product_re = r"^((<{2,30})|(>{2,30}))\r?\n?(https:\/\/www\.gellifique\.[couke.]+/.+?\.html)$"
-        product_re = r"^\s*((<{2,30})|(>{2,30})|(<>))\s*(https:\/\/www\.gellifique\.[couke.]+/.+?\.html)\s*$"
+        product_re = r"^\s*((<{2,30})|(>{2,30})|(<>))\s*(https:\/\/www\.gellifique\.[couke.]+/.+?\.html.*)\s*$"
 
         prods = re.findall(product_re,self.text,flags=re.M)
         
@@ -232,7 +232,7 @@ class Post(models.Model):
         #print ('look_up_gellifique_product')
 
         product_re = r"(\[\])\((https:\/\/gellifique.eu\/.+?\.html)\)"
-        product_re = r"(\[\])\((https:\/\/www.gellifique.co.uk\/.+?\.html)\)"
+        product_re = r"(\[\])\((https:\/\/www.gellifique.co.uk\/.+?\.html.*)\)"
         ##product_re = r"\((https:\/\/www.gellifique.co.uk\/.+\.html)\)"
 
         prods = re.findall(product_re,self.text)

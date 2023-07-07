@@ -18,6 +18,7 @@ class NewsShot(models.Model):
     uuid = models.UUIDField(db_index=True, default=uuid.uuid1, editable=True,unique=True)
     blog = models.ForeignKey(Post,on_delete=models.CASCADE,)
     customer_id = models.IntegerField(db_index=True)
+    customer_type = models.CharField(max_length=1,default='C')  # (C)ustomer or (N)ewletter
     send_dt = models.DateTimeField(blank=True, null=True)
     received_dt = models.DateTimeField(blank=True, null=True)
     opened_dt = models.DateTimeField(blank=True, null=True)

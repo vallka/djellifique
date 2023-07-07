@@ -72,11 +72,8 @@ class Command(BaseCommand):
             html = {}
             html[1] = NewsShot.add_html_x(newsletter_post[0].slug)
 
-            limit = 50
-            if newsletter_post[0].domain==Post.Domains.EU:
-                custs = self.get_customers_eu(newsletter_post[0].id,limit)
-            else:
-                custs = self.get_customers(newsletter_post[0].id,limit)
+            limit = 100
+            custs = self.get_customers(newsletter_post[0].id,limit,newsletter_post[0].domain)
 
             if len(custs):
                 dolog = True
@@ -86,8 +83,8 @@ class Command(BaseCommand):
                     newsletter_post[0].save()
 
                 for i,c in enumerate(custs):
-                    print(f"{i+1}, customer:{c[0]}:{c[1]}:{c[4]}")
-                    logger.info(f"{i+1}, customer:{c[0]}:{c[1]}:{c[4]}")
+                    print(f"{i+1}, customer:{c[5]}:{c[0]}:{c[1]}:{c[4]}")
+                    logger.info(f"{i+1}, customer:{c[5]}:{c[0]}:{c[1]}:{c[4]}")
                     
                     if newsletter_post[0].domain==Post.Domains.EU:
                         lang_id = c[4]
@@ -96,7 +93,7 @@ class Command(BaseCommand):
                     else:
                         lang_id = 1
 
-                    shot = NewsShot(blog=newsletter_post[0],customer_id=c[0])
+                    shot = NewsShot(blog=newsletter_post[0],customer_id=c[0],customer_type=c[5])
                     if self.send(c,html[lang_id],newsletter_post[0].email_subject,newsletter_post[0].title,newsletter_post[0].id,shot.uuid):
                         shot.send_dt = timezone.now()
                         shot.save() 
@@ -114,7 +111,6 @@ class Command(BaseCommand):
         else:
             #logger.info('no newsletters to send!')
             print('no newsletters to send!')
-            logger.error('no newsletters to send!')
 
         print("DONE! - %s! Sent:%s, Not sent:%s" % (self.help,str(sent),str(not_sent)))
         if dolog:
@@ -122,7 +118,7 @@ class Command(BaseCommand):
 
 
 
-    def encode_urls(self,html,title,id,uuid,to_email,firstname,id_customer):
+    def encode_urls(self,html,title,id,uuid,to_email,firstname,id_customer,cust_type):
         global _post_title,_post_id
         _post_title = title
         _post_id = id
@@ -135,7 +131,10 @@ class Command(BaseCommand):
         html = html.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
 
         host = 'https://www.gellifique.co.uk' if self.current_post.domain==Post.Domains.CO_UK else 'https://www.gellifique.eu'
-        referral_url = host + '/?rid=' + str(id_customer+1000)
+        if cust_type=='C':
+            referral_url = host + '/?rid=' + str(id_customer+1000)
+        else:
+            referral_url = ''
         
         html = html.replace('<referral_url>',referral_url)
         html = html.replace('<firstname>',firstname)
@@ -149,8 +148,9 @@ class Command(BaseCommand):
         to_email = cust[1]
         firstname = cust[2].strip()
         lang = cust[4]
+        cust_type = cust[5]
 
-        html = self.encode_urls(html,title,id,str(uuid),to_email,firstname,id_cust)
+        html = self.encode_urls(html,title,id,str(uuid),to_email,firstname,id_cust,cust_type)
 
         #print (html)
         if MOCK:
@@ -158,7 +158,7 @@ class Command(BaseCommand):
             return False
         elif MOCK_SEND:
             print(f"MOCK_SEND: {to_email} / {lang}")
-            print(html)
+            #print(html)
             return False
         else:
             email = EmailMultiAlternatives( subj if subj else title, title, settings.EMAIL_FROM_USER, [to_email], headers = {'X-gel-id': str(uuid)}   )
@@ -199,7 +199,16 @@ class Command(BaseCommand):
         return []
 
 
-    def get_customers(self,blog_id,limit):
+    def get_customers(self,blog_id,limit,domain):
+        if domain==Post.Domains.EU:
+            db_name = 'gellifique_eu'
+            id_shop = 2
+        else:
+            db_name = 'gellifique_new'
+            id_shop = 1
+
+
+
         #extra_where = """
         #    AND c.id_customer NOT IN (
         #    SELECT id_customer FROM gellifique_new.ps17_orders o
@@ -212,48 +221,42 @@ class Command(BaseCommand):
         if not MOCK:
             with connections['default'].cursor() as cursor:
                 sql = f"""
-                SELECT id_customer,email,firstname,lastname,id_lang FROM gellifique_new.ps17_customer c 
-                    where active=1 and newsletter=1 and id_shop=1
-                    and c.id_customer not IN (
-                    select customer_id from dj.newsletter_newsshot where customer_id=c.id_customer
-                    and blog_id=%s
-                    )
-                    {extra_where}
-                    ORDER BY c.id_customer  DESC
+                    SELECT id_customer,email,firstname,lastname,id_lang,'C' AS customer_type FROM {db_name}.ps17_customer c 
+                        WHERE ACTIVE=1 AND newsletter=1 AND id_shop={id_shop}
+                        AND c.id_customer NOT IN (
+                        SELECT customer_id FROM dj.newsletter_newsshot WHERE customer_id=c.id_customer AND customer_type='C'
+                        AND blog_id=%s
+                        )
+                    UNION ALL                    
+                    SELECT id AS id_customer,email,'' AS firstname,'' AS lastname,id_lang,'N' AS customer_type FROM {db_name}.ps17_emailsubscription e 
+                        WHERE ACTIVE=1 AND id_shop={id_shop}
+                        AND e.id NOT IN (
+                        SELECT customer_id FROM dj.newsletter_newsshot WHERE customer_id=e.id AND customer_type='N'
+                        AND blog_id=%s
+                        )
+
+                    ORDER BY customer_type DESC,id_customer  DESC     
                     limit 0,{limit}
                 """
-                ###    and c.email like '%%@vallka.com'
 
-                cursor.execute(sql,[blog_id,])
+
+#                SELECT id_customer,email,firstname,lastname,id_lang,'C' as customer_type FROM gellifique_new.ps17_customer c 
+#                    where active=1 and newsletter=1 and id_shop=1
+#                    and c.id_customer not IN (
+#                    select customer_id from dj.newsletter_newsshot where customer_id=c.id_customer
+#                    and blog_id=%s
+#                    )
+#                    {extra_where}
+#                    ORDER BY c.id_customer  DESC
+#                    limit 0,{limit}
+#                ###    and c.email like '%%@vallka.com'
+
+                cursor.execute(sql,[blog_id,blog_id])
                 row = cursor.fetchall()
         else:
-            row = [(12345,'vallka@vallka.com','Val','Kool,1')]
+            row = [(12345,'vallka@vallka.com','Val','Kool,1'),'C']
 
         return row
-
-    def get_customers_eu(self,blog_id,limit):
-
-            if not MOCK:
-                with connections['default'].cursor() as cursor:
-                    sql = f"""
-                    SELECT id_customer,email,firstname,lastname,id_lang FROM gellifique_eu.ps17_customer c 
-                        where active=1 and newsletter=1 and id_shop=2
-                        and c.id_customer not IN (
-                        select customer_id from dj.newsletter_newsshot where customer_id=c.id_customer
-                        and blog_id=%s
-                        )
-                        ORDER BY c.id_customer  DESC
-                        limit 0,{limit}
-                    """
-                    ###    and c.email like '%%@vallka.com'
-
-                    cursor.execute(sql,[blog_id,])
-                    row = cursor.fetchall()
-            else:
-                row = [(12345,'vallka@vallka.com','Val','Kool,1')]
-
-            return row
-
 
 
 
