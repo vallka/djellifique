@@ -95,8 +95,12 @@ class Post(models.Model):
         img = re.search(r'\!\[\]\(([^)]+)\)',self.text)
         if img and img.group(1):
             return img.group(1)
-        else:
-            return None
+        
+        img = re.search(r'<img[^>]+src="(.*?)"',self.text)
+        if img and img.group(1):
+            return img.group(1)
+
+        return None
 
     def __str__(self):
         return str(self.id) + ':'+ str(self.slug)
