@@ -410,15 +410,15 @@ def translate(request,slug):
 
         try:
             postlang = PostLang.objects.get(post=post,lang_iso_code=lang)
-            postlang.title = result[lang][0]
-            postlang.email_subject = result[lang][1]
+            postlang.title = result[lang][0][:100]
+            postlang.email_subject = result[lang][1][:100]
             postlang.text = text
             postlang.save()
 
         except PostLang.DoesNotExist:   
             postlang = PostLang(post=post,lang_iso_code=lang)
-            postlang.title = result[lang][0]
-            postlang.email_subject = result[lang][1]
+            postlang.title = result[lang][0][:100]
+            postlang.email_subject = result[lang][1][:100]
             postlang.text = text
             postlang.save()
 
