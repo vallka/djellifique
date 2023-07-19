@@ -48,6 +48,7 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_FROM_USER = "info@gellifique.co.uk"
 EMAIL_BCC_TO = None
 
+WKHTMLTOPDF=r"c:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
 
 DEBUG = True
 

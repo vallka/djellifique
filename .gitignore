@@ -138,3 +138,4 @@ dmypy.json
 sent-emails/
 Pipfile.lock.0
 some.xml
+prestashop/management/commands/dpd.html

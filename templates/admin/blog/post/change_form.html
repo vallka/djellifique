@@ -202,11 +202,16 @@ django.jQuery(function(){
     django.jQuery('.submit-row').append('<input type="button" value="Send Test" id="btn-send-test">')
     django.jQuery('.submit-row').append('<input type="button" value="Stats" id="btn-stats">')
     django.jQuery('.submit-row').append('<input type="button" value="Translate" id="btn-translate">')
+    django.jQuery('.submit-row').append('<input type="button" value="Make PDF" id="btn-makepdf">')
+
     django.jQuery('#btn-preview').click(function(){
         window.open('/blog/'+django.jQuery('#id_slug').val())
     });
     django.jQuery('#btn-preview-nl').click(function(){
         window.open('/blog/newsletter/'+django.jQuery('#id_slug').val())
+    });
+    django.jQuery('#btn-makepdf').click(function(){
+        window.open('/blog/makepdf/'+django.jQuery('#id_slug').val())
     });
 
     django.jQuery('#btn-stats').click(function(e){

@@ -44,6 +44,7 @@ python-dotenv = "*"
 llama-index = "*"
 transformers = "*"
 torch = "*"
+pdfkit = "*"
 
 [requires]
 python_version = "3"

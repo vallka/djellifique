@@ -1,11 +1,13 @@
 import re
-from django.http import JsonResponse
+import os
+from django.http import JsonResponse,HttpResponseRedirect
 from django.utils import timezone
 from django.views import generic
 from django.db import connections
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
+from django.conf import settings
 
 import logging
 logger = logging.getLogger(__name__)
@@ -283,18 +285,21 @@ class NewsletterView(generic.DetailView):
 
         if not lang or lang == 'en':
             post.lang = lang
-            return post
+        else:
+            post_lang = get_object_or_404(PostLang, post=post, lang_iso_code=lang)
 
-        post_lang = get_object_or_404(PostLang, post=post, lang_iso_code=lang)
+            if post_lang.title: post.title = post_lang.title
+            if post_lang.email_subject: post.email_subject = post_lang.email_subject
+            if post_lang.text: post.text = post_lang.text
 
-        if post_lang.title: post.title = post_lang.title
-        if post_lang.email_subject: post.email_subject = post_lang.email_subject
-        if post_lang.text: post.text = post_lang.text
+            post.text = re.sub(r'(https://www\.gellifique\.co\.uk/)(en)/',f"\g<1>{lang}/",post.text)
+            post.text = re.sub(r'(https://www\.gellifique\.eu/)(en)/',f"\g<1>{lang}/",post.text)
 
-        post.text = re.sub(r'(https://www\.gellifique\.co\.uk/)(en)/',f"\g<1>{lang}/",post.text)
-        post.text = re.sub(r'(https://www\.gellifique\.eu/)(en)/',f"\g<1>{lang}/",post.text)
+            post.lang = lang
 
-        post.lang = lang
+        if page:
+            pages = post.text.split('-----')
+            post.text = pages[page-1]
 
         return post
 
@@ -315,6 +320,71 @@ class NewsletterView(generic.DetailView):
         #context['post'].text = context['post'].text.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
 
         return context
+
+class MakePdfView(generic.DetailView):
+    model = Post
+    template_name = "blog/makepdf_detail.html"
+
+    def get(self, request, *args, **kwargs):
+        # Get the object for the detail view
+        object = self.get_object()
+
+        if isinstance(object, str):
+            return HttpResponseRedirect(object)
+
+        return super().get(request, *args, **kwargs)
+
+
+
+    def get_object(self, queryset=None):
+        post = get_object_or_404(Post, slug=self.kwargs['slug'])
+        lang = self.kwargs.get('lang')
+        page = int(self.request.GET.get('page',0))
+        build = int(self.request.GET.get('build',0))
+
+
+        if not lang or lang == 'en':
+            post.lang = lang
+        else:
+            post_lang = get_object_or_404(PostLang, post=post, lang_iso_code=lang)
+
+            if post_lang.title: post.title = post_lang.title
+            if post_lang.email_subject: post.email_subject = post_lang.email_subject
+            if post_lang.text: post.text = post_lang.text
+
+            post.text = re.sub(r'(https://www\.gellifique\.co\.uk/)(en)/',f"\g<1>{lang}/",post.text)
+            post.text = re.sub(r'(https://www\.gellifique\.eu/)(en)/',f"\g<1>{lang}/",post.text)
+
+            post.lang = lang
+
+        if not lang or lang == 'en':
+            pages = post.text.split('-----')
+        else:
+            pages = post.text.split('<hr />')
+
+        if page:
+            post.text = pages[page-1]
+        else:
+            post.text += '<hr><hr>'
+
+            for i in range(1,len(pages)+1):
+                post.text += f' <a target="blank" href="{self.request.build_absolute_uri()}?page={i}&build=1" >pdf-{i}</a> '
+
+        if build and page:
+            import pdfkit
+
+            url = self.request.build_absolute_uri().replace('build=1','build=0')
+
+            config = pdfkit.configuration(wkhtmltopdf=settings.WKHTMLTOPDF)
+            pdfkit.from_url (url,os.path.join(settings.MEDIA_ROOT,'generated-pdf',post.slug+f'-{page}.pdf'),configuration=config)
+
+            #return HttpResponseRedirect(os.path.join(settings.MEDIA_URL,'generated-pdf',post.slug+f'-{page}.pdf'))
+            return (settings.MEDIA_URL + 'generated-pdf/' + post.slug+f'-{page}.pdf')
+            #return HttpResponseRedirect(settings.MEDIA_URL + 'generated-pdf/' + post.slug+f'-{page}.pdf')
+
+        return post
+
+
 
 @require_POST
 def translate(request,slug):
