@@ -297,10 +297,6 @@ class NewsletterView(generic.DetailView):
 
             post.lang = lang
 
-        if page:
-            pages = post.text.split('-----')
-            post.text = pages[page-1]
-
         return post
 
     def get_context_data(self, **kwargs):
