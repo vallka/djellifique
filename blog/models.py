@@ -152,9 +152,10 @@ class Post(models.Model):
             #return
 
             for prod in prods:
-                prod_href = prod[4]
-                print (prod[0],prod_href)
-                prod_html = requests.get(prod_href.replace('\\','')) # '\\' started to be inserted for unknown reason by frontend js
+                prod_href = prod[4].replace('\\','').strip()  # '\\' started to be inserted for unknown reason by frontend js
+                print (prod[0],f'|{prod_href}|')
+                prod_html = requests.get(prod_href) 
+                print(prod_html.status_code)
                 if prod_html.status_code == 200:
                     prod_html = prod_html.text
 
