@@ -176,6 +176,7 @@ var simplemde = new EasyMDE({
     forceSync: true,
     promptURLs: true,
     uploadImage: true,
+    imageMaxSize: (1024 * 1024 * 20),
     imageUploadEndpoint: "/markdownx/upload-em/",
     imageCSRFToken: django.jQuery('input[name=csrfmiddlewaretoken]').val(),
     toolbar: [
