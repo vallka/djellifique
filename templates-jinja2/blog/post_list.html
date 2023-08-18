@@ -50,7 +50,7 @@
   {% endif %}
     <div class="blog_post blog_post_{{post.id}}">
       <div class="blog_header">
-        <h1><a href="{{ post.get_absolute_url() }}">{{post.title}}</a></h1>
+        <h1><a href="{{ post.get_absolute_url() }}">{{demoji(post.title)}}</a></h1>
         <div class="blog_date">
           Published {{ post.blog_start_dt }}
         </div>

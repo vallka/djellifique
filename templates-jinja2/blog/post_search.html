@@ -7,100 +7,68 @@
 {% block content %}
 {% if post_list %}
 <style>
-  .blog_content {
-    background-color: #f6f6f6;
-    display: flex;
-    flex-wrap: wrap;
-    max-width: 1170px;
-  }
-  
-  .blog_post {
-    width: 100%;
-    max-width: 550px;
-    padding: 10px;
-    background-color: initial;
-    margin-bottom: 10px;
-  }
-  
-  .blog_card  {
-    border: dotted 1px #999;
-    border-radius: 5px;
-    position: relative;
-    width: 340px;
-    height: 340px;
-    margin:auto;
-    overflow:hidden;
-  }
-  
-  .blog_card .card_title {
-    color: #1a1a1a;
-    z-index: 2;
-    position: relative;
-  }
-  
-  .blog_card a:hover  {
-    text-decoration: none !important;
-  }
-  
-  @media (min-width: 768px){
-    .blog_post {
-    width: 345px;
-    height: 345px;
-  }
-  .blog_card  {
-    width: 345px;
-    height: 345px;
-    overflow: hidden;
-  }
-  }
-  @media (min-width: 992px){
-    .blog_post {
-    width: 464px;
-    height: 464px;
-  }
-  .blog_card  {
-    width: 464px;
-    height: 464px;
-    overflow: hidden;
-  }
-  }
-  @media (min-width: 1200px){
-    .blog_post {
-    width: 550px;
-    height: 550px;
-  }
-  .blog_card  {
-    width: 550px;
-    height: 550px;
-    overflow: hidden;
-  }
-  }
-  
+.blog_content {
+	background-color: #f6f6f6;
+	display: flex;
+  flex-wrap: wrap;
+	max-width: 1170px;
+}
+
+.blog_post {
+  width: 100%;
+  max-width: 345px;
+  padding: 15px 10px;
+  background-color: initial;
+}
+
+.blog_card  {
+  border: dotted 1px #999;
+  border-radius: 5px;
+  position: relative;
+  width: 100%;
+  margin:auto;
+}
+
+.blog_card .card_title {
+  color: #1a1a1a;
+  z-index: 2;
+  position: relative;
+}
+
+.blog_card a:hover  {
+  text-decoration: none !important;
+}
+
+
+.card_title  h1 {
+  font-size: 27px;
+  overflow: hidden;
+}
+@media (min-width: 768px){
   .card_title  h1 {
-    font-size: 27px;
-    overflow: hidden;
-  }
-  @media (min-width: 768px){
-    .card_title  h1 {
-    font-size: 25px;
-  }
-  }
-  @media (min-width: 992px){
-  .card_title  h1 {
-    font-size: 27px;
-  }
-  }
+  font-size: 25px;
+}
+}
+@media (min-width: 992px){
+.card_title  h1 {
+  font-size: 27px;
+}
+}
+.card_image {
+  padding: 6px;
+}
+@media (min-width: 768px){
   .card_image {
-  
-  }
-  @media (min-width: 768px){
-    .card_image {
-      width: 100%;
-  }
-  }
-  .card_text {
+    width: 100%;
+}
+}
+.card_image img {
+  width: 100%;
+  aspect-ratio: 1.5;
+  object-fit: cover;
+}
+.card_text {
     overflow: hidden;
-    position: absolute;
     background-color: #fff9;
     top: 6px;
     left: 6px;
@@ -109,32 +77,56 @@
     color: #403f3f;
     padding: 6px;
     border-radius: 5px;
+}
+@media (min-width: 768px){
+  .card_text {
+    height: 220px;
   }
-  @media (min-width: 768px){
-    .card_text {
-      /* height: 20%; */
-      /* width: 80%; */
-    }
-  }
-  .card_text h1,.card_text h2,.card_text h3{
-    font-size: 17px;
-  }
-  
-  .card_text h4,.card_text h6{
-    font-size: 17px;
-    background-color: #b3b3b3;
-  }
-  
-  .card_text_after {
-    position: absolute;
-    bottom: 0;  
-    left: 0;
-    height: 30px;
-    width: 100%;
-    background: linear-gradient(to bottom, transparent, white);;
-    pointer-events: none; /* so the text is still selectable */
-  }
-  .blog_share {
+}
+.card_text h1,.card_text h2,.card_text h3{
+  font-size: 22px !important;
+  width: 100%;
+}
+
+.card_text h4,.card_text h6{
+  font-size: 17px !important;
+  background-color: #b3b3b3;
+}
+
+.card_text p {
+  margin-bottom: 6px;
+}
+
+.card_text a, .card_text a:hover  {
+  text-decoration: none !important;
+  border-bottom: none !important;
+  font-weight: 300 !important;
+}
+
+.card_text h2 a, .card_text h2 a:hover  {
+  color: #d73672 !important;
+}
+
+@media (min-width: 768px){
+.card_text_after {
+  position: absolute;
+  bottom: 0;  
+  left: 0;
+  height: 40px;
+  width: 100%;
+  background: linear-gradient(to bottom, transparent, white);;
+  pointer-events: none; /* so the text is still selectable */
+}
+}
+.blog_date {
+  font-style: italic;
+  font-size: 13px;
+  padding-bottom: 0;
+  margin-top: -0.5rem;
+  margin-bottom: 0;
+  text-align: right;
+}
+.blog_share {
         text-align: right;
         position: absolute;
         bottom: 10px;
@@ -160,7 +152,6 @@
   
 
 {% for post in post_list %}
-
     <div class="blog_post blog_post_{{post.id}}">
       
       <div class="blog_card">
@@ -172,11 +163,16 @@
           {% endif %}
         </a></div>
         <div class="card_text">
-          <h1><a href="{{ post.get_absolute_url() }}">{{post.title}}</a></h1>
+          <h2><a href="{{ post.get_absolute_url() }}">{{ demoji(post.title) }}</a></h2>
+          <div class="blog_date">
+            {{ post.blog_start_dt.strftime("%d.%m.%Y") }}
+          </div>
+          <p><a href="{{ post.get_absolute_url() }}">{{ demoji(post.first_p)|safe }}</a></p>
+          <div class="card_text_after"></div>
         </div>
-      </div>
+     </div>
+   </div>
 
-    </div>
 
   {% endfor %}
 {% else %}

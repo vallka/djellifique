@@ -102,6 +102,36 @@ class Post(models.Model):
 
         return None
 
+    @property
+    def first_p(self):
+        text = re.sub('~~([^~]+)~~',r'<s>\1</s>',self.text) # not in standard extensions
+        p = markdownify(text)
+        
+        p1 = ''
+        n = 0
+        while not p1 and p and n<=10:
+            n += 1
+            p = re.sub(r'^.*?<p>\s*','',p,flags=re.S)
+            p1 = re.sub('</p>.*$','',p,flags=re.S)
+            p1 = re.sub('<.*?>','',p1)
+            p1 = p1.strip()
+            if p1 and len(p1)>150: 
+                return p1
+
+
+        p2 = ''
+        n = 0
+        while not p2 and p and n<=10:
+            n += 1
+            p = re.sub(r'^.*?<p>\s*','',p,flags=re.S)
+            p2 = re.sub('</p>.*$','',p,flags=re.S)
+            p2 = re.sub('<.*?>','',p2)
+            p2 = p2.strip()
+            if p1 and p2: 
+                return f'{p1}<br><br>{p2}'
+
+        return p1 + ' ' + p2
+
     def __str__(self):
         return str(self.id) + ':'+ str(self.slug)
 

@@ -140,7 +140,7 @@ class HomeView(generic.ListView):
             self.home = True
             self.cat = None
             cat_ex = Category.objects.filter(category__startswith='_')
-            posts = posts.exclude(category__in=cat_ex).order_by('-blog_start_dt')[:4]
+            posts = posts.exclude(category__in=cat_ex).order_by('-blog_start_dt')[:6]
 
             self.shown = []
             for p in posts:
@@ -169,7 +169,7 @@ class HomeView(generic.ListView):
                         'slug':cat.slug,
                         'posts':Post.objects.filter(blog_start_dt__lte=timezone.now(),
                         blog=True,
-                        category=cat).exclude(id__in=self.shown).order_by('-blog_start_dt')[:2]})
+                        category=cat).exclude(id__in=self.shown).order_by('-blog_start_dt')[:3]})
         else:
             context['breadcrumb'] = self.cat.category
 
@@ -236,7 +236,8 @@ class PostView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['breadcrumb'] = re.sub(r'[^\x00-\x7F]',' ', context['post'].title)
+        #context['breadcrumb'] = re.sub(r'[^\x00-\x7F]',' ', context['post'].title)
+        context['breadcrumb'] = context['post'].title
         context['categories'] = Category.objects.all().order_by('id')
 
         this_dt = context['post'].blog_start_dt

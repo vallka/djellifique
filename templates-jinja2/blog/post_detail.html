@@ -58,9 +58,9 @@
                         {{ url ('blog:post',args=[post.slug,post.lang]) }}
                      {% else %}
                         {{ url ('blog:post_en',args=[post.slug]) }}
-                      {% endif %}">{{post.title}}</a></h1>
+                      {% endif %}">{{demoji(post.title)}}</a></h1>
         <div class="blog_date">
-          Published {{ post.blog_start_dt }}
+          {{ post.blog_start_dt.strftime("%d.%m.%Y") }}
         </div>
       </div>
       <div class="blog_body">
