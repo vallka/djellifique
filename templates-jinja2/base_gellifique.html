@@ -62,7 +62,7 @@
         {% for cat in categories %}
           {% if cat.category[0]!='_' %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url ('blog:post-by-cat',args=[cat.slug]) }}">{{cat.category}}</a>
+              <a class="nav-link" href="{{ url ('blog:post-by-cat',args=[cat.slug]) }}">{{cat.translate().category}}</a>
             </li>
           {% endif %}
         {% endfor %}
@@ -81,7 +81,7 @@
           
         <li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
           <a itemprop="item" href="{{ url ('blog:list') }}">
-            <span itemprop="name">Blog</span>
+            <span itemprop="name">Blog {{ get_language() }}</span>
           </a>
           <meta itemprop="position" content="1">
         </li>

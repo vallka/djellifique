@@ -185,7 +185,7 @@
     <div class="blog_post blog_post_{{post.id}}">
       
       <div class="blog_card">
-        <div class="card_image"><a href="{{ post.get_absolute_url() }}">
+        <div class="card_image"><a href="{{ url ('blog:post',args=[post.slug]) }}">
           {% if post.first_image %}
             <img src="{{post.first_image}}">
           {% else %}

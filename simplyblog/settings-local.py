@@ -51,6 +51,7 @@ EMAIL_BCC_TO = None
 WKHTMLTOPDF=r"c:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
 
 DEBUG = True
+INTERNAL_IPS = ['127.0.0.1',]
 
 
 sentry_sdk.init(

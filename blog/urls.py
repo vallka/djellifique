@@ -20,6 +20,5 @@ urlpatterns = [
     #path('category/<str:slug>/', ListView.as_view(), name='post-by-cat'),
     path('category/<str:slug>/', HomeView.as_view(), name='post-by-cat'),
     path('translate/<str:slug>', translate, name='translate'),
-    path('<str:slug>/', PostView.as_view(), name='post_en'),
-    path('<str:slug>/<str:lang>/', PostView.as_view(), name='post'),
+    path('<str:slug>/', PostView.as_view(), name='post'),
 ]

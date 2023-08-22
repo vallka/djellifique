@@ -19,6 +19,7 @@ from django.urls import include, path, re_path
 from django.conf import settings
 
 from django.conf.urls.static import static 
+from django.conf.urls.i18n import i18n_patterns
 from django.shortcuts import redirect
 
 from rest_framework import permissions
@@ -52,12 +53,21 @@ schema_view = get_schema_view(
 router = DefaultRouter()
 router.register('missgelproduct', ProductViewSet,)
 
+#from blog.views import *
 
 urlpatterns = [
     path('', lambda request: redirect('blog/')),
     path('blog/admin/', admin.site.urls),
     path('blog/newsletter/', include('newsletter.urls')),
+]
+
+urlpatterns += i18n_patterns (
     path('blog/', include('blog.urls')),
+    prefix_default_language=False 
+)
+
+
+urlpatterns += [
     path('prestashop/', include('prestashop.urls')),
     path('stats/', include('stats.urls')),
     path('pos/', include('pos.urls')),

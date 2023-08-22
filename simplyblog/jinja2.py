@@ -4,9 +4,12 @@ from jinja2 import Environment
 from django.conf import settings
 from django.urls import reverse
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.utils.translation import get_language
 
 def demoji(s):
-    return re.sub(r'[^\x00-\x7F]',' ', s)
+    RE_EMOJI = re.compile(u'([\U00002600-\U000027BF])|([\U0001f300-\U0001f64F])|([\U0001f680-\U0001f6FF])')
+    return RE_EMOJI.sub(r'', s)
+
     
 
 class JinjaEnvironment(Environment):
@@ -18,3 +21,4 @@ class JinjaEnvironment(Environment):
         self.globals['url'] = reverse
         self.globals['static'] = staticfiles_storage.url
         self.globals['demoji'] = demoji
+        self.globals['get_language'] = get_language

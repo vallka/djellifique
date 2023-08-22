@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.urls import reverse
 from markdownx.models import MarkdownxField
 from markdownx.utils import markdownify
+from django.utils.translation import get_language
 
 
 # Create your models here.
@@ -32,6 +33,20 @@ class Category(models.Model):
             
         super().save(*args, **kwargs)
 
+    def translate(self):
+        lang = get_language()
+
+        if not lang or lang == 'en':
+            return self
+
+        try:
+            category_lang = CategoryLang.objects.get(category=self, lang_iso_code=lang)
+        except CategoryLang.DoesNotExist:
+            return self
+
+        if category_lang.category_text: self.category = category_lang.category_text
+        return self
+
 class Post(models.Model):
     class Meta:
         ordering = ['-id']
@@ -43,6 +58,7 @@ class Post(models.Model):
     blog_start_dt = models.DateTimeField(_("Published"), blank=True, null=True)
     email = models.BooleanField(_("Send as newsletter"),default=False)
     email_subject = models.CharField(_("Subject"), max_length=100, blank=True, null=False, default='')
+    email_subsubject = models.CharField(_("Sub-Subject"), max_length=100, blank=True, null=False, default='')
     email_send_dt = models.DateTimeField(_("Sent"), blank=True, null=True)
 
     class EmailStatus(models.IntegerChoices):
@@ -131,6 +147,30 @@ class Post(models.Model):
                 return f'{p1}<br><br>{p2}'
 
         return p1 + ' ' + p2
+    
+    def translate(self):
+        lang = get_language()
+
+        if not lang or lang == 'en':
+            self.lang = lang
+            return self
+
+        try:
+            post_lang = PostLang.objects.get(post=self, lang_iso_code=lang)
+        except PostLang.DoesNotExist:
+            self.lang = lang
+            return self
+
+        if post_lang.title: self.title = post_lang.title
+        if post_lang.email_subject: self.email_subject = post_lang.email_subject
+        if post_lang.text: self.text = post_lang.text
+        if post_lang.description: self.description = post_lang.description
+        if post_lang.keywords: self.keywords = post_lang.keywords
+        if post_lang.json_ld: self.json_ld = post_lang.json_ld
+
+        self.lang = lang
+        return self
+
 
     def __str__(self):
         return str(self.id) + ':'+ str(self.slug)
@@ -162,7 +202,7 @@ class Post(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return '/blog/' + str(self.slug)        
+        return reverse('blog:post', kwargs={'slug': self.slug})    
 
     def look_up_gellifique_product(self):
         # [](https://www.gellifique.co.uk/en/pro-limited-edition/-periwinkle-hema-free(1342).html)
@@ -322,6 +362,15 @@ class PostLang(models.Model):
     json_ld  = models.TextField(_("script ld+json"), blank=True, null=False, default='')
     class Meta:
         unique_together = ('post', 'lang_iso_code')
+
+class CategoryLang(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    lang_iso_code = models.CharField(_("Language ISO Code"), max_length=5)
+    category_text = models.CharField(_("Category"), max_length=100, default='')
+
+    def __str__(self):
+        return self.lang_iso_code + ' ' + self.category_text
+
 
 
 class AllLanguages:

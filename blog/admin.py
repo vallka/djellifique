@@ -3,6 +3,7 @@ from markdownx.admin import MarkdownxModelAdmin
 from markdownx.models import MarkdownxField
 from django.db import models
 from django.forms.widgets import Textarea
+from django import forms
 from django.utils import timezone
 from django.urls import reverse
 from django.utils.html import format_html
@@ -12,6 +13,7 @@ from .models import *
 # Register your models here.
 #admin.site.register(Post, MarkdownxModelAdmin)
 admin.site.register(Category)
+admin.site.register(CategoryLang)
 @admin.register(PostLang)
 class PostLangAdmin(MarkdownxModelAdmin):
     list_display = ['post','lang_iso_code','title']
@@ -31,6 +33,37 @@ class PostLangInline(admin.TabularInline):
     edit_link.short_description = 'Edit'
 
 
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Check if the instance has a primary key, indicating it's an existing object
+        if self.instance and self.instance.pk:
+            if '-copy' in self.instance.slug:
+                self.initial['slug'] = ''
+
+    def clean(self):
+        cleaned_data = super().clean()
+        print('postform clear')
+        # Check if "Save as new" is being performed
+        if self.data.get("_saveasnew"):
+            print('postform clear as new')
+            # Modify the field causing the unique constraint error
+            # For example, if it's a 'slug' field:
+            cleaned_data['slug'] = ''
+            cleaned_data['title'] += " (copy)"
+            cleaned_data['slug'] = ''
+            cleaned_data['blog'] = False
+            cleaned_data['blog_start_dt'] = None
+            cleaned_data['email'] = False
+            cleaned_data['email_send_dt'] = None
+            cleaned_data['email_status'] = Post.EmailStatus.NONE
+
+        return cleaned_data
+
 @admin.register(Post)
 class PostAdmin(MarkdownxModelAdmin):
     list_display = ['id','slug','title','domain','blogged','f_blog_start_dt','newsletter','f_email_send_dt','formatted_created_dt']
@@ -38,6 +71,8 @@ class PostAdmin(MarkdownxModelAdmin):
     search_fields = ['title', ]
     list_filter = ['blog','email','domain']
     inlines = [PostLangInline]
+    save_as = True
+    form = PostForm
 
     def formatted_created_dt(self, obj):
         return obj.created_dt.strftime("%d-%m-%Y %H:%M")
@@ -86,3 +121,4 @@ class PostAdmin(MarkdownxModelAdmin):
             return queryset | queryset3, may_have_duplicates
 
         return queryset, may_have_duplicates    
+    

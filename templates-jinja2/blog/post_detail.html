@@ -54,13 +54,9 @@
   {% endif %}
 <div class="blog_post blog_post_{{post.id}}">
       <div class="blog_header">
-        <h1><a href="{% if post.lang %}
-                        {{ url ('blog:post',args=[post.slug,post.lang]) }}
-                     {% else %}
-                        {{ url ('blog:post_en',args=[post.slug]) }}
-                      {% endif %}">{{demoji(post.title)}}</a></h1>
+        <h1><a href="{{ url ('blog:post',args=[post.slug]) }}">{{demoji(post.title)}}</a></h1>
         <div class="blog_date">
-          {{ post.blog_start_dt.strftime("%d.%m.%Y") }}
+          {{ post.blog_start_dt.strftime("%d.%m.%Y") if post.blog_start_dt else '' }}
         </div>
       </div>
       <div class="blog_body">
@@ -77,12 +73,12 @@
 
     <div class="blog_post">
       {% if prev%}
-        <h4><a href="{{ url ('blog:post', args=[prev,post.lang]) }}"> < Earlier </a></h4>
+        <h4><a href="{{ url ('blog:post', args=[prev]) }}"> < Earlier </a></h4>
       {% endif %}     
 
       <h4><a href="{{ url ('blog:list') }}">Blog Index</a></h4>
       {% if next%}
-        <h4><a href="{{ url ('blog:post', args=[next,post.lang]) }}"> Later > </a></h4>
+        <h4><a href="{{ url ('blog:post', args=[next]) }}"> Later > </a></h4>
       {% endif %}     
     </div>
     {% endif %}     

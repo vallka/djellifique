@@ -8,6 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.conf import settings
+from django.utils.translation import get_language
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -135,6 +137,8 @@ class HomeView(generic.ListView):
             cat = Category.objects.get(slug=cat_slug)
             self.cat = cat
             posts = posts.filter(category=cat)
+            for p in posts:
+                p.translate() #in place
             return posts
         else:
             self.home = True
@@ -144,7 +148,7 @@ class HomeView(generic.ListView):
 
             self.shown = []
             for p in posts:
-                print (p.id)
+                p.translate() #in place
                 self.shown.append(p.id)
 
             return posts
@@ -213,7 +217,10 @@ class PostView(generic.DetailView):
 
     def get_object(self, queryset=None):
         post = get_object_or_404(Post, slug=self.kwargs['slug'])
-        lang = self.kwargs.get('lang')
+
+        return post.translate()
+
+        lang = get_language()
 
         if not lang or lang == 'en':
             post.lang = lang

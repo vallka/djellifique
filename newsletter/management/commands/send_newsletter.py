@@ -71,6 +71,7 @@ class Command(BaseCommand):
 
             html = {}
             html[1] = NewsShot.add_html_x(newsletter_post[0].slug)
+            
 
             limit = 200
             custs = self.get_customers(newsletter_post[0].id,limit,newsletter_post[0].domain)

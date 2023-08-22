@@ -128,6 +128,9 @@ th:nth-child(6) {
   display: none;
 }
 
+.vTextField {
+    width: 610px;
+}
 </style>
 
 
@@ -210,6 +213,8 @@ django.jQuery(function(){
     django.jQuery('.submit-row').append('<input type="button" value="Stats" id="btn-stats">')
     django.jQuery('.submit-row').append('<input type="button" value="Translate" id="btn-translate">')
     django.jQuery('.submit-row').append('<input type="button" value="Make PDF" id="btn-makepdf">')
+
+    django.jQuery('.field-title div').append('<input type="button" class="button btn_title_norm" value="Normalize">');
 
     django.jQuery('#btn-preview').click(function(){
         window.open('/blog/'+django.jQuery('#id_slug').val())
@@ -344,7 +349,49 @@ django.jQuery(function(){
         showInitial: "true"
     });
 
+    django.jQuery('.btn_title_norm').click(function(e){
+        const t = toTitleCase(django.jQuery('#id_title').val());
+        django.jQuery('#id_title').val(t)
+    });
+
+
 });
+
+function toTitleCase (str) {
+  const articles = ['a', 'an', 'the'];
+  const conjunctions = ['for', 'and', 'nor', 'but', 'or', 'yet', 'so'];
+  const prepositions = [
+    'with', 'at', 'from', 'into','upon', 'of', 'to', 'in', 'for',
+    'on', 'by', 'like', 'over', 'plus', 'but', 'up', 'down', 'off', 'near'
+  ];
+
+  // The list of spacial characters can be tweaked here
+  const replaceCharsWithSpace = (str) => str.replace(/\s(\.|,|!|:|;|\?)/g,'$1').replace(/(\s\s+)/gi, ' ');
+  const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.substr(1);
+  const normalizeStr = (str) => str.toLowerCase().trim();
+  const shouldCapitalize = (word, fullWordList, posWithinStr) => {
+    if ((posWithinStr == 0) || (posWithinStr == fullWordList.length - 1)) {
+      return true;
+    }
+
+    return !(articles.includes(word) || conjunctions.includes(word) || prepositions.includes(word));
+  }
+
+  str = replaceCharsWithSpace(str);
+  str = normalizeStr(str);
+
+  let words = str.split(' ');
+  if (words.length <= 2) { // Strings less than 3 words long should always have first words capitalized
+    words = words.map(w => capitalizeFirstLetter(w));
+  }
+  else {
+    for (let i = 0; i < words.length; i++) {
+      words[i] = (shouldCapitalize(words[i], words, i) ? capitalizeFirstLetter(words[i], words, i) : words[i]);
+    }
+  }
+
+  return words.join(' ');
+}
 
 function getCookie(name) {
 var cookieValue = null;
