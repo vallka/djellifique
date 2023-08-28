@@ -2,7 +2,10 @@ import uuid
 import requests
 import re
 import requests
+import urllib
 from bs4 import BeautifulSoup
+from django.core.mail import send_mail,EmailMessage,EmailMultiAlternatives
+from django.conf import settings
 
 import css_inline
 
@@ -27,465 +30,99 @@ class NewsShot(models.Model):
     note = models.CharField(blank=True, null=True, max_length=25)
     user_agent = models.CharField(blank=True, null=True, max_length=500)
 
+    html_cache = {}
 
     @staticmethod
-    def add_html_x(slug,lang=None):
-        url = "https://blog.gellifique.co.uk/blog/newsletter/"
-        #url = "http://localhost:8000/blog/newsletter/"
+    def modify_urls(html, utm_tags):
+        soup = BeautifulSoup(html, 'html.parser')
+        blog_url = 'https://blog.gellifique.co.uk'
+        
+        for tag in soup.find_all('a', href=True):  # Find all anchor tags with href attribute
+            if (tag['href'].startswith('https://www.gellifique.') 
+                    or tag['href'].startswith('https://blog.gellifique.')) and not '/unsubscribe/' in tag['href']:
+                if '?' in tag['href']:
+                    tag['href'] += f'&{utm_tags}'
+                else:
+                    tag['href'] += f'?{utm_tags}'
 
-        url += slug
+                url = urllib.parse.quote_plus(tag['href'])
+                tag['href'] = f'{blog_url}/blog/newsletter/click/####uuid####/?path={url}'
+        
+        return str(soup)
 
-        if lang: url += '/' + lang
+    def add_html_x(self,post,lang=None,host=None):
 
-        print (url)
+        if lang and lang!='en': 
+            lang1 = lang + '/'
+        else:
+            lang1 = ''
+            lang = 'en'
+
+        if NewsShot.html_cache.get(post.slug+':'+lang):
+            print ('cache hit')
+            return NewsShot.html_cache.get(post.slug+':'+lang)    
+
+        if not host: host = "https://blog.gellifique.co.uk"
+        url = f"{host}/{lang1}blog/newsletter/{post.slug}"
+
+        print ('request '+url)
 
         html = requests.get(url)
         if html.status_code==200:
             html = html.text
 
             # replace '/en/' in html with 'f"/{lang}/"'
-            if lang:
+            if lang and lang!='en':
                 html = re.sub(r'(https://www\.gellifique\.co\.uk/)(en)/',f"\g<1>{lang}/",html)
                 html = re.sub(r'(https://www\.gellifique\.eu/)(en)/',f"\g<1>{lang}/",html)
 
-
-            inliner = css_inline.CSSInliner(remove_style_tags=True)
-            return inliner.inline(html)
-
-        return None
-
-
-    @staticmethod
-    def add_html(text,title,slug,title_color,title_bgcolor):
-
-        style = """
-
-.blog_content {
-  font-family: arial, sans-serif !important;
-  font-size: 1rem !important;
-  color: #232323 !important;
-  background-color: #f6f6f6 !important;
-  line-height: 1.1em !important;
-  letter-spacing: initial !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-@media (max-width: 768px){
-  .blog_content {
-    font-size: 1.25rem !important;
-    line-height: 1.25em !important;
-  }
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 700 !important;
-}
-
-
-
-.blog_post {
-    max-width: 610px !important;
-    text-align: center !important;
-    background-color: white !important;
-    padding: 1rem !important;
-    margin: auto !important;
-        margin-top: auto !important;
-        margin-bottom: auto !important;
-    margin-top: 1rem !important;
-    margin-bottom: 1rem !important;
-}
-
-@media (min-width: 768px){
-  .blog_post {
-    border-radius: 5px !important;
-  }
-}
-
-.blog_post .blog_header {
-    background-color: #eee !important;
-    border-radius: 5px !important;
-    padding-top: 0.5rem !important;
-}
-
-.blog_post {
-    text-align: center !important;
-}
-
-.blog_content img {
-    max-width: 100% !important;
-}
-
-.blog_content .header {
-    max-width: 610px !important;
-    margin: 0 auto !important;
-    background-color: #1a1a1a !important;
-}
-
-h1, h2, h3 {
-    margin-top: 0 !important;
-    margin-bottom: .5rem !important;
-    font-weight: 700 !important;
-    line-height: 1 !important;
-    color: #d73672 !important;
-    text-transform: initial !important;
-    letter-spacing: initial !important;
-}
-
-.h1, h1 {
-    font-size: 32px !important;
-    margin-bottom: 1.563rem !important;
-    padding-bottom: 0.5rem !important;
-    color: black !important;
-    text-transform: uppercase;
-}
-
-.h2, h2 {
-  color: #d73672 !important;
-  font-size: 26px !important;
-  text-transform: capitalize;
-}
-.h3, h3 {
-  color: #1a1a1a !important;
-  font-size: 21px !important;
-}
-.h4, h4 {
-  font-size: 18px !important;
-}
-
-.navbar {
-  background-color: #1a1a1a !important;
-}
-
-a.navbar-item {
-  color: #fff !important;
-  margin: 2px 2px;
-  font-size: 10px !important;
-  background-color: #1a1a1a !important;
-  text-transform: uppercase !important;
-}
-
-a.navbar-item:hover {
-    color: #d73672 !important;
-}
-
-.breadcrumb {
-  padding: .75rem 1rem !important;
-  margin-bottom: 1rem !important;
-  list-style: none !important;
-  background-color: #f6f6f6 !important;
-  border-radius: 0 !important;
-  font-size: 1rem !important;
-  font-weight: 700 !important;
-}
-
-hr {
-    box-sizing: content-box !important;
-    height: 0 !important;
-    overflow: visible !important;
-    margin-top: 1rem !important;
-    margin-bottom: 1rem !important;
-    border: 0 !important;
-    border-top-color: currentcolor !important;
-    border-top-style: none !important;
-    border-top-width: 0px !important;
-    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
-}
-
-a {
-    color: #1a1a1a !important;
-    text-decoration: none !important;
-    background-color: transparent !important;
-}
-
-.blog_post img {
-  max-width: 100%;
-  display: block;
-  margin: auto;
-}
-
-.blog_post p {
-  /*text-align: justify;*/
-  text-align: center;
-  margin-left: 0;
-  margin-right: 0;
-}
-
-.blog_post p a {
-  color: #5a5a5a;
-  text-decoration: none;
-  border-bottom: 3px solid #2fb5d2;
-  font-weight: 600;
-}
-
-
-.blog_post h4, .blog_post h5, .blog_post h6 {
-    text-transform: initial !important;
-    letter-spacing: initial !important;
-    font-size: 1rem !important;
-    color: white !important;
-}
-
-.blog_post h4 a, .blog_post h5 a, .blog_post h6 a {
-    color: white !important;
-}
-
-.blog_post h4:hover, .blog_post h5:hover, .blog_post h6:hover {
-  background-color: #f766a2 !important;
-  color: #fff !important;
-  text-decoration: none !important;
-}
-
-.blog_post h4 a:hover, .blog_post h5 a:hover, .blog_post h6 a:hover {
-  color: #fff !important;
-  text-decoration: none !important;
-}
-
-.blog_post h4, .blog_post h5, .blog_post h6 {
-    text-transform: initial !important;
-    letter-spacing: initial !important;
-    font-size: 1rem !important;
-    background-color: #444 !important;
-    color: white !important;
-    display: inline-block !important;
-    padding: 1rem !important;
-    border-radius: 5px !important;
-}
-
-.blog_post ol, .blog_post ul {
-    margin-top: 0;
-    /*text-align: justify;*/
-    text-align: left;
-    margin-left: 0;
-    margin-right: 2rem;
-}
-
-.blog_post s, .blog_post del {
-  text-decoration: none;
-  background-color: #d7367230;
-}
-
-
-footer {
-    text-align: center !important;
-    font-size: 0.8rem !important;
-}
-.social {
-    text-align: center !important;
-}
-
-footer .www a {
-    /*color: #d73672 !important;*/
-    color: #1a1a1a !important;
-    
-}
-footer .www {
-    font-size: 1rem;
-    padding-bottom: 1rem;
-}
-
-footer .unsubscribe {
-    font-style: italic !important;
-}
-.social i {
-    /*color: #d73672 !important;*/
-    color: #1a1a1a !important;
-}
-
-.social img {
-    width: 2rem;
-}
-        """
-        style2 = ''
-
-        if title_color:
-            style2 += f"""
-
-.blog_post .blog_header, .blog_post .blog_header a {{
-    color: {title_color} !important;
-}}
-
-            """
-
-        if title_bgcolor:
-            style2 += f"""
-
-.blog_post .blog_header {{
-    background-color: {title_bgcolor} !important;
-    
-}}
-
-.blog_post p a {{
-    border-bottom-color: {title_bgcolor} !important;
-}}
-
-.blog_post s, .blog_post del {{
-  text-decoration: none;
-  background-color: {title_bgcolor}30 !important;
-}}
-
-.blog_post li::marker {{
-    color: {title_bgcolor} !important;
-    filter: brightness(95%);
-}}
-
-.blog_post h2 {{
-    color: {title_bgcolor} !important;
-    filter: brightness(95%);
-}}
-
-.blog_body table {{
-  width: 100%;
-  display: table;
-  table-layout: fixed;
-}}
-
-.blog_body td,.blog_body th{{
-  width: 100%;
-  font-size: 16px;
-  text-transform: none;  
-  font-weight: 300;
-  padding:0;
-  display: table-cell;
-}}
-
-            """
-
-
-        html = f"""
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
-
-        <link rel="stylesheet" href="https://use.typekit.net/oki2ljd.css">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-
-        <title>{title}</title>
-        <style>
-            {style}
-            {style2}
-        </style>
-    </head>
-   <body>
-        <img src="https://www.gellifique.co.uk/blog/newsletter/pixel/?uuid=####uuid####" style="display:none">
-        <div class="blog_content">
-            <div class="header" style="text-align:center" >
-                <img class="logo img-responsive" src="https://www.gellifique.co.uk/img/logo-professional-263.png" alt="GellifiQue Professional">
-            </div>
-            <div class="blog_post">
-
-                <div class="blog_header">
-                    <h1><a href="https://blog.gellifique.co.uk/blog/{slug}">{title}</a></h1>
-                </div>
-                <div class="blog_body">
-
-
-    <!-- start text -->
-    {text}
-    <!-- end text -->
-
-    <hr />
-
-    <p style="margin: 0 3rem; text-align: center;">
-    Products with the highest quality assurance in the nail industry. 
-    Uniquely formulated and uniquely tested. Discover our honey-like textured formula today.
-    </p>
-
-    <p><img width="80%" src="https://blog.gellifique.co.uk/static/images/newsletter_footer2.png"</p>
-    <hr />
-
-                </div>
-            </div>
-        </div>
-
-        <footer>
-            <div class="www">
-                <a href="https://www.gellifique.co.uk/">https://www.gellifique.co.uk/</a>
-            </div>
-            <div class="social">
-                <a href="https://www.facebook.com/gellifiqueltd/" target="_blank"><img src="https://blog.gellifique.co.uk/static/images/facebook-square-brands-bl.png"></a>
-                <a href="https://www.instagram.com/gellifique_gel_colour/" target="_blank"><img src="https://blog.gellifique.co.uk/static/images/instagram-square-brands-bl.png"></a>
-                <a href="https://www.youtube.com/channel/UC8EB7U4DV4n_8BY8wprBXOQ" target="_blank"><img src="https://blog.gellifique.co.uk/static/images/youtube-square-brands-bl.png"></a>
-                <a href="https://twitter.com/gellifique" target="_blank"><img src="https://blog.gellifique.co.uk/static/images/twitter-square-brands-bl.png"></a>
-                <a href="https://uk.pinterest.com/gellifique/" target="_blank"><img src="https://blog.gellifique.co.uk/static/images/pinterest-square-brands-bl.png"></a>
-            </div>
-            <div class="unsubscribe">
-                <a href="https://blog.gellifique.co.uk/blog/newsletter/unsubscribe/####email####/####uuid####/">unsubscribe from this list</a> |     
-                <a href="https://www.gellifique.co.uk/en/identity">update subscription preferences</a>
-            </div>
-        </footer>
-    </body>
-</html>
-        """
-
-        #now re-do for spanish (unused now)
-
-        html_eu = f"""
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
-
-        <link rel="stylesheet" href="https://use.typekit.net/oki2ljd.css">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-
-        <title>{title}</title>
-        <style>
-            {style}
-            {style2}
-        </style>
-    </head>
-   <body>
-        <img src="https://www.gellifique.co.uk/blog/newsletter/pixel/?uuid=####uuid####" style="display:none">
-        <div class="blog_content">
-            <div class="header"><img class="logo img-responsive" src="https://www.gellifique.eu/img/logo-professional-263.png" alt="GellifiQue Professional">
-            </div>
-            <div class="blog_post">
-
-                <div class="blog_header">
-                    <h1><a href="https://www.gellifique.co.uk/blog/{slug}">{title}</a></h1>
-                </div>
-                <div class="blog_body">
-
-
-    <!-- start text -->
-    {text}
-    <!-- end text -->
-
-
-    <p><img width="80%" src="https://www.gellifique.co.uk/static/images/newsletter_footer2.png"</p>
-    <hr />
-
-                </div>
-            </div>
-        </div>
-
-        <footer>
-            <div class="www">
-                <a href="https://www.gellifique.eu/">https://www.gellifique.eu/</a>
-            </div>
-            <div class="social">
-                <a href="https://www.facebook.com/gellifiqueltd/" target="_blank"><img src="https://www.gellifique.co.uk/static/images/facebook-square-brands.png"></a>
-                <a href="https://www.instagram.com/gellifique_gel_colour/" target="_blank"><img src="https://www.gellifique.co.uk/static/images/instagram-square-brands.png"></a>
-                <a href="https://www.youtube.com/channel/UC8EB7U4DV4n_8BY8wprBXOQ" target="_blank"><img src="https://www.gellifique.co.uk/static/images/youtube-square-brands.png"></a>
-                <a href="https://twitter.com/gellifique" target="_blank"><img src="https://www.gellifique.co.uk/static/images/twitter-square-brands.png"></a>
-                <a href="https://uk.pinterest.com/gellifique/" target="_blank"><img src="https://www.gellifique.co.uk/static/images/pinterest-square-brands.png"></a>
-            </div>
-            <div class="unsubscribe">
-                <a href="https://gellifique.eu/es/identidad">unsubscribe from this list</a> |     
-                <a href="https://gellifique.eu/es/identidad">update subscription preferences</a>
-            </div>
-        </footer>
-    </body>
-</html>
-        """
-
+            campaign = 'E:' + post.slug
+            utm_tags = f"utm_source=newsletter&utm_medium=email&utm_campaign={campaign}&utm_id={post.id}"
+            html = NewsShot.modify_urls(html,utm_tags)
+
+            try:
+                inliner = css_inline.CSSInliner(remove_style_tags=True)
+                html = inliner.inline(html)
+            except:
+                inliner = css_inline.CSSInliner()
+                html = inliner.inline(html)
+
+            NewsShot.html_cache[post.slug+':'+lang] = html   
 
         return html
 
+
+    def html_add_customer(self,html,domain,customer_type,customer_id,customer_name,customer_email):
+        if html:
+            html = html.replace('####uuid####',str(self.uuid))
+            html = html.replace('####email####',customer_email)
+            html = html.replace('<!-- Hi Firstname -->',f"Hi {customer_name},")
+            html = html.replace('<firstname>',customer_name)
+
+            host = 'https://www.gellifique.co.uk' if domain==Post.Domains.CO_UK else 'https://www.gellifique.eu'
+            if customer_type=='C':
+                referral_url = host + '/?rid=' + str(customer_id+1000)
+            else:
+                referral_url = ''
+            
+            html = html.replace('<referral_url>',referral_url)
+        return html
+
+    def send(self,html,to_emails,test=True):
+        r=re.search('<title>(.*?)</title>',html,flags=re.S) # subject sent to us in <title> tag
+        subject = r.group(1)
+        if test: subject = f'[TEST] {subject}'
+        text = subject
+
+        email = EmailMultiAlternatives( subject, text, settings.EMAIL_FROM_USER, to_emails, headers = {'X-gel-id': str(self.uuid)}  )
+        email.attach_alternative(html, "text/html") 
+        
+        send_result = email.send()
+        if send_result and not test:
+            self.send_dt = timezone.now()
+            self.save() 
+
+        return send_result
 
 
     @staticmethod

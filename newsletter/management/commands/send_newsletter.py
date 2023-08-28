@@ -22,6 +22,7 @@ MOCK_SEND = False
 
 _post_title = ''
 _post_id = 0
+RE_EMOJI = re.compile(u'([\U00002600-\U000027BF])|([\U0001f300-\U0001f64F])|([\U0001f680-\U0001f6FF])')
 
 def my_replace(match):
     match1 = match.group(1)
@@ -121,7 +122,8 @@ class Command(BaseCommand):
 
     def encode_urls(self,html,title,id,uuid,to_email,firstname,id_customer,cust_type):
         global _post_title,_post_id
-        _post_title = title
+        # for my_replace
+        _post_title = 'E:' + RE_EMOJI.sub(r'',title)
         _post_id = id
 
         #TODO: for some reason doesn't replace links in top menu

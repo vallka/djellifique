@@ -176,6 +176,9 @@ class Post(models.Model):
         return str(self.id) + ':'+ str(self.slug)
 
     def save(self, *args, **kwargs):
+        if not self.email_subject:
+            self.email_subject = self.title
+
         if not self.slug:
             slug = slugify(self.title)
 

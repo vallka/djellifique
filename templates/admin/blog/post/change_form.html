@@ -292,7 +292,14 @@ django.jQuery(function(){
                 console.info(gooddata);
 
                 if (gooddata['result']=='ok') {
-                    alert('ok')
+                    let res = ' '
+                    if (gooddata['sent']) {
+                        for(let i=0;i<gooddata['sent'].length;++i) {
+                            res += gooddata['sent'][i] + ' ';
+
+                        }
+                    }
+                    alert('ok' + res)
                 }
                 else {
                     alert(gooddata['error'])

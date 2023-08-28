@@ -130,39 +130,47 @@ def notification(request):
 def sendtest(request,slug):
 
     print('sendtest:',slug)
-    print(request.user.email)
+    print(request.user.email,request.scheme,request.META['HTTP_HOST'])
+
     logger.info("sendtest:%s",slug)
+
+    NewsShot.html_cache = {}
 
     post = Post.objects.get(slug=slug)
     #to_emails = [request.user.email]
-    to_emails = ['info@gellifique.co.uk','vallka@vallka.com','larisa.eccles@btinternet.com']
 
-    for l in ['','es','uk']:
-        html = NewsShot.add_html_x(post.slug,l)
+    langs = ['en','es','uk'] if post.domain==Post.Domains.EU else ['en']
+
+    customer_id = 64
+    firstname = 'Margarita'
+    customer_email = 'info@gellifique.co.uk'
+    to_emails = [customer_email,'vallka@vallka.com',]
+    shot = NewsShot(blog=post,customer_id=customer_id,customer_type='C')
+
+    sents = []
+    for l in langs:
+        html = shot.add_html_x(post,l,request.scheme+'://'+request.META['HTTP_HOST'])
+
 
         if html:
-            firstname = 'Margarita'
-            referral_url = 'https://www.gellifique.co.uk/?rid=1064'
+            print ('got html for ',l)
+            #test_uuid = f'test{post.id}'
+            text = post.email_subsubject if post.email_subsubject else post.title
+#
+            html = shot.html_add_customer(html,post.domain,'C',customer_id,firstname,customer_email)
+            print(html)
 
-            html = html.replace('<referral_url>',referral_url)
-            html = html.replace('<firstname>',firstname)
-            html = html.replace('<!-- Hi Firstname -->',f"Hi {firstname},")
-
-            email = EmailMultiAlternatives( '[TEST] ' + (post.email_subject if post.email_subject else post.title), post.title, settings.EMAIL_FROM_USER, to_emails, headers = {'X-gel-id': f'xxx-{to_emails[0]}-xxx'}  )
-            email.attach_alternative(html, "text/html") 
-            #if attachment_file: email.attach_file(attachment_file)
-            
-            send_result = email.send()
-            message_id = email.extra_headers.get('X-gel-id','-')
-            print('send_result',send_result,message_id)
-            logger.info(email.extra_headers)
-            logger.error("send_result:%s:%s",send_result,message_id)
+            send_result = shot.send(html,to_emails,True)
+            #logger.error("send_result:%s",send_result)
+            send_result = True
+            sents.append(f'{l}: sent-{send_result}')
         else:
-            print('no translateion for:',l)
+            print('no translation for:',l)
             logger.error("send_result:%s",l)
+            sents.append({f'{l}: no translation found'})
 
 
-    return JsonResponse({'result':'ok'})    
+    return JsonResponse({'result':'ok','sent':sents})    
 
 @require_POST
 def stats(request,slug):
