@@ -61,7 +61,10 @@ class Command(BaseCommand):
         today = timezone.now() # get a Date object
         #logger.info(today)
 
-        newsletter_post = Post.objects.filter(email=True,email_send_dt__lt=today,email_status__in=[Post.EmailStatus.NONE,Post.EmailStatus.SENDING]).order_by('id')
+        if MOCK:
+            newsletter_post = Post.objects.filter(id=253).order_by('id')    
+        else:    
+            newsletter_post = Post.objects.filter(email=True,email_send_dt__lt=today,email_status__in=[Post.EmailStatus.NONE,Post.EmailStatus.SENDING]).order_by('id')
 
 
         if len(newsletter_post) > 0:
@@ -70,11 +73,7 @@ class Command(BaseCommand):
             print(newsletter_post[0].domain)
             self.current_post = newsletter_post[0]
 
-            html = {}
-            html[1] = NewsShot.add_html_x(newsletter_post[0].slug)
-            
-
-            limit = 200
+            limit = 5
             custs = self.get_customers(newsletter_post[0].id,limit,newsletter_post[0].domain)
 
             if len(custs):
@@ -85,20 +84,30 @@ class Command(BaseCommand):
                     newsletter_post[0].save()
 
                 for i,c in enumerate(custs):
+                    id_cust = c[0]
+                    to_email = c[1]
+                    firstname = c[2].strip()
+                    lastname = c[3].strip()
+                    lang_id = int(c[4])
+                    cust_type = c[5]
+
                     print(f"{i+1}, customer:{c[5]}:{c[0]}:{c[1]}:{c[4]}")
-                    logger.info(f"{i+1}, customer:{c[5]}:{c[0]}:{c[1]}:{c[4]}")
+                    logger.info(f"{i+1}, customer:{id_cust}:{to_email}:{firstname}:{lastname}:{lang_id}:{cust_type}")
                     
                     if newsletter_post[0].domain==Post.Domains.EU:
-                        lang_id = c[4]
-                        if not html.get(lang_id):
-                            html[lang_id] = NewsShot.add_html_x(newsletter_post[0].slug,AllLanguages.getById(lang_id))
+                        lang_id = int(c[4])
                     else:
-                        lang_id = 1
+                        lang_id = 1 ## reset to en for all
 
-                    shot = NewsShot(blog=newsletter_post[0],customer_id=c[0],customer_type=c[5])
-                    if self.send(c,html[lang_id],newsletter_post[0].email_subject,newsletter_post[0].title,newsletter_post[0].id,shot.uuid):
-                        shot.send_dt = timezone.now()
-                        shot.save() 
+                    lang = AllLanguages.getById(lang_id)
+
+                    shot = NewsShot(blog=newsletter_post[0],customer_id=id_cust,customer_type=cust_type)
+                    html = shot.add_html_x(newsletter_post[0],lang)
+                    html = shot.html_add_customer(html,newsletter_post[0].domain,customer_type=cust_type,customer_id=id_cust,customer_name=firstname,customer_email=to_email)
+
+                    send_result = shot.send(html,[to_email],False)
+
+                    if send_result:
                         sent += 1
                     else:
                         not_sent += 1
@@ -257,7 +266,7 @@ class Command(BaseCommand):
                 cursor.execute(sql,[blog_id,blog_id])
                 row = cursor.fetchall()
         else:
-            row = [(12345,'vallka@vallka.com','Val','Kool,1'),'C']
+            row = [(3845,'vallka@vallka.com','Val','Kool','2','C')]
 
         return row
 

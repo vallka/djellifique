@@ -406,7 +406,7 @@ def translate(request,slug):
     text = text.replace('<h3>','<h3 [')
     text = text.replace('</h3>','] /h3>')
 
-    result = GTranslator.translate( [post.title,post.email_subject,text], langs, 'en' )
+    result = GTranslator.translate( [post.title,post.email_subject,text,post.email_subsubject], langs, 'en' )
     print(result)
 
     for lang in langs:
@@ -419,6 +419,7 @@ def translate(request,slug):
             postlang.title = result[lang][0][:100]
             postlang.email_subject = result[lang][1][:100]
             postlang.text = text
+            postlang.email_subsubject = result[lang][3][:100]
             postlang.save()
 
         except PostLang.DoesNotExist:   
@@ -426,6 +427,7 @@ def translate(request,slug):
             postlang.title = result[lang][0][:100]
             postlang.email_subject = result[lang][1][:100]
             postlang.text = text
+            postlang.email_subsubject = result[lang][3][:100]
             postlang.save()
 
 

@@ -154,15 +154,13 @@ def sendtest(request,slug):
 
         if html:
             print ('got html for ',l)
-            #test_uuid = f'test{post.id}'
-            text = post.email_subsubject if post.email_subsubject else post.title
-#
+ 
             html = shot.html_add_customer(html,post.domain,'C',customer_id,firstname,customer_email)
             #print(html)
 
             send_result = shot.send(html,to_emails,True)
             #logger.error("send_result:%s",send_result)
-            send_result = True
+            #send_result = True
             sents.append(f'{l}: sent-{send_result}')
         else:
             print('no translation for:',l)

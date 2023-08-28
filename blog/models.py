@@ -363,6 +363,7 @@ class PostLang(models.Model):
     lang_iso_code = models.CharField(_("Language ISO Code"), max_length=5)
     title = models.CharField(_("Title"), max_length=100, default='')
     email_subject = models.CharField(_("Subject"), max_length=100, blank=True, null=False, default='')
+    email_subsubject = models.CharField(_("Sub-Subject"), max_length=100, blank=True, null=False, default='')
     text = models.TextField(_("Text"), blank=True, null=False, default='')
     description = models.TextField(_("Meta Description"), blank=True, null=False, default='')
     keywords  = models.TextField(_("Meta Keywords"), blank=True, null=False, default='')
