@@ -289,6 +289,8 @@ class NewsletterView(generic.DetailView):
 
     def get_object(self, queryset=None):
         post = get_object_or_404(Post, slug=self.kwargs['slug'])
+        return post.translate()
+
         lang = self.kwargs.get('lang')
 
         if not lang or lang == 'en':

@@ -158,7 +158,7 @@ def sendtest(request,slug):
             text = post.email_subsubject if post.email_subsubject else post.title
 #
             html = shot.html_add_customer(html,post.domain,'C',customer_id,firstname,customer_email)
-            print(html)
+            #print(html)
 
             send_result = shot.send(html,to_emails,True)
             #logger.error("send_result:%s",send_result)

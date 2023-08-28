@@ -169,6 +169,10 @@ class Post(models.Model):
         if post_lang.json_ld: self.json_ld = post_lang.json_ld
 
         self.lang = lang
+
+        self.text = re.sub(r'(https://www\.gellifique\.co\.uk/)(en)/',f"\g<1>{lang}/",self.text)
+        self.text = re.sub(r'(https://www\.gellifique\.eu/)(en)/',f"\g<1>{lang}/",self.text)
+
         return self
 
 
