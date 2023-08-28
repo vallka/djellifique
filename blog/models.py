@@ -163,6 +163,7 @@ class Post(models.Model):
 
         if post_lang.title: self.title = post_lang.title
         if post_lang.email_subject: self.email_subject = post_lang.email_subject
+        if post_lang.email_subsubject: self.email_subsubject = post_lang.email_subsubject
         if post_lang.text: self.text = post_lang.text
         if post_lang.description: self.description = post_lang.description
         if post_lang.keywords: self.keywords = post_lang.keywords
