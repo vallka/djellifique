@@ -85,11 +85,16 @@ class SearchView(generic.ListView):
     template_name = "blog/post_search.html"
     
     def get_queryset(self):
-        
+        host = self.request.META['HTTP_HOST']
+        if '127.0.0.1' in host or 'gellifique.eu' in host:
+            domain = Post.Domains.EU
+        else:
+            domain = Post.Domains.CO_UK
+
         self.q = self.request.GET.get('q')
 
         #sql = Post.objects.filter(blog_start_dt__lte="'"+str(timezone.now())+"'",blog=True,).query
-        sql = Post.objects.filter(blog=True,).query
+        sql = Post.objects.filter(blog=True,domain=domain).query
         sql = re.sub('ORDER BY.*$','',str(sql))
 
         #posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,title__contains=q)
@@ -127,8 +132,14 @@ class HomeView(generic.ListView):
 
     
     def get_queryset(self):
+
+        host = self.request.META['HTTP_HOST']
+        if '127.0.0.1' in host or 'gellifique.eu' in host:
+            domain = Post.Domains.EU
+        else:
+            domain = Post.Domains.CO_UK
         
-        posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,).order_by('-blog_start_dt')
+        posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,domain=domain).order_by('-blog_start_dt')
         cat_slug = self.kwargs.get('slug')
         self.request.session['category'] = cat_slug
 
