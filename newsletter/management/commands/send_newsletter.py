@@ -73,7 +73,7 @@ class Command(BaseCommand):
             print(newsletter_post[0].domain)
             self.current_post = newsletter_post[0]
 
-            limit = 5
+            limit = 300
             custs = self.get_customers(newsletter_post[0].id,limit,newsletter_post[0].domain)
 
             if len(custs):
@@ -106,6 +106,8 @@ class Command(BaseCommand):
                     html = shot.html_add_customer(html,newsletter_post[0].domain,customer_type=cust_type,customer_id=id_cust,customer_name=firstname,customer_email=to_email)
 
                     send_result = shot.send(html,[to_email],False)
+                    time.sleep(0.2)
+
 
                     if send_result:
                         sent += 1

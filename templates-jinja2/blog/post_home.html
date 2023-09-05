@@ -237,12 +237,14 @@
 
 {% if post_list2 %}
 
+  {% if current_domain==1 %}
   <div class="after_cat">
     Shop Now
   </div>
   <div class="product_carousel">
   {{ product_carousel|safe }}
   </div>
+  {% endif %}
 
   {% for list2 in post_list2 %}
     <div class="after_cat">
@@ -274,12 +276,14 @@
   {% endfor %}
 {% endif %}
 
+{% if current_domain==1 %}
 <div class="after_cat">
   Shop Now
 </div>
 <div class="product_carousel">
 {{ product_carousel2|safe }}
 </div>
+{% endif %}
 
 
 {% endblock content %}

@@ -55,8 +55,9 @@ class NewsShot(models.Model):
         if lang and lang!='en': 
             lang1 = lang + '/'
         else:
-            lang1 = ''
             lang = 'en'
+            #lang1 = ''  # urls.py prefix_default_language=True
+            lang1 = lang + '/'
 
         if NewsShot.html_cache.get(post.slug+':'+lang):
             print ('cache hit')

@@ -172,6 +172,11 @@ class HomeView(generic.ListView):
 
         page = int(self.request.GET.get('page',1))
 
+        host = self.request.META['HTTP_HOST']
+        if '127.0.0.1' in host or 'gellifique.eu' in host:
+            domain = Post.Domains.EU
+        else:
+            domain = Post.Domains.CO_UK
 
         if self.home:
             context['breadcrumb'] = 'Home'
@@ -184,6 +189,7 @@ class HomeView(generic.ListView):
                         'slug':cat.slug,
                         'posts':Post.objects.filter(blog_start_dt__lte=timezone.now(),
                         blog=True,
+                        domain=domain,
                         category=cat).exclude(id__in=self.shown).order_by('-blog_start_dt')[:3]})
         else:
             context['breadcrumb'] = self.cat.category
@@ -191,6 +197,7 @@ class HomeView(generic.ListView):
         context['page_title'] = context['breadcrumb']
         context['product_carousel'] = self.getBlogProducts()
         context['product_carousel2'] = self.getBlogProducts('2')
+        context['current_domain'] = domain
 
         return context        
 
