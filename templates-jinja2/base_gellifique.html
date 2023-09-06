@@ -69,6 +69,21 @@
       </ul>
       {% endblock header_nav %} 
       <form class="form-inline search-box d-flex justify-content-lg-end" action="{{ url ('blog:search') }}">
+
+        {% if current_domain!=1 %}
+        <select class="form-control bg-primary" id="lang-switch">
+          <option {% if get_language()=='en' %}selected{% endif %} >en</option>
+          <option {% if get_language()=='es' %}selected{% endif %} >es</option>
+          <option {% if get_language()=='de' %}selected{% endif %} >de</option>
+          <option {% if get_language()=='fr' %}selected{% endif %} >fr</option>
+          <option {% if get_language()=='pt' %}selected{% endif %} >pt</option>
+          <option {% if get_language()=='pl' %}selected{% endif %} >pl</option>
+          <option {% if get_language()=='ro' %}selected{% endif %} >ro</option>
+          <option {% if get_language()=='it' %}selected{% endif %} >it</option>
+          <option {% if get_language()=='uk' %}selected{% endif %} >uk</option>
+        </select>
+        {% endif %}
+
         <input name="q" class="form-control mr-sm-2" type="text" placeholder="Search">
         <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
       </form>
@@ -81,7 +96,7 @@
           
         <li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
           <a itemprop="item" href="{{ url ('blog:list') }}">
-            <span itemprop="name">Blog {{ get_language() }}</span>
+            <span itemprop="name">Blog</span>
           </a>
           <meta itemprop="position" content="1">
         </li>
@@ -134,12 +149,19 @@
 
               
               <li>GellifiQue Professional</li>
+
+              {% if current_domain!=1 %}
+              <li>Calle de Federico Gutiérrez 16, Local Derecha</li>
+              <li>28027 Madrid</li>
+              <li>España</li>
+              <li>contact@gellifique.eu</li>
+              {% else %}
               <li>159 Great Junction Street</li>
               <li>Edinburgh</li>
               <li>EH6 5LG</li>
               <li>United Kingdom</li>
-              <li>Email us: info@gellifique.co.uk</li>
-
+              <li>Email us: contact@gellifique.co.uk</li>
+              {% endif %}
             </ul>
           </div>
           <div class="col-12 col-md-4 col-lg-3">
@@ -153,6 +175,31 @@
         </div>
       </div>
 
-    <div class="copy">© 2020,2021 - GellifiQue® </div>
+    <div class="copy">© 2020-2023 - GellifiQue® </div>
 </footer>
 {% endblock footer %}
+
+{% block javascript %}
+
+{{ super() }}
+
+{% if current_domain!=1 %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const langSwitch = document.getElementById('lang-switch');
+
+  langSwitch.addEventListener('change', function() {
+      const selectedLang = this.value;
+      let currentPath = window.location.pathname;
+
+      // Assuming the language is always after the first slash and is two characters long
+      const newPath = currentPath.replace(/\/[a-z]{2}\//, `/${selectedLang}/`);
+
+      // Redirect to the new URL
+      window.location.href = newPath;
+  });
+});
+</script>
+{% endif %}
+
+{% endblock javascript %}

@@ -183,7 +183,7 @@ class HomeView(generic.ListView):
             context['post_list2'] = []
             cats = ['news-announcements','health-safety','corporate-company-news','education','new-products','popular-this-month']
             for i,cat_slug in enumerate(cats):
-                cat = Category.objects.get(slug=cat_slug)
+                cat = Category.objects.get(slug=cat_slug).translate()
                 context['post_list2'].append({
                         'name':cat.category,
                         'slug':cat.slug,
