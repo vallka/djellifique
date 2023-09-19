@@ -321,7 +321,7 @@ django.jQuery(function(){
         console.info('sending:' + slug );
 
         django.jQuery.ajax({
-            url: '/blog/translate/'+slug,
+            url: '/en/blog/translate/'+slug,
             type: 'post',
             headers: {
                 "X-CSRFToken": token

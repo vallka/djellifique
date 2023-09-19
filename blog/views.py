@@ -420,17 +420,18 @@ def translate(request,slug):
 
     langs = ['es','fr','de','it','ro','pl','pt','uk']
 
-    text = post.formatted_markdown
-    text = text.replace('<h3>','<h3 [')
-    text = text.replace('</h3>','] /h3>')
+    text = post.text
+    #text = post.formatted_markdown
+    #text = text.replace('<h3>','<h3 [')
+    #text = text.replace('</h3>','] /h3>')
 
     result = GTranslator.translate( [post.title,post.email_subject,text,post.email_subsubject], langs, 'en' )
     print(result)
 
     for lang in langs:
         text = result[lang][2]
-        text = text.replace('<h3 [','<h3>',)
-        text = text.replace('] /h3>','</h3>',)
+        #text = text.replace('<h3 [','<h3>',)
+        #text = text.replace('] /h3>','</h3>',)
 
         try:
             postlang = PostLang.objects.get(post=post,lang_iso_code=lang)
