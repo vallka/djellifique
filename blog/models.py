@@ -369,6 +369,11 @@ class PostLang(models.Model):
     description = models.TextField(_("Meta Description"), blank=True, null=False, default='')
     keywords  = models.TextField(_("Meta Keywords"), blank=True, null=False, default='')
     json_ld  = models.TextField(_("script ld+json"), blank=True, null=False, default='')
+
+    @property
+    def slug(self):
+        return self.post.slug
+
     class Meta:
         unique_together = ('post', 'lang_iso_code')
 

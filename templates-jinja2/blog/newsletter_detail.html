@@ -416,11 +416,7 @@ h1, h2, h3, h4, h5, h6 {
 
                 {% block content %}
                 {% if post %}
-                    {% if post.lang and post.lang!='en' %}
-                        {{post.text|safe}}
-                    {% else %}     
-                        {{post.formatted_markdown|safe}}
-                    {% endif %}     
+                    {{post.formatted_markdown|safe}}
                 {% endif %}     
                 {% endblock content %}
 

@@ -16,10 +16,12 @@ admin.site.register(Category)
 admin.site.register(CategoryLang)
 @admin.register(PostLang)
 class PostLangAdmin(MarkdownxModelAdmin):
-    list_display = ['post','lang_iso_code','title']
-    list_display_links = ['post','title',]
-    list_filter = ['post']
-    
+    list_display = ['post','slug','lang_iso_code','title','email_subject',]
+    list_display_links = ['post','title','email_subject',]
+    #list_filter = ['post']
+    readonly_fields = ['slug']
+
+
 class PostLangInline(admin.TabularInline):
     model = PostLang
     fields = ['lang_iso_code','title','email_subject','edit_link']
@@ -66,8 +68,8 @@ class PostForm(forms.ModelForm):
 
 @admin.register(Post)
 class PostAdmin(MarkdownxModelAdmin):
-    list_display = ['id','slug','title','domain','blogged','f_blog_start_dt','newsletter','f_email_send_dt','formatted_created_dt']
-    list_display_links = ['id','slug','title',]
+    list_display = ['id','slug','title','email_subject','domain','blogged','f_blog_start_dt','newsletter','f_email_send_dt','formatted_created_dt']
+    list_display_links = ['id','slug','title','email_subject',]
     search_fields = ['title', ]
     list_filter = ['blog','email','domain']
     inlines = [PostLangInline]

@@ -366,20 +366,7 @@ class MakePdfView(generic.DetailView):
         page = int(self.request.GET.get('page',0))
         build = int(self.request.GET.get('build',0))
 
-
-        if not lang or lang == 'en':
-            post.lang = lang
-        else:
-            post_lang = get_object_or_404(PostLang, post=post, lang_iso_code=lang)
-
-            if post_lang.title: post.title = post_lang.title
-            if post_lang.email_subject: post.email_subject = post_lang.email_subject
-            if post_lang.text: post.text = post_lang.text
-
-            post.text = re.sub(r'(https://www\.gellifique\.co\.uk/)(en)/',f"\g<1>{lang}/",post.text)
-            post.text = re.sub(r'(https://www\.gellifique\.eu/)(en)/',f"\g<1>{lang}/",post.text)
-
-            post.lang = lang
+        post.translate()
 
         if not lang or lang == 'en':
             pages = post.text.split('-----')
@@ -411,27 +398,39 @@ class MakePdfView(generic.DetailView):
 
 
 @require_POST
-def translate(request,slug):
+def translate(request,slug, target_language=None):
 
-    print('translate:',slug)
+    print('translate:',slug,target_language)
     logger.info("translate:%s",slug)
 
     post = Post.objects.get(slug=slug)
 
-    langs = ['es','fr','de','it','ro','pl','pt','uk']
+    if target_language:
+        langs = [target_language]
+    else:
+        langs = ['es','fr','de','it','ro','pl','pt','uk']
 
     text = post.text
     #text = post.formatted_markdown
-    #text = text.replace('<h3>','<h3 [')
-    #text = text.replace('</h3>','] /h3>')
+    text = text.replace('<h3>','<h3 [')
+    text = text.replace('</h3>','] /h3>')
 
     result = GTranslator.translate( [post.title,post.email_subject,text,post.email_subsubject], langs, 'en' )
     print(result)
 
     for lang in langs:
         text = result[lang][2]
-        #text = text.replace('<h3 [','<h3>',)
-        #text = text.replace('] /h3>','</h3>',)
+        text = text.replace('<h3 [','<h3>',)
+        text = text.replace('] /h3>','</h3>',)
+        text = text.replace('\r','',)
+        text = text.replace('\n','\n\n',)
+        text = text.replace('<!','\n\n<!',)
+        text = text.replace('<table','\n<table',)
+        text = text.replace('<h3','\n<h3',)
+        text = text.replace('<p','\n<p',)
+        text = text.replace('<a','\n<a',)
+
+        print(text)
 
         try:
             postlang = PostLang.objects.get(post=post,lang_iso_code=lang)
