@@ -641,6 +641,13 @@ VALUES
                     n_updated += 1
                     logger.info(f'saved:{p.id_product}')
 
+            if obj['what']=='new':
+                queryset = Ps17Product.objects.using(db).filter(id_product__in=ids,)
+                l = len(queryset)
+                logger.info(f'found:{l}')
+                logger.info(obj['replace'])
+                logger.error('doing new/back')
+
         logger.error(f'done:{n}/{n_updated}')
 
         return Response({'success':1,'req':obj, 'count':n, 'updated':n_updated})                
