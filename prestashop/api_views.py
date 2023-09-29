@@ -646,7 +646,40 @@ VALUES
                 l = len(queryset)
                 logger.info(f'found:{l}')
                 logger.info(obj['replace'])
-                logger.error('doing new/back')
+                set_new = obj['replace']
+
+                for p in queryset:
+                    n += 1
+                    logger.info(f"{n} {p.id_product}: {set_new}")
+
+                    if set_new=='n':
+                        sql = "update ps17_product_shop set date_add=DATE_SUB(NOW(),INTERVAL 1 DAY) where id_product=%s and id_shop=%s"
+                        sql2 = "delete from ps17_feature_product where id_product=%s and id_feature=%s"
+                        sql3 = ''    
+                    elif set_new=='u':  
+                        sql = "update ps17_product_shop set date_add=DATE_SUB(NOW(),INTERVAL 1 YEAR) where id_product=%s and id_shop=%s"
+                        sql2 = "delete from ps17_feature_product where id_product=%s and id_feature=%s"
+                        sql3 = ''    
+                    elif set_new=='b':  
+                        sql = "update ps17_product_shop set date_add=DATE_SUB(NOW(),INTERVAL 2 DAY) where id_product=%s and id_shop=%s"
+                        sql2 = ''    
+                        sql3 = "insert ignore into ps17_feature_product(id_product,id_feature,id_feature_value) values(%s,%s,%s)"
+                    else:
+                        sql = ''    
+                        sql2 = ''    
+                        sql3 = ''    
+
+                    feature_id = 17 
+                    value_id = 10089
+                    with connections[db].cursor() as cursor:
+                        if sql:
+                            cursor.execute(sql,[p.id_product,id_shop])
+                            n_updated += 1
+                        if sql2:
+                            cursor.execute(sql2,[p.id_product,feature_id])
+                        if sql3:
+                            cursor.execute(sql3,[p.id_product,feature_id,value_id])
+
 
         logger.error(f'done:{n}/{n_updated}')
 
