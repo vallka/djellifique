@@ -29,6 +29,7 @@ class DailySalesData(models.Model):
             'orders':'i',
             'GBP_cost':'float64',
             'GBP_products':'float64',
+            'GBP_p_exVAT':'float64',
             'GBP_shipping':'float64',
             'GBP_paid':'float64',
         }
@@ -46,13 +47,14 @@ SUM((SELECT SUM(original_wholesale_price) FROM ps17_order_detail d WHERE id_orde
     ),2) GBP_cost
 ,
 ROUND(SUM((total_products_wt-total_discounts_tax_incl)/conversion_rate) ,2) GBP_products,
+ROUND(SUM((total_products-total_discounts_tax_excl)/conversion_rate) ,2) GBP_p_exVAT,
 ROUND(SUM((total_shipping_tax_incl)/conversion_rate) ,2) GBP_shipping,
 ROUND(SUM((total_paid_real)/conversion_rate) ,2) GBP_paid
 FROM `ps17_orders` o
 WHERE current_state IN
 (SELECT id_order_state FROM ps17_order_state WHERE paid=1)
 AND NOT EXISTS (SELECT id_order_history FROM ps17_order_history WHERE id_order=o.id_order AND id_order_state IN (29,30))
-and date_add>='2019-01-01'
+and date_add>='2020-01-01'
 GROUP BY date(date_add)
 ORDER BY date_add DESC
         """
@@ -60,7 +62,7 @@ ORDER BY date_add DESC
         return sql        
 
     def get_data(par='d'):
-        store_path = settings.MEDIA_ROOT + '/statsdata-v2.pkl'
+        store_path = settings.MEDIA_ROOT + '/statsdata-v3.pkl'
         
         try:
             tm = os.path.getmtime(store_path) 
@@ -82,8 +84,8 @@ ORDER BY date_add DESC
             p['DOW'] = p['date_add'].dt.day_of_week
             p['DIM'] = p['date_add'].dt.days_in_month
 
-            p['VAT 8pc'] = round(p['GBP_products']*0.08,2)
-            p['Gross Margin'] = round(p['GBP_products'] - p['VAT 8pc'] - p['GBP_cost'],2)
+            p['VAT 20pc'] = round(p['GBP_products']-p['GBP_p_exVAT'],2)
+            p['Gross Margin'] = round(p['GBP_p_exVAT'] - p['GBP_cost'],2)
 
             p.to_pickle(store_path)
 
@@ -92,9 +94,10 @@ ORDER BY date_add DESC
                                                 'orders':np.sum,
                                                 'GBP_cost':np.sum,
                                                 'GBP_products':np.sum,
+                                                'GBP_p_exVAT':np.sum,
                                                 'GBP_shipping':np.sum,
                                                 'GBP_paid':np.sum,
-                                                'VAT 8pc':np.sum,
+                                                'VAT 20pc':np.sum,
                                                 'Gross Margin':np.sum,
                                                 'DOY':np.max
                                                 }).sort_index(ascending=False)
@@ -109,9 +112,10 @@ ORDER BY date_add DESC
                                                 'orders':np.sum,
                                                 'GBP_cost':np.sum,
                                                 'GBP_products':np.sum,
+                                                'GBP_p_exVAT':np.sum,
                                                 'GBP_shipping':np.sum,
                                                 'GBP_paid':np.sum,
-                                                'VAT 8pc':np.sum,
+                                                'VAT 20pc':np.sum,
                                                 'Gross Margin':np.sum,
                                                 'D':np.max,
                                                 'M':np.max
@@ -128,9 +132,10 @@ ORDER BY date_add DESC
                                                 'orders':np.sum,
                                                 'GBP_cost':np.sum,
                                                 'GBP_products':np.sum,
+                                                'GBP_p_exVAT':np.sum,
                                                 'GBP_shipping':np.sum,
                                                 'GBP_paid':np.sum,
-                                                'VAT 8pc':np.sum,
+                                                'VAT 20pc':np.sum,
                                                 'Gross Margin':np.sum,
                                                 'D':np.max,
                                                 'DIM':np.max,
@@ -153,68 +158,95 @@ ORDER BY date_add DESC
             p = p[0:30]
 
         elif par=='dw':
-            p = p.groupby(['DOW']).agg({'products':np.sum,
+            p = p.groupby(['DOW']).agg({'products':np.mean,
+                                                'orders':np.mean,
                                                 'GBP_cost':np.mean,
                                                 'GBP_products':np.mean,
+                                                'GBP_p_exVAT':np.mean,
                                                 'GBP_shipping':np.mean,
                                                 'GBP_paid':np.mean,
-                                                'VAT 8pc':np.mean,
+                                                'VAT 20pc':np.mean,
                                                 'Gross Margin':np.mean,
                                                 }).sort_index(ascending=False)
             p.reset_index(inplace=True)
 
             p['DOW'] = p.index+1
+            p['orders'] = round(p['orders'],2)
+            p['products'] = round(p['products'],2)
             p['GBP_products'] = round(p['GBP_products'],2)
+            p['Gross Margin'] = round(p['Gross Margin'],2)
             p['GBP_products_e'] = p['GBP_products'] - p['Gross Margin']
+            p['GBP_p_exVAT'] = round(p['GBP_p_exVAT'],2)
+            p['VAT 20pc'] = round(p['VAT 20pc'],2)
 
         elif par=='dm':
-            p = p.groupby(['D']).agg({'products':np.sum,
+            p = p.groupby(['D']).agg({'products':np.mean,
+                                                'orders':np.mean,
                                                 'GBP_cost':np.mean,
                                                 'GBP_products':np.mean,
+                                                'GBP_p_exVAT':np.mean,
                                                 'GBP_shipping':np.mean,
                                                 'GBP_paid':np.mean,
-                                                'VAT 8pc':np.mean,
+                                                'VAT 20pc':np.mean,
                                                 'Gross Margin':np.mean,
                                                 }).sort_index(ascending=False)
             p.reset_index(inplace=True)
 
             p['Day'] = p.index+1
+            p['orders'] = round(p['orders'],2)
+            p['products'] = round(p['products'],2)
             p['GBP_products'] = round(p['GBP_products'],2)
+            p['Gross Margin'] = round(p['Gross Margin'],2)
             p['GBP_products_e'] = p['GBP_products'] - p['Gross Margin']
+            p['GBP_p_exVAT'] = round(p['GBP_p_exVAT'],2)
+            p['VAT 20pc'] = round(p['VAT 20pc'],2)
+
 
         elif par=='mm':
-            p = p.groupby(['M']).agg({'products':np.sum,
+            p = p.groupby(['M']).agg({'products':np.mean,
+                                                'orders':np.mean,
                                                 'GBP_cost':np.mean,
                                                 'GBP_products':np.mean,
+                                                'GBP_p_exVAT':np.mean,
                                                 'GBP_shipping':np.mean,
                                                 'GBP_paid':np.mean,
-                                                'VAT 8pc':np.mean,
+                                                'VAT 20pc':np.mean,
                                                 'Gross Margin':np.mean,
                                                 }).sort_index(ascending=False)
             p.reset_index(inplace=True)
 
             p['Month'] = p.index+1
+            p['orders'] = round(p['orders'],2)
+            p['products'] = round(p['products'],2)
             p['GBP_products'] = round(p['GBP_products'],2)
+            p['Gross Margin'] = round(p['Gross Margin'],2)
             p['GBP_products_e'] = p['GBP_products'] - p['Gross Margin']
+            p['GBP_p_exVAT'] = round(p['GBP_p_exVAT'],2)
+            p['VAT 20pc'] = round(p['VAT 20pc'],2)
 
         elif par=='mavg':
             p1 = p.groupby(['Y','M']).agg({'products':np.sum,
                                                 'orders':np.sum,
                                                 'GBP_products':np.sum,
+                                                'GBP_p_exVAT':np.sum,
+                                                'VAT 20pc':np.sum,
                                                 'Gross Margin':np.sum,
                                                 }).sort_index(ascending=False)
             p2 = p1.groupby(['Y',]).agg({'products':np.mean,
                                                 'orders':np.mean,
                                                 'GBP_products':np.mean,
+                                                'GBP_p_exVAT':np.mean,
+                                                'VAT 20pc':np.mean,
                                                 'Gross Margin':np.mean,
-
                                                 }).sort_index(ascending=False)
             p2['products'] = round(p2['products'],2)
             p2['orders'] = round(p2['orders'],2)
             p2['GBP_products'] = round(p2['GBP_products'],2)
+            p2['GBP_p_exVAT'] = round(p2['GBP_p_exVAT'],2)
+            p2['VAT 20pc'] = round(p2['VAT 20pc'],2)
             p2['Gross Margin'] = round(p2['Gross Margin'],2)
 
-            p2.loc['All Time'] = p2.mean()
+            p2.loc['All Time'] = round(p2.mean(),2)
 
             p2['Year'] = p2.index
 
@@ -224,20 +256,26 @@ ORDER BY date_add DESC
             p1 = p.groupby(['Y','M']).agg({'products':np.mean,
                                                 'orders':np.mean,
                                                 'GBP_products':np.mean,
+                                                'GBP_p_exVAT':np.mean,
+                                                'VAT 20pc':np.mean,
                                                 'Gross Margin':np.mean,
                                                 }).sort_index(ascending=False)
             p2 = p1.groupby(['Y',]).agg({'products':np.mean,
                                                 'orders':np.mean,
                                                 'GBP_products':np.mean,
+                                                'GBP_p_exVAT':np.mean,
+                                                'VAT 20pc':np.mean,
                                                 'Gross Margin':np.mean,
 
                                                 }).sort_index(ascending=False)
             p2['products'] = round(p2['products'],2)
             p2['orders'] = round(p2['orders'],2)
             p2['GBP_products'] = round(p2['GBP_products'],2)
+            p2['GBP_p_exVAT'] = round(p2['GBP_p_exVAT'],2)
+            p2['VAT 20pc'] = round(p2['VAT 20pc'],2)
             p2['Gross Margin'] = round(p2['Gross Margin'],2)
             
-            p2.loc['All Time'] = p2.mean()
+            p2.loc['All Time'] = round(p2.mean(),2)
             p2['Year'] = p2.index
 
             return p2                                                
@@ -561,12 +599,17 @@ class ProductsData(models.Model):
         sql = """
 SELECT aa.product_id,pp.id_product,product_reference,product_name,
 aa.quantity sold, min_date,max_date,
+
 (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=18) bt,
-(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=60) gelclr,
+(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=105) gelclr,
+(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=150) procare,
+(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=156) soakoff,
+(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=157) fileoff,
 (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=78) acry,
-(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=79) hb,
-(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=87) apex,
-(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=111) qt
+(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=111) qt,
+(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=21) outlet,
+(SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.product_id AND id_category=153) archive
+
 FROM 
 (
 SELECT product_id,SUM(product_quantity) quantity,product_name ,product_reference,
@@ -596,16 +639,19 @@ ORDER BY aa.quantity DESC
             'max_date':'M',
             'bt':'i',
             'gelclr':'i',	
+            'procare':'i',	
+            'soakoff':'i',	
+            'fileoff':'i',	
             'acry':'i',	
-            'hb':'i',	
-            'apex':'i',	
             'qt':'i',
+            'outlet':'i',
+            'archive':'i',
         }
 
     @classmethod
     def get_data(cls,par='c'):
         print('par',par)
-        store_path = settings.MEDIA_ROOT + f'/stats-products-v3.pkl'
+        store_path = settings.MEDIA_ROOT + f'/stats-products-v4.pkl'
         
         try:
             tm = os.path.getmtime(store_path) 
@@ -644,10 +690,13 @@ ORDER BY aa.quantity DESC
                                                 'max_date':np.max,
                                                 'bt':np.max,
                                                 'gelclr':np.max,	
+                                                'procare':np.max,	
+                                                'soakoff':np.max,	
+                                                'fileoff':np.max,	
                                                 'acry':np.max,	
-                                                'hb':np.max,	
-                                                'apex':np.max,	
                                                 'qt':np.max,
+                                                'outlet':np.max,
+                                                'archive':np.max,
                                                 })
 
             p['months_in_sale'] = (p['max_date'].astype('M')-p['min_date'].astype('M'))/np.timedelta64(1,'M')
@@ -656,14 +705,15 @@ ORDER BY aa.quantity DESC
 
             p['name'] = p.index
 
-            p.loc[p['name'].str.contains('APEX'),'apex']=1
-            p.loc[p['name'].str.contains('QUICK TIPS'),'qt']=1
-            p.loc[p['name'].str.contains('BUILDER GEL'),'hb']=1
-            p.loc[p['name'].str.contains('ACRYLIC GEL'),'acry']=1
-            p.loc[p['name'].str.contains('PRIMER'),'bt']=1
+            #p.loc[p['name'].str.contains('APEX'),'apex']=1
+            #p.loc[p['name'].str.contains('QUICK TIPS'),'qt']=1
+            #p.loc[p['name'].str.contains('BUILDER GEL'),'hb']=1
+            #p.loc[p['name'].str.contains('ACRYLIC GEL'),'acry']=1
+            #p.loc[p['name'].str.contains('PRIMER'),'bt']=1
             p.loc[p['name'].str.contains('MATTE TOP'),'bt']=1
             p.loc[p['name'].str.contains('RUBBER TOP'),'bt']=1
             p.loc[p['name'].str.contains('RUBBER BASE'),'bt']=1
+            p.loc[p['name'].str.contains('MICROCRYSTAL BASE'),'bt']=1
             p.loc[p['name'].str.contains('PRO BASE'),'bt']=1
             
 
@@ -679,12 +729,16 @@ class StockData(models.Model):
         sql = """
         SELECT id,id_product,reference,qnt,date_add,
         (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=18) bt,
-        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=60) gelclr,
+        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=105) gelclr,
+        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=150) procare,
+        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=156) soakoff,
+        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=157) fileoff,
         (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=78) acry,
-        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=79) hb,
-        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=87) apex,
-        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=111) qt        
+        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=111) qt,
+        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=21) outlet,
+        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=153) archive
         FROM a_stock_history aa
+        WHERE DATE_ADD>=DATE_SUB(NOW(),INTERVAL 6 MONTH)
         order by id
 """
 
@@ -699,16 +753,19 @@ class StockData(models.Model):
             'date_add':'M',
             'bt':'i',
             'gelclr':'i',	
+            'procare':'i',	
+            'soakoff':'i',	
+            'fileoff':'i',	
             'acry':'i',	
-            'hb':'i',	
-            'apex':'i',	
             'qt':'i',
+            'outlet':'i',
+            'archive':'i',
         }
 
     @classmethod
     def get_data(cls,par='*'):
         print('par',par)
-        store_path = settings.MEDIA_ROOT + f'/stats-stock-v1.pkl'
+        store_path = settings.MEDIA_ROOT + f'/stats-stock-v2.pkl'
         
         try:
             tm = os.path.getmtime(store_path) 

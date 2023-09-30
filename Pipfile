@@ -27,7 +27,7 @@ mariadb = "*"
 djangorestframework = "*"
 drf-yasg = "*"
 django-cors-headers = "*"
-pandas = "*"
+pandas = "==1.5.3"
 plotly = "*"
 plotly-express = "*"
 django-markdownx = {git = "https://github.com/vallka/django-markdownx.git", editable = true}

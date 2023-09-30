@@ -29,31 +29,31 @@ class SalesTableView(generics.ListAPIView):
         p = DailySalesData.get_data(par) 
 
         if par=='y':
-            html=p.to_html(columns=['Year','orders','products','GBP_paid','GBP_shipping','VAT 8pc','GBP_cost','GBP_products','P estimated','Gross Margin','GM estimated'],index=False)
+            html=p.to_html(columns=['Year','orders','products','GBP_cost','GBP_p_exVAT','VAT 20pc','GBP_products','GBP_shipping','GBP_paid','P estimated','Gross Margin','GM estimated'],index=False)
 
         elif par=='q':
-            html=p.to_html(columns=['Quarter','orders','products','GBP_paid','GBP_shipping','VAT 8pc','GBP_cost','GBP_products','P estimated','Gross Margin','GM estimated'],index=False)
+            html=p.to_html(columns=['Quarter','orders','products','GBP_cost','GBP_p_exVAT','VAT 20pc','GBP_products','GBP_shipping','GBP_paid','P estimated','Gross Margin','GM estimated'],index=False)
 
         elif par=='m':
-            html=p.to_html(columns=['Month','orders','products','GBP_paid','GBP_shipping','VAT 8pc','GBP_cost','GBP_products','P estimated','Gross Margin','GM estimated'],index=False)
+            html=p.to_html(columns=['Month','orders','products','GBP_cost','GBP_p_exVAT','VAT 20pc','GBP_products','GBP_shipping','GBP_paid','P estimated','Gross Margin','GM estimated'],index=False)
 
         elif par=='d':
-            html=p.to_html(columns=['Date','orders','products','GBP_paid','GBP_shipping','VAT 8pc','GBP_cost','GBP_products','Gross Margin'],index=False)
+            html=p.to_html(columns=['Date','orders','products','GBP_cost','GBP_p_exVAT','VAT 20pc','GBP_products','GBP_shipping','GBP_paid','Gross Margin'],index=False)
 
         elif par=='dw':
-            html=p.to_html(columns=['DOW','GBP_products','Gross Margin'],index=False)
+            html=p.to_html(columns=['DOW','orders','products','GBP_p_exVAT','VAT 20pc','GBP_products','Gross Margin'],index=False)
 
         elif par=='dm':
-            html=p.to_html(columns=['Day','GBP_products','Gross Margin'],index=False)
+            html=p.to_html(columns=['Day','orders','products','GBP_p_exVAT','VAT 20pc','GBP_products','Gross Margin'],index=False)
 
         elif par=='mm':
-            html=p.to_html(columns=['Month','GBP_products','Gross Margin'],index=False)
+            html=p.to_html(columns=['Month','orders','products','GBP_p_exVAT','VAT 20pc','GBP_products','Gross Margin'],index=False)
 
         elif par=='mavg':
-            html=p.to_html(columns=['Year','orders','products','GBP_products','Gross Margin'],index=False)
+            html=p.to_html(columns=['Year','orders','products','GBP_p_exVAT','VAT 20pc','GBP_products','Gross Margin'],index=False)
 
         elif par=='davg':
-            html=p.to_html(columns=['Year','orders','products','GBP_products','Gross Margin'],index=False)
+            html=p.to_html(columns=['Year','orders','products','GBP_p_exVAT','VAT 20pc','GBP_products','Gross Margin'],index=False)
 
         html=html.replace('class="dataframe"',
             'class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"'
@@ -278,7 +278,7 @@ class ProductsTableView(generics.ListAPIView):
         p = ProductsData.get_data(par) 
 
         if cat=='x':
-            p = p[(p['bt']==0) & (p['gelclr']==0) & (p['acry']==0) & (p['hb']==0) & (p['apex']==0) & (p['qt']==0)]
+            p = p[(p['bt']==0) & (p['gelclr']==0) & (p['procare']==0) & (p['soakoff']==0) & (p['fileoff']==0) & (p['acry']==0) & (p['qt']==0) & (p['outlet']==0) & (p['archive']==0)]
         elif cat:
             p = p[p[cat]>0]
         else:    
@@ -324,7 +324,7 @@ class StockTableView(generics.ListAPIView):
             p=p[p['qnt']<20]
            
             if cat=='x':
-                p = p[(p['bt']==0) & (p['gelclr']==0) & (p['acry']==0) & (p['hb']==0) & (p['apex']==0) & (p['qt']==0)]
+                p = p[(p['bt']==0) & (p['gelclr']==0) & (p['procare']==0) & (p['soakoff']==0) & (p['fileoff']==0) & (p['acry']==0) & (p['qt']==0) & (p['outlet']==0) & (p['archive']==0)]
             elif cat:
                 p = p[p[cat]>0]
             p.sort_values(['qnt','reference'],ascending=True,inplace=True)
