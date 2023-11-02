@@ -131,6 +131,34 @@ th:nth-child(6) {
 .vTextField {
     width: 610px;
 }
+
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.loading .spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
 
 
@@ -211,7 +239,7 @@ django.jQuery(function(){
     django.jQuery('.submit-row').append('<input type="button" value="Preview Newsletter" id="btn-preview-nl">')
     django.jQuery('.submit-row').append('<input type="button" value="Send Test" id="btn-send-test">')
     django.jQuery('.submit-row').append('<input type="button" value="Stats" id="btn-stats">')
-    django.jQuery('.submit-row').append('<input type="button" value="Translate" id="btn-translate">')
+    //django.jQuery('.submit-row').append('<input type="button" value="Translate" id="btn-translate">')
     django.jQuery('.submit-row').append('<input type="button" value="Make PDF" id="btn-makepdf">')
 
     django.jQuery('.field-title div').append('<input type="button" class="button btn_title_norm" value="Normalize">');
@@ -313,9 +341,10 @@ django.jQuery(function(){
         });
     });
     django.jQuery('#btn-translate').click(function(e){
-        if (!confirm("Are you sure to translate the post (it may cost you a few pence)?"))
+        if (!confirm("Are you sure to translate the post (it may cost you a few pence)? Also, you'll need to wait a few minute - 6 or more..."))
             return;
 
+        spinner_on();
         const slug = django.jQuery('#id_slug').val()
         const token = getCookie('csrftoken');
         console.info('sending:' + slug );
@@ -328,6 +357,7 @@ django.jQuery(function(){
             },
             dataType: 'json',
             success: function (gooddata) {
+                spinner_off();
                 console.info(gooddata);
 
                 if (gooddata['result']=='ok') {
@@ -338,6 +368,7 @@ django.jQuery(function(){
                 }
             },
             error:  function (errdata) {
+                spinner_off();
                 console.info('error');
                 console.info(errdata);
                 alert(errdata.statusText)
@@ -414,6 +445,24 @@ if (cookie.substring(0, name.length + 1) === (name + '=')) {
 }
 }
 return cookieValue;
+}
+
+function spinner_on() {
+  // create the loading spinner element
+  var spinner = document.createElement("div");
+  spinner.className = "loading";
+  spinner.innerHTML = '<div class="spinner"></div>';
+
+  // append the spinner to the body
+  document.body.appendChild(spinner);
+}
+
+function spinner_off() {
+  // remove the loading spinner element from the body
+  var spinner = document.querySelector(".loading");
+  if (spinner) {
+    spinner.parentNode.removeChild(spinner);
+  }
 }
 
 </script>

@@ -139,7 +139,7 @@ def sendtest(request,slug):
     post = Post.objects.get(slug=slug)
     #to_emails = [request.user.email]
 
-    langs = ['en','es','uk'] if post.domain==Post.Domains.EU else ['en']
+    langs = ['en','es',] if post.domain==Post.Domains.EU else ['en']
 
     customer_id = 64
     firstname = 'Margarita'

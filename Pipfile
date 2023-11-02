@@ -45,6 +45,7 @@ llama-index = "*"
 transformers = "*"
 torch = "*"
 pdfkit = "*"
+icecream = "*"
 
 [requires]
 python_version = "3"

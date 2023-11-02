@@ -131,6 +131,34 @@ th:nth-child(6) {
 .vTextField {
     width: 610px;
 }
+
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.loading .spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
 
 
@@ -315,7 +343,8 @@ django.jQuery(function(){
     django.jQuery('#btn-translate').click(function(e){
         if (!confirm("Are you sure to translate the post (it may cost you a few pence)? All changes you may have done will be lost!"))
             return;
-
+        
+        spinner_on();
         const slug = '{{ adminform.form.instance.slug }}'
         const lang = '{{ adminform.form.instance.lang_iso_code }}'
         const token = getCookie('csrftoken');
@@ -329,10 +358,11 @@ django.jQuery(function(){
             },
             dataType: 'json',
             success: function (gooddata) {
+                spinner_off();
                 console.info(gooddata);
 
                 if (gooddata['result']=='ok') {
-                    alert('ok')
+                    alert('OK! Usage: '+gooddata['usage'])
                     window.location.reload();
                 }
                 else {
@@ -340,6 +370,7 @@ django.jQuery(function(){
                 }
             },
             error:  function (errdata) {
+                spinner_off();
                 console.info('error');
                 console.info(errdata);
                 alert(errdata.statusText)
@@ -418,6 +449,23 @@ if (cookie.substring(0, name.length + 1) === (name + '=')) {
 return cookieValue;
 }
 
+function spinner_on() {
+  // create the loading spinner element
+  var spinner = document.createElement("div");
+  spinner.className = "loading";
+  spinner.innerHTML = '<div class="spinner"></div>';
+
+  // append the spinner to the body
+  document.body.appendChild(spinner);
+}
+
+function spinner_off() {
+  // remove the loading spinner element from the body
+  var spinner = document.querySelector(".loading");
+  if (spinner) {
+    spinner.parentNode.removeChild(spinner);
+  }
+}
 </script>
 
 {% endblock %}

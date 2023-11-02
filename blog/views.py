@@ -1,5 +1,6 @@
 import re
 import os
+import json
 from django.http import JsonResponse,HttpResponseRedirect
 from django.utils import timezone
 from django.views import generic
@@ -9,6 +10,7 @@ from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.utils.translation import get_language
+from icecream import ic
 
 
 import logging
@@ -411,48 +413,78 @@ def translate(request,slug, target_language=None):
         langs = ['es','fr','de','it','ro','pl','pt','uk']
 
     text = post.text
-    #text = post.formatted_markdown
-    text = text.replace('<h3>','<h3 [')
-    text = text.replace('</h3>','] /h3>')
 
-    result = GTranslator.translate( [post.title,post.email_subject,text,post.email_subsubject], langs, 'en' )
-    print(result)
+    text = f'''
+* {post.title}
+* {post.email_subject}
+* {post.email_subsubject}
+
+{text}
+'''
+
+    api_key = os.getenv('OPENAI_API_KEY')
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {api_key}',
+    }
+
 
     for lang in langs:
-        text = result[lang][2]
-        text = text.replace('<h3 [','<h3>',)
-        text = text.replace('] /h3>','</h3>',)
-        text = text.replace('\r','',)
-        text = text.replace('\n','\n\n',)
-        text = text.replace('<!','\n\n<!',)
-        text = text.replace('<table','\n<table',)
-        text = text.replace('<h3','\n<h3',)
-        text = text.replace('<p','\n<p',)
-        text = text.replace('<a','\n<a',)
+        prompt = f"""Traslate the following blog post into '{lang}'
+Keep markdown/html format. Don't translate product names, leave them in English.
+Also replace '/en/' to '/{lang}/' in URLs: https://www.gellifique.co.uk/en/ should become https://www.gellifique.co.uk/{lang}/
+\n\n
+{text}
+"""
 
-        print(text)
+        data = {
+            'model': 'gpt-3.5-turbo',
+            'messages': [
+                {'role': 'system', 'content': 'You are a translator with a knowledge of beauty industry and manicure in particular.'},
+                {'role': 'user', 'content': prompt}
+            ]
+        }
+
+        print(f'=============================> {lang}')
+        responseobj = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, data=json.dumps(data))
+        response = responseobj.text
+        response = json.loads(responseobj.text)
+        print(f'DONE============================= {lang}')
+
+
+        str = response['choices'][0]['message']['content']
+        ic(response)
+        ic(response['usage'])
+
+        lines = str.split('\n',4)
+        title = lines[0].lstrip(' *')
+        subject = lines[1].lstrip(' *')
+        subsubject = lines[2].lstrip(' *')
+        translated_text = lines[4]
+
+        ic(title,subject,subsubject,translated_text)
 
         try:
             postlang = PostLang.objects.get(post=post,lang_iso_code=lang)
-            postlang.title = result[lang][0][:100]
-            postlang.email_subject = result[lang][1][:100]
-            postlang.text = text
-            postlang.email_subsubject = result[lang][3][:100]
+            postlang.title = title[:100]
+            postlang.email_subject = subject[:100]
+            postlang.text = translated_text
+            postlang.email_subsubject = subsubject[:100]
             postlang.save()
 
         except PostLang.DoesNotExist:   
             postlang = PostLang(post=post,lang_iso_code=lang)
-            postlang.title = result[lang][0][:100]
-            postlang.email_subject = result[lang][1][:100]
-            postlang.text = text
-            postlang.email_subsubject = result[lang][3][:100]
+            postlang.title = title[:100]
+            postlang.email_subject = subject[:100]
+            postlang.text = translated_text
+            postlang.email_subsubject = subsubject[:100]
             postlang.save()
 
 
 
-    logger.info(result)
+    #logger.info(result)
 
     logger.error("translate_result:%s",post.slug)
 
 
-    return JsonResponse({'result':'ok'})    
+    return JsonResponse({'result':'ok','usage':response['usage']['total_tokens']})    

@@ -3,6 +3,7 @@ from this import d
 import requests
 
 from bs4 import BeautifulSoup
+from icecream import ic
 
 from django.db import models
 from django.utils.text import slugify
@@ -208,6 +209,18 @@ class Post(models.Model):
             self.look_up_gellifique_product()
             
         super().save(*args, **kwargs)
+
+        if self.domain==Post.Domains.EU:
+            ic(AllLanguages.langs[2:])
+            for lang in AllLanguages.langs[2:]:
+                try:
+                    postlang = PostLang.objects.get(post=self,lang_iso_code=lang)
+
+                except PostLang.DoesNotExist:   
+                    postlang = PostLang(post=self,lang_iso_code=lang)
+                    ic(self.title)
+                    postlang.title = self.title
+                    postlang.save()
 
     def get_absolute_url(self):
         return reverse('blog:post', kwargs={'slug': self.slug})    
