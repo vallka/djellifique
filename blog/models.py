@@ -1,5 +1,6 @@
 import re
-from this import d
+import os
+import json
 import requests
 
 from bs4 import BeautifulSoup
@@ -15,6 +16,8 @@ from markdownx.models import MarkdownxField
 from markdownx.utils import markdownify
 from django.utils.translation import get_language
 
+import logging
+logger = logging.getLogger(__name__)
 
 # Create your models here.
 class Category(models.Model):
@@ -149,7 +152,7 @@ class Post(models.Model):
 
         return p1 + ' ' + p2
     
-    def translate(self):
+    def translated(self):
         lang = get_language()
 
         if not lang or lang == 'en':
@@ -176,6 +179,100 @@ class Post(models.Model):
         self.text = re.sub(r'(https://www\.gellifique\.eu/)(en)/',f"\g<1>{lang}/",self.text)
 
         return self
+
+
+    def gpt_translate(self, target_language=None):
+        print('translate:',self.slug,target_language)
+        logger.info("translate:%s",self.slug)
+
+        if target_language:
+            langs = [target_language]
+        else:
+            langs = ['es','fr','de','it','ro','pl','pt','uk']
+
+        text = self.text
+
+        text = f'''<title>{self.title}</title>
+<subject>{self.email_subject}</subject>
+<subsubject>{self.email_subsubject}</subsubject>
+-----
+{text}
+'''
+
+        print(f'=============================>')
+        ic(text)
+
+        api_key = os.getenv('OPENAI_API_KEY')
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {api_key}',
+        }
+
+
+        for lang in langs:
+            prompt = f"""Traslate the following blog post into '{lang}'
+Keep markdown/html format. Don't translate product names, leave them in English.
+Also replace '/en/' to '/{lang}/' in URLs: https://www.gellifique.co.uk/en/ should become https://www.gellifique.co.uk/{lang}/
+\n\n
+{text}
+"""
+
+            data = {
+                'model': 'gpt-3.5-turbo',
+                'messages': [
+                    {'role': 'system', 'content': 'You are a translator with a knowledge of beauty industry and manicure in particular.'},
+                    {'role': 'user', 'content': prompt}
+                ]
+            }
+
+            print(f'> {lang}')
+            responseobj = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, data=json.dumps(data))
+            
+            ic(responseobj.status_code)
+            
+            response = responseobj.text
+            response = json.loads(responseobj.text)
+            print(f'DONE============================= {lang}')
+
+            str = response['choices'][0]['message']['content']
+            ic(response)
+            #ic(response['usage'])
+
+            texts = str.split('-----',3)
+
+            ic(texts)
+
+            title_re = re.search(r'<title>(.*?)</title>', texts[0])
+            subject_re = re.search(r'<subject>(.*?)</subject>', texts[0])
+            subsubject_re = re.search(r'<subsubject>(.*?)</subsubject>', texts[0])
+
+            title = title_re.group(1) if title_re else ''
+            subject = subject_re.group(1) if subject_re else ''
+            subsubject = subsubject_re.group(1) if subsubject_re else ''
+
+            translated_text = texts[1]
+
+            ic(title,subject,subsubject,translated_text)
+
+            try:
+                postlang = PostLang.objects.get(post=self,lang_iso_code=lang)
+                postlang.title = title[:100]
+                postlang.email_subject = subject[:100]
+                postlang.text = translated_text
+                postlang.email_subsubject = subsubject[:100]
+                postlang.save()
+
+            except PostLang.DoesNotExist:   
+                postlang = PostLang(post=self,lang_iso_code=lang)
+                postlang.title = title[:100]
+                postlang.email_subject = subject[:100]
+                postlang.text = translated_text
+                postlang.email_subsubject = subsubject[:100]
+                postlang.save()
+
+
+        logger.error("translate_result:%s",self.slug)
+        return {'result':'ok','usage':response['usage']['total_tokens']}    
 
 
     def __str__(self):

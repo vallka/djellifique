@@ -151,7 +151,7 @@ class HomeView(generic.ListView):
             self.cat = cat
             posts = posts.filter(category=cat)
             for p in posts:
-                p.translate() #in place
+                p.translated() #in place
             return posts
         else:
             self.home = True
@@ -161,7 +161,7 @@ class HomeView(generic.ListView):
 
             self.shown = []
             for p in posts:
-                p.translate() #in place
+                p.translated() #in place
                 self.shown.append(p.id)
 
             return posts
@@ -238,7 +238,7 @@ class PostView(generic.DetailView):
     def get_object(self, queryset=None):
         post = get_object_or_404(Post, slug=self.kwargs['slug'])
 
-        return post.translate()
+        return post.translated()
 
         lang = get_language()
 
@@ -309,7 +309,7 @@ class NewsletterView(generic.DetailView):
 
     def get_object(self, queryset=None):
         post = get_object_or_404(Post, slug=self.kwargs['slug'])
-        return post.translate()
+        return post.translated()
 
         lang = self.kwargs.get('lang')
 
@@ -368,7 +368,7 @@ class MakePdfView(generic.DetailView):
         page = int(self.request.GET.get('page',0))
         build = int(self.request.GET.get('build',0))
 
-        post.translate()
+        post.translated()
 
         if not lang or lang == 'en':
             pages = post.text.split('-----')
@@ -402,89 +402,7 @@ class MakePdfView(generic.DetailView):
 @require_POST
 def translate(request,slug, target_language=None):
 
-    print('translate:',slug,target_language)
-    logger.info("translate:%s",slug)
-
     post = Post.objects.get(slug=slug)
+    r = post.gpt_translate(target_language)
 
-    if target_language:
-        langs = [target_language]
-    else:
-        langs = ['es','fr','de','it','ro','pl','pt','uk']
-
-    text = post.text
-
-    text = f'''
-* {post.title}
-* {post.email_subject}
-* {post.email_subsubject}
-
-{text}
-'''
-
-    api_key = os.getenv('OPENAI_API_KEY')
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {api_key}',
-    }
-
-
-    for lang in langs:
-        prompt = f"""Traslate the following blog post into '{lang}'
-Keep markdown/html format. Don't translate product names, leave them in English.
-Also replace '/en/' to '/{lang}/' in URLs: https://www.gellifique.co.uk/en/ should become https://www.gellifique.co.uk/{lang}/
-\n\n
-{text}
-"""
-
-        data = {
-            'model': 'gpt-3.5-turbo',
-            'messages': [
-                {'role': 'system', 'content': 'You are a translator with a knowledge of beauty industry and manicure in particular.'},
-                {'role': 'user', 'content': prompt}
-            ]
-        }
-
-        print(f'=============================> {lang}')
-        responseobj = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, data=json.dumps(data))
-        response = responseobj.text
-        response = json.loads(responseobj.text)
-        print(f'DONE============================= {lang}')
-
-
-        str = response['choices'][0]['message']['content']
-        ic(response)
-        ic(response['usage'])
-
-        lines = str.split('\n',4)
-        title = lines[0].lstrip(' *')
-        subject = lines[1].lstrip(' *')
-        subsubject = lines[2].lstrip(' *')
-        translated_text = lines[4]
-
-        ic(title,subject,subsubject,translated_text)
-
-        try:
-            postlang = PostLang.objects.get(post=post,lang_iso_code=lang)
-            postlang.title = title[:100]
-            postlang.email_subject = subject[:100]
-            postlang.text = translated_text
-            postlang.email_subsubject = subsubject[:100]
-            postlang.save()
-
-        except PostLang.DoesNotExist:   
-            postlang = PostLang(post=post,lang_iso_code=lang)
-            postlang.title = title[:100]
-            postlang.email_subject = subject[:100]
-            postlang.text = translated_text
-            postlang.email_subsubject = subsubject[:100]
-            postlang.save()
-
-
-
-    #logger.info(result)
-
-    logger.error("translate_result:%s",post.slug)
-
-
-    return JsonResponse({'result':'ok','usage':response['usage']['total_tokens']})    
+    return JsonResponse(r)    
