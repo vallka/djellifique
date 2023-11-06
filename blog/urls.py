@@ -20,8 +20,9 @@ urlpatterns = [
     #path('category/<str:slug>/', ListView.as_view(), name='post-by-cat'),
     path('category/<str:slug>/', HomeView.as_view(), name='post-by-cat'),
 
-    path('translate/<str:slug>/', translate, name='translate'),  # Default behavior (translates to all predefined languages)
+    path('punctuation/', punctuation, name='trapunctuationslate'), 
     path('translate/<str:slug>/<str:target_language>/', translate, name='translate_with_language'),
+    path('translate/<str:slug>/', translate, name='translate'),  # Default behavior (translates to all predefined languages)
 
     path('<str:slug>/', PostView.as_view(), name='post'),
 ]

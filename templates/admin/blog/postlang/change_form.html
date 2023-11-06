@@ -254,6 +254,7 @@ django.jQuery(function(){
     django.jQuery('.submit-row').append('<input type="button" value="Make PDF" id="btn-makepdf">')
 
     django.jQuery('.field-title div').append('<input type="button" class="button btn_title_norm" value="Normalize">');
+    django.jQuery('.field-text div').append('<input type="button" class="button btn_text_check" value="Check Punctuation">');
 
     django.jQuery('#btn-preview').click(function(){
         window.open('/{{ adminform.form.instance.lang_iso_code }}/blog/{{ adminform.form.instance.slug }}')

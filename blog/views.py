@@ -406,3 +406,47 @@ def translate(request,slug, target_language=None):
     r = post.gpt_translate(target_language)
 
     return JsonResponse(r)    
+
+@require_POST
+def punctuation(request):
+
+    text = request.POST['text']
+    ic('punctuation',text)
+
+    prompt = f"""Check and correct punctuation only in the following markdown/html text:
+Only check text. Don't touch URL links and other html attributes.
+\n\n
+{text}
+"""
+
+    data = {
+        'model': 'gpt-3.5-turbo',
+        'messages': [
+            {'role': 'user', 'content': prompt}
+        ]
+    }
+
+    api_key = os.getenv('OPENAI_API_KEY')
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {api_key}',
+    }
+
+    responseobj = requests.post('https://api.openai.com/v1/chat/completions', headers=headers, data=json.dumps(data))
+    
+    ic(responseobj.status_code)
+    
+    response = responseobj.text
+    ic(response)
+    response = json.loads(responseobj.text)
+    print(f'DONE=============================')
+
+
+    str = response['choices'][0]['message']['content']
+    ic(str)
+
+
+
+    r = {'result':'ok','text':str, 'usage':response['usage']['total_tokens']} 
+
+    return JsonResponse(r)    
