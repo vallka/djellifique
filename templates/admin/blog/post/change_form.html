@@ -6,6 +6,9 @@
 <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
 
 <style>
+.markdownx {
+    width: 100%;
+}   
 .editor-preview {
     max-width: 610px !important;
     text-align: center !important;
@@ -246,7 +249,6 @@ var simplemde = new EasyMDE({
 });
 
 django.jQuery(function(){
-    /*
     django.jQuery('.submit-row').append('<input type="button" value="Preview Blog" id="btn-preview">')
     django.jQuery('.submit-row').append('<input type="button" value="Preview Newsletter" id="btn-preview-nl">')
     django.jQuery('.submit-row').append('<input type="button" value="Send Test" id="btn-send-test">')
@@ -256,7 +258,6 @@ django.jQuery(function(){
 
     django.jQuery('.field-title div').append('<input type="button" class="button btn_title_norm" value="Normalize">');
     django.jQuery('.field-text label').after('<input type="button" class="button btn_text_check_punct" value="Check Punctuation">');
-    */
 
     django.jQuery('#btn-preview').click(function(){
         window.open('/blog/'+django.jQuery('#id_slug').val())
