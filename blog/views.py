@@ -413,17 +413,25 @@ def punctuation(request):
     text = request.POST['text']
     ic('punctuation',text)
 
-    prompt = f"""Check and correct punctuation only in the following markdown/html text:
-Only check text. Don't touch URL links and other html attributes.
-\n\n
+    prompt = f"""Check and correct punctuation only in the following markdown/html text.
+Only check text. Don't touch URL links and other html attributes. Keep markdown/html format for text field. 
+Produce output in JSON format like this:
+
+    'text': '...corrected text in markdown/html...',
+    'your_comments': '... briefly list all your corrections ...'
+
+Input text below:    
+
 {text}
 """
 
     data = {
-        'model': 'gpt-3.5-turbo',
+        'model': 'gpt-3.5-turbo-1106',
         'messages': [
             {'role': 'user', 'content': prompt}
-        ]
+        ],
+        'temperature': 0,
+        'response_format': { 'type': 'json_object' }
     }
 
     api_key = os.getenv('OPENAI_API_KEY')
@@ -442,11 +450,12 @@ Only check text. Don't touch URL links and other html attributes.
     print(f'DONE=============================')
 
 
-    str = response['choices'][0]['message']['content']
-    ic(str)
+    correction = json.loads(response['choices'][0]['message']['content'])
+    your_comments = correction['your_comments']
 
+    ic(correction)
+    text = correction['text']
 
-
-    r = {'result':'ok','text':str, 'usage':response['usage']['total_tokens']} 
+    r = {'result':'ok','text':text, 'usage':response['usage']['total_tokens'], 'comments': your_comments} 
 
     return JsonResponse(r)    

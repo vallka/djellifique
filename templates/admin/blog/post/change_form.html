@@ -246,6 +246,7 @@ var simplemde = new EasyMDE({
 });
 
 django.jQuery(function(){
+    /*
     django.jQuery('.submit-row').append('<input type="button" value="Preview Blog" id="btn-preview">')
     django.jQuery('.submit-row').append('<input type="button" value="Preview Newsletter" id="btn-preview-nl">')
     django.jQuery('.submit-row').append('<input type="button" value="Send Test" id="btn-send-test">')
@@ -254,7 +255,8 @@ django.jQuery(function(){
     django.jQuery('.submit-row').append('<input type="button" value="Make PDF" id="btn-makepdf">')
 
     django.jQuery('.field-title div').append('<input type="button" class="button btn_title_norm" value="Normalize">');
-    django.jQuery('.field-text label').append('<input type="button" class="button btn_text_check_punct" value="Check Punctuation">');
+    django.jQuery('.field-text label').after('<input type="button" class="button btn_text_check_punct" value="Check Punctuation">');
+    */
 
     django.jQuery('#btn-preview').click(function(){
         window.open('/blog/'+django.jQuery('#id_slug').val())
@@ -353,7 +355,7 @@ django.jQuery(function(){
         });
     });
     django.jQuery('#btn-translate').click(function(e){
-        if (!confirm("Are you sure to translate the post (it may cost you a few pence)? Also, you'll need to wait a few minute - 6 or more..."))
+        if (!confirm("Are you sure to translate the post (it may cost you a few pence)?"))
             return;
 
         spinner_on();
@@ -389,7 +391,7 @@ django.jQuery(function(){
     });
 
     django.jQuery('.btn_text_check_punct').click(function(e){
-        if (!confirm("Are you sure to check punctuation (it may cost you a few pence)? Also, you'll need to wait a few minute - 6 or more..."))
+        if (!confirm("Are you sure to check punctuation (it may cost you a few pence)?"))
             return;
 
         spinner_on();
@@ -412,7 +414,10 @@ django.jQuery(function(){
                 console.info(gooddata);
 
                 if (gooddata['result']=='ok') {
-                    alert('OK! Usage: '+gooddata['usage']+' tokens. Time: '+formattedTime)
+                    alert('OK! Usage: '+gooddata['usage']+' tokens. Time: '+formattedTime+
+                            '\n\nCorrections: '+gooddata['comments']+
+                            "\n\nIf you don't like the result, press Ctrl-Z to undo and try again."
+                            )
                     if (gooddata['text']) {
                         simplemde.value(gooddata['text'])
                     }

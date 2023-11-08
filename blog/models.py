@@ -192,12 +192,18 @@ class Post(models.Model):
 
         text = self.text
 
-        text = f'''<title>{self.title}</title>
-<subject>{self.email_subject}</subject>
-<subsubject>{self.email_subsubject}</subsubject>
------
-{text}
-'''
+#        text = f'''<title>{self.title}</title>
+#<subject>{self.email_subject}</subject>
+#<subsubject>{self.email_subsubject}</subsubject>
+#-----
+#{text}
+#'''
+        text = json.dumps ({
+            'title': self.title,
+            'subject': self.email_subject,
+            'subsubject': self.email_subsubject,
+            'text': self.text
+        })
 
         print(f'=============================>')
         ic(text)
@@ -210,19 +216,32 @@ class Post(models.Model):
 
 
         for lang in langs:
-            prompt = f"""Traslate the following blog post into '{lang}'
-Keep markdown/html format. Don't translate product names, leave them in English.
+            prompt = f"""Translate the following blog post in JSON format into '{lang}'
+Keep markdown/html format for text field. Don't translate product names, leave them in English.
 Also replace '/en/' to '/{lang}/' in URLs: https://www.gellifique.co.uk/en/ should become https://www.gellifique.co.uk/{lang}/
-\n\n
+Produce output in JSON format like this:
+
+    'title': '...translated title...', 
+    'subject': '...translated subject...',
+    'subsubject': '...translated subsubject...',
+    'text': '...translated text...',
+    'your_comments': '... if you have any comments or questions, put here...'
+
+Input JSON below:    
+    
 {text}
 """
 
             data = {
-                'model': 'gpt-3.5-turbo',
+                #'model': 'gpt-3.5-turbo',
+                'model': 'gpt-3.5-turbo-1106',
                 'messages': [
                     {'role': 'system', 'content': 'You are a translator with a knowledge of beauty industry and manicure in particular.'},
                     {'role': 'user', 'content': prompt}
-                ]
+                ],
+                'temperature': 0,
+                'response_format': { 'type': 'json_object' }
+
             }
 
             print(f'> {lang}')
@@ -233,26 +252,20 @@ Also replace '/en/' to '/{lang}/' in URLs: https://www.gellifique.co.uk/en/ shou
             response = responseobj.text
             response = json.loads(responseobj.text)
             print(f'DONE============================= {lang}')
-
-            str = response['choices'][0]['message']['content']
             ic(response)
+
+            translation = json.loads(response['choices'][0]['message']['content'])
             #ic(response['usage'])
 
-            texts = str.split('-----',3)
+            title = translation['title']
+            subject = translation['subject']
+            subsubject = translation['subsubject']
 
-            ic(texts)
-
-            title_re = re.search(r'<title>(.*?)</title>', texts[0])
-            subject_re = re.search(r'<subject>(.*?)</subject>', texts[0])
-            subsubject_re = re.search(r'<subsubject>(.*?)</subsubject>', texts[0])
-
-            title = title_re.group(1) if title_re else ''
-            subject = subject_re.group(1) if subject_re else ''
-            subsubject = subsubject_re.group(1) if subsubject_re else ''
-
-            translated_text = texts[1]
+            translated_text = translation['text']
+            your_comments = translation['your_comments']
 
             ic(title,subject,subsubject,translated_text)
+            ic(your_comments)
 
             try:
                 postlang = PostLang.objects.get(post=self,lang_iso_code=lang)
@@ -475,7 +488,7 @@ class PostLang(models.Model):
     title = models.CharField(_("Title"), max_length=100, default='')
     email_subject = models.CharField(_("Subject"), max_length=100, blank=True, null=False, default='')
     email_subsubject = models.CharField(_("Sub-Subject"), max_length=100, blank=True, null=False, default='')
-    text = models.TextField(_("Text"), blank=True, null=False, default='')
+    text = MarkdownxField(_("Text"), blank=True, null=False)
     description = models.TextField(_("Meta Description"), blank=True, null=False, default='')
     keywords  = models.TextField(_("Meta Keywords"), blank=True, null=False, default='')
     json_ld  = models.TextField(_("script ld+json"), blank=True, null=False, default='')
