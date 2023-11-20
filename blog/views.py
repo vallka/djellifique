@@ -414,7 +414,8 @@ def punctuation(request):
     ic('punctuation',text)
 
     prompt = f"""Check and correct punctuation only in the following markdown/html text.
-Only check text. Don't touch URL links and other html attributes. Keep markdown/html format for text field. 
+Only check text. Don't touch URL links and other html attributes. Be careful not to delete line breaks and keep all markdown formatting.
+Keep markdown/html format for text field in resulting JSON. 
 Produce output in JSON format like this:
 
     'text': '...corrected text in markdown/html...',
@@ -427,6 +428,7 @@ Input text below:
 
     data = {
         'model': 'gpt-3.5-turbo-1106',
+        #'model': 'gpt-4-1106-preview',
         'messages': [
             {'role': 'user', 'content': prompt}
         ],
