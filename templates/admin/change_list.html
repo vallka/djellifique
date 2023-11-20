@@ -1,6 +1,16 @@
 {% extends "admin/change_list.html" %}
 {% load i18n admin_urls static admin_list %}
 
+{% block extrahead %}{{ block.super }}
+<style>
+#changelist-filter li.selected a {
+    color: var(--link-selected-fg);
+    font-weight: bold;
+    background-color: #c9ebf9;
+  }
+</style>
+{% endblock %}
+
 {% block filters %}
     {% if cl.has_filters %}
         <style>

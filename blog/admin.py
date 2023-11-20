@@ -68,10 +68,10 @@ class PostForm(forms.ModelForm):
 
 @admin.register(Post)
 class PostAdmin(MarkdownxModelAdmin):
-    list_display = ['id','slug','title','email_subject','domain','blogged','f_blog_start_dt','newsletter','f_email_send_dt','formatted_created_dt']
+    list_display = ['id','slug','title','email_subject','domain','f_blog','f_blog_start_dt','f_news','f_email_send_dt','formatted_created_dt']
     list_display_links = ['id','slug','title','email_subject',]
     search_fields = ['title', ]
-    list_filter = ['blog','email','domain']
+    list_filter = ['blog','email','email_status','domain']
     inlines = [PostLangInline]
     save_as = True
     form = PostForm
@@ -91,15 +91,25 @@ class PostAdmin(MarkdownxModelAdmin):
     f_email_send_dt.admin_order_field = 'email_send_dt'
     f_email_send_dt.short_description = 'Sent'
 
+    def f_blog(self,obj):
+        return obj.blog
+    f_blog.admin_order_field = 'blog'
+    f_blog.short_description = 'Blog'
+    f_blog.boolean = True      
+
+    def f_news(self,obj):
+        return obj.email
+    f_news.admin_order_field = 'email'
+    f_news.short_description = 'News'
+    f_news.boolean = True      
+
     def blogged(self,instance):
         return True if instance.blog and instance.blog_start_dt and instance.blog_start_dt<=timezone.now() else False
-    
     blogged.boolean = True      
     blogged.short_description = 'Blog'
 
     def newsletter(self,instance):
         return True if instance.email and instance.email_send_dt and instance.email_send_dt<=timezone.now() else False
-    
     newsletter.boolean = True      
     newsletter.short_description = 'News'
 
