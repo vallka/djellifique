@@ -235,6 +235,7 @@ Input JSON below:
             data = {
                 #'model': 'gpt-3.5-turbo',
                 'model': 'gpt-3.5-turbo-1106',
+                #'model': 'gpt-4-1106-preview',
                 'messages': [
                     {'role': 'system', 'content': 'You are a translator with a knowledge of beauty industry and manicure in particular.'},
                     {'role': 'user', 'content': prompt}
@@ -257,12 +258,12 @@ Input JSON below:
             translation = json.loads(response['choices'][0]['message']['content'])
             #ic(response['usage'])
 
-            title = translation['title']
-            subject = translation['subject']
-            subsubject = translation['subsubject']
+            title = translation.get('title')
+            subject = translation.get('subject')
+            subsubject = translation.get('subsubject')
 
-            translated_text = translation['text']
-            your_comments = translation['your_comments']
+            translated_text = translation.get('text')
+            your_comments = translation.get('your_comments')
 
             ic(title,subject,subsubject,translated_text)
             ic(your_comments)
