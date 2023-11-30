@@ -114,8 +114,11 @@ class PostAdmin(MarkdownxModelAdmin):
     newsletter.short_description = 'News'
 
     def get_search_results(self, request, queryset, search_term):
-        queryset, may_have_duplicates = super().get_search_results(request, queryset, search_term)
+        queryset, may_have_duplicates = super().get_search_results(request, queryset, '')
         
+        if not search_term:
+            return queryset, may_have_duplicates
+
         #print (queryset.query)
 
         sql = "SELECT id from `blog_post`"
@@ -123,14 +126,9 @@ class PostAdmin(MarkdownxModelAdmin):
 
         queryset2 = self.model.objects.raw(sql,[search_term])
 
-        print( len(queryset2))
-        if len(queryset2)>0:
-            s=[]
-            for row in queryset2:
-                s.append(row.id)
+        queryset3 = queryset.filter(id__in=[o.id for o in queryset2])
 
-            queryset3 = self.model.objects.filter(id__in=s)
-            return queryset | queryset3, may_have_duplicates
+        print( len(queryset),len(queryset2),len(queryset3))
+        return queryset3, may_have_duplicates
 
-        return queryset, may_have_duplicates    
     
