@@ -52,6 +52,9 @@ schema_view = get_schema_view(
 
 router = DefaultRouter()
 router.register('missgelproduct', ProductViewSet,)
+router.register('productnotes', ProductNoteViewSet)
+
+
 
 #from blog.views import *
 

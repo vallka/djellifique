@@ -686,3 +686,18 @@ VALUES
         return Response({'success':1,'req':obj, 'count':n, 'updated':n_updated})                
 
     
+class ProductNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductNote
+        fields = ['id_product', 'note', 'created_at', 'created_by']
+
+class ProductNoteViewSet(viewsets.ModelViewSet):
+    queryset = ProductNote.objects.all()
+    serializer_class = ProductNoteSerializer
+    permission_classes = (IsAuthenticated,)     
+
+    def get_queryset(self):
+        id_product = self.request.query_params.get('id_product')
+        if id_product:
+            return self.queryset.filter(id_product=id_product).order_by('-created_at')
+        return self.queryset

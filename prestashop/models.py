@@ -193,3 +193,10 @@ i.id_image
     left outer join ps17_product pr on pr.id_product=p.product_id	
 	WHERE id_order=%s order by product_name
 """
+
+class ProductNote(models.Model):
+    id_product = models.PositiveIntegerField()
+    note = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField()
+    created_by = models.PositiveIntegerField()
+
