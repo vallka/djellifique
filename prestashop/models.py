@@ -197,6 +197,6 @@ i.id_image
 class ProductNote(models.Model):
     id_product = models.PositiveIntegerField()
     note = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True,)
     created_by = models.PositiveIntegerField()
 
