@@ -612,6 +612,7 @@ VALUES
                 logger.info(obj['replace'])
                 pars = re.split(r'\s+',obj['replace'].strip(),re.S)
                 minus=False
+                make_default = '!' in obj['replace']
                 category_id=None
                 if pars[0]=='+':
                     category_id=pars[1]
@@ -637,6 +638,15 @@ VALUES
                         logger.info(sql)
                         with connections[db].cursor() as cursor:
                             cursor.execute(sql,[p.id_product,category_id,999])
+
+                        if make_default:
+                            sql="update ps17_product set id_category_default=%s where id_product=%s"
+                            sql1="update ps17_product_shop set id_category_default=%s where id_product=%s and id_shop=%s"
+                            logger.info(sql)
+                            with connections[db].cursor() as cursor:
+                                cursor.execute(sql,[category_id,p.id_product,])
+                                cursor.execute(sql1,[category_id,p.id_product,id_shop])
+
 
                     n_updated += 1
                     logger.info(f'saved:{p.id_product}')
