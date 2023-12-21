@@ -27,7 +27,7 @@ class ListView(generic.ListView):
     
     def get_queryset(self):
         
-        posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,)
+        posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,draft=False)
         cat_slug = self.kwargs.get('slug')
         if cat_slug:
             cat = Category.objects.get(slug=cat_slug)
@@ -96,7 +96,7 @@ class SearchView(generic.ListView):
         self.q = self.request.GET.get('q')
 
         #sql = Post.objects.filter(blog_start_dt__lte="'"+str(timezone.now())+"'",blog=True,).query
-        sql = Post.objects.filter(blog=True,domain=domain).query
+        sql = Post.objects.filter(blog=True,draft=False,domain=domain).query
         sql = re.sub('ORDER BY.*$','',str(sql))
 
         #posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,title__contains=q)
@@ -141,7 +141,7 @@ class HomeView(generic.ListView):
         else:
             domain = Post.Domains.CO_UK
         
-        posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,domain=domain).order_by('-blog_start_dt')
+        posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,draft=False,domain=domain).order_by('-blog_start_dt')
         cat_slug = self.kwargs.get('slug')
         self.request.session['category'] = cat_slug
 
@@ -190,7 +190,7 @@ class HomeView(generic.ListView):
                         'name':cat.category,
                         'slug':cat.slug,
                         'posts':Post.objects.filter(blog_start_dt__lte=timezone.now(),
-                        blog=True,
+                        blog=True,draft=False,
                         domain=domain,
                         category=cat).exclude(id__in=self.shown).order_by('-blog_start_dt')[:3]})
         else:
@@ -276,20 +276,20 @@ class PostView(generic.DetailView):
                 cat = Category.objects.get(slug=cat_slug)
             
                 next = Post.objects.filter(
-                    blog_start_dt__lte=timezone.now(),blog=True,blog_start_dt__gt=this_dt,category=cat
+                    blog_start_dt__lte=timezone.now(),blog=True,draft=False,blog_start_dt__gt=this_dt,category=cat
                 ).order_by('blog_start_dt')[:1]
 
                 prev = Post.objects.filter(
-                    blog_start_dt__lte=timezone.now(),blog=True,blog_start_dt__lt=this_dt,category=cat
+                    blog_start_dt__lte=timezone.now(),blog=True,draft=False,blog_start_dt__lt=this_dt,category=cat
                 ).order_by('-blog_start_dt')[:1]
 
             else:
                 next = Post.objects.filter(
-                    blog_start_dt__lte=timezone.now(),blog=True,blog_start_dt__gt=this_dt,
+                    blog_start_dt__lte=timezone.now(),blog=True,draft=False,blog_start_dt__gt=this_dt,
                 ).order_by('blog_start_dt')[:1]
 
                 prev = Post.objects.filter(
-                    blog_start_dt__lte=timezone.now(),blog=True,blog_start_dt__lt=this_dt,
+                    blog_start_dt__lte=timezone.now(),blog=True,draft=False,blog_start_dt__lt=this_dt,
                 ).order_by('-blog_start_dt')[:1]
 
             if len(next): 

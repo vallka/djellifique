@@ -68,28 +68,40 @@ class PostForm(forms.ModelForm):
 
 @admin.register(Post)
 class PostAdmin(MarkdownxModelAdmin):
-    list_display = ['id','slug','title','email_subject','domain','f_blog','f_blog_start_dt','f_news','f_email_send_dt','formatted_created_dt']
-    list_display_links = ['id','slug','title','email_subject',]
+    list_display = ['id','title','email_subject','domain','draft','f_page','f_blog','f_blog_start_dt','f_news','f_email_send_dt','f_planned_dt']
+    list_display_links = ['id','title','email_subject',]
     search_fields = ['title', ]
-    list_filter = ['blog','email','email_status','domain']
+    list_filter = ['draft','page','blog','email','email_status','domain']
+    date_hierarchy = 'planned_dt'
     inlines = [PostLangInline]
     save_as = True
     form = PostForm
 
-    def formatted_created_dt(self, obj):
-        return obj.created_dt.strftime("%d-%m-%Y %H:%M")
-    formatted_created_dt.admin_order_field = 'created_dt'
-    formatted_created_dt.short_description = 'Created dt'
+    def f_created_dt(self, obj):
+        return obj.created_dt.strftime("%d/%m/%y %H:%M")
+    f_created_dt.admin_order_field = 'created_dt'
+    f_created_dt.short_description = 'Created dt'
+
+    def f_planned_dt(self, obj):
+        return obj.planned_dt.strftime("%d/%m/%y") if obj.planned_dt else None
+    f_planned_dt.admin_order_field = 'planned_dt'
+    f_planned_dt.short_description = 'Planned dt'
 
     def f_blog_start_dt(self, obj):
-        return obj.blog_start_dt.strftime("%d-%m-%Y %H:%M") if obj.blog_start_dt else ""
+        return obj.blog_start_dt.strftime("%d/%m/%y %H:%M") if obj.blog_start_dt else ""
     f_blog_start_dt.admin_order_field = 'blog_start_dt'
     f_blog_start_dt.short_description = 'Published'
 
     def f_email_send_dt(self, obj):
-        return obj.email_send_dt.strftime("%d-%m-%Y %H:%M") if obj.email_send_dt else ""
+        return obj.email_send_dt.strftime("%d/%m/%y %H:%M") if obj.email_send_dt else ""
     f_email_send_dt.admin_order_field = 'email_send_dt'
     f_email_send_dt.short_description = 'Sent'
+
+    def f_page(self,obj):
+        return obj.page
+    f_page.admin_order_field = 'page'
+    f_page.short_description = 'Page'
+    f_page.boolean = True      
 
     def f_blog(self,obj):
         return obj.blog

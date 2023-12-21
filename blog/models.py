@@ -58,6 +58,8 @@ class Post(models.Model):
     title = models.CharField(_("Title"), max_length=100, unique=False)
     slug = models.SlugField(_("Slug"), unique=True, max_length=100, blank=True, null=False)
 
+    planned_dt = models.DateField(_("Planned"), blank=True, null=True)
+
     blog = models.BooleanField(_("Publish to blog"),default=False)
     blog_start_dt = models.DateTimeField(_("Published"), blank=True, null=True)
     email = models.BooleanField(_("Send as newsletter"),default=False)
@@ -71,6 +73,8 @@ class Post(models.Model):
         SENT = 2
 
     email_status = models.IntegerField(default=EmailStatus.NONE,choices=EmailStatus.choices)
+    page = models.BooleanField(_("Publish as page"),default=False)
+    draft = models.BooleanField(_("Draft"),default=True)
 
     class Domains(models.IntegerChoices):
         CO_UK = 1
@@ -78,7 +82,7 @@ class Post(models.Model):
 
     domain = models.IntegerField(default=Domains.CO_UK,choices=Domains.choices)
 
-    category = models.ManyToManyField(Category, )
+    category = models.ManyToManyField(Category, blank=True, null=True, )
 
     title_color = models.CharField(_("Title Color"),max_length=20, blank=True, null=False, default='#232323')
     title_bgcolor = models.CharField(_("Title Bg Color"),max_length=20, blank=True, null=False, default='#eeeeee')
