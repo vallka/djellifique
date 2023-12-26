@@ -64,13 +64,15 @@ class NewsShot(models.Model):
             return NewsShot.html_cache.get(post.slug+':'+lang)    
 
         if not host: host = "https://blog.gellifique.co.uk"
-        url = f"{host}/{lang1}blog/newsletter/{post.slug}"
+        url = f"{host}/{lang1}blog/newsletter/{post.slug}/"
 
         print ('request '+url)
 
         html = requests.get(url)
         if html.status_code==200:
+            print('request got 200')
             html = html.text
+            print(html[0:30])
 
             # replace '/en/' in html with 'f"/{lang}/"'
             if lang and lang!='en':
@@ -89,6 +91,7 @@ class NewsShot(models.Model):
                 html = inliner.inline(html)
 
             NewsShot.html_cache[post.slug+':'+lang] = html   
+            print ('cache saved')
 
         return html
 
