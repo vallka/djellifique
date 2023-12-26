@@ -114,7 +114,8 @@ class NewsShot(models.Model):
 
     def send(self,html,to_emails,test=True):
         r=re.search('<title>(.*?)</title>',html,flags=re.S) # subject sent to us in <title> tag
-        subject = r.group(1)
+        subject = r.group(1).replace('\n',' ').strip()
+
         if test: subject = f'[TEST] {subject}'
         text = subject
 
