@@ -700,6 +700,7 @@ VALUES
 
                 for p in queryset:
                     n += 1
+                    n_updated += 1
                     logger.info(f"{n} {p.id_product}: {employee_id}")
                     pnote = ProductNote(id_product=p.id_product,note=obj['replace'],created_by=employee_id)
                     pnote.save()
