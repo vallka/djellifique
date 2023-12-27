@@ -135,6 +135,7 @@ class UpdateProduct(APIView):
         n_updated = 0
         if obj['ids'] and obj['what']:
             ids = obj['ids'].split(',')
+            employee_id = obj['employee_id']
 
             if obj['search']:
                 if obj['what']=='reference':
@@ -689,6 +690,19 @@ VALUES
                             cursor.execute(sql2,[p.id_product,feature_id])
                         if sql3:
                             cursor.execute(sql3,[p.id_product,feature_id,value_id])
+
+            if obj['what']=='note':
+                queryset = Ps17Product.objects.using(db).filter(id_product__in=ids,)
+                l = len(queryset)
+                logger.info(f'found:{l}')
+                logger.info(obj['replace'])
+                set_new = obj['replace']
+
+                for p in queryset:
+                    n += 1
+                    logger.info(f"{n} {p.id_product}: {employee_id}")
+                    pnote = ProductNote(id_product=p.id_product,note=obj['replace'],created_by=employee_id)
+                    pnote.save()
 
 
         logger.error(f'done:{n}/{n_updated}')
