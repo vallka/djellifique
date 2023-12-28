@@ -368,7 +368,7 @@ o2.current_state IN        (SELECT id_order_state FROM ps17_order_state WHERE pa
 FROM `ps17_orders` o
 WHERE current_state IN
 (SELECT id_order_state FROM ps17_order_state WHERE paid=1)
-and date_add>='2019-01-01'
+and date_add>='2021-01-01'
 
 GROUP BY SUBSTR(DATE_ADD,1,{sbstr}) 
 ORDER BY 1 DESC
@@ -455,7 +455,7 @@ FROM
 SELECT 
 SUBSTR(DATE_ADD,1,7) month 
 FROM ps17_orders o
-WHERE DATE(DATE_ADD)>='2019-01-01'
+WHERE DATE(DATE_ADD)>='2021-01-01'
 GROUP BY SUBSTR(DATE_ADD,1,7)
 ORDER BY 1 DESC
 ) oo

@@ -321,7 +321,7 @@ class StockTableView(generics.ListAPIView):
         if par=='*':
             last_dt=max(p['date_add'])
             p=p[(p['date_add']==last_dt) & (p['qnt']>0)]
-            p=p[p['qnt']<20]
+            #p=p[p['qnt']<50]
            
             if cat=='x':
                 p = p[(p['bt']==0) & (p['gelclr']==0) & (p['procare']==0) & (p['soakoff']==0) & (p['fileoff']==0) & (p['acry']==0) & (p['qt']==0) & (p['outlet']==0) & (p['archive']==0)]
