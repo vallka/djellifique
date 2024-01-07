@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 import time
+from icecream import ic
 
 from django.db import models
 from django.conf import settings
@@ -727,28 +728,38 @@ class StockData(models.Model):
     @staticmethod
     def SQL():
         sql = """
-        SELECT id,id_product,reference,qnt,date_add,
-        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=18) bt,
-        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=105) gelclr,
-        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=150) procare,
-        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=156) soakoff,
-        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=157) fileoff,
-        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=78) acry,
-        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=111) qt,
-        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=21) outlet,
-        (SELECT COUNT(*) FROM ps17_category_product WHERE id_product=aa.id_product AND id_category=153) archive
-        FROM a_stock_history aa
-        WHERE DATE_ADD>=DATE_SUB(NOW(),INTERVAL 6 MONTH)
-        order by id
-"""
-
+        select id,concat_ws('-',id_product,if(id_product_attribute=0,null,(
+        select name
+        from ps17_product_attribute_combination ac join ps17_attribute_lang al on id_lang=1 and ac.id_attribute=al.id_attribute
+        where id_product_attribute=aa.id_product_attribute)
+        )) as id_product
+        ,concat_ws(' - ',reference,if(id_product_attribute=0,null,(
+        select name
+        from ps17_product_attribute_combination ac join ps17_attribute_lang al on id_lang=1 and ac.id_attribute=al.id_attribute
+        where id_product_attribute=aa.id_product_attribute)
+        )) as reference
+        ,qnt,date_add,
+        (select count(*) from ps17_category_product where id_product=aa.id_product and id_category=18) bt,
+        (select count(*) from ps17_category_product where id_product=aa.id_product and id_category=105) gelclr,
+        (select count(*) from ps17_category_product where id_product=aa.id_product and id_category=150) procare,
+        (select count(*) from ps17_category_product where id_product=aa.id_product and id_category=156) soakoff,
+        (select count(*) from ps17_category_product where id_product=aa.id_product and id_category=157) fileoff,
+        (select count(*) from ps17_category_product where id_product=aa.id_product and id_category=78) acry,
+        (select count(*) from ps17_category_product where id_product=aa.id_product and id_category=111) qt,
+        (select count(*) from ps17_category_product where id_product=aa.id_product and id_category=21) outlet,
+        (select count(*) from ps17_category_product where id_product=aa.id_product and id_category=153) archive
+        from a_stock_history aa
+        where date_add>=date_sub(now(),interval 6 month)
+        and id_product in (select id_product from ps17_product_shop where id_shop=1 and active=1)
+        and id_product not in (select id_product from ps17_category_product where id_category=123)        
+        order by id"""
         return sql        
 
     @staticmethod
     def dtypes():
         return {
             'id':'i',
-            'id_product':'i',
+            'id_product':'str',
             'qnt':'i',
             'date_add':'M',
             'bt':'i',
@@ -764,7 +775,7 @@ class StockData(models.Model):
 
     @classmethod
     def get_data(cls,par='*'):
-        print('par',par)
+        #ic('par',par)
         store_path = settings.MEDIA_ROOT + f'/stats-stock-v2.pkl'
         
         try:
@@ -774,8 +785,8 @@ class StockData(models.Model):
 
             p = pd.read_pickle(store_path)
         except Exception as e:
-            print (e)
-            print(cls.SQL())
+            ic (e)
+            ic(cls.SQL())
             queryset = cls.objects.using('presta').raw(cls.SQL())
             p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
             p = p.astype(cls.dtypes())
@@ -793,18 +804,22 @@ class StockData(models.Model):
 
                 p = pd.read_pickle(store_path)            
             except Exception as e:
-                print (e)
-                p=p[p['id_product']==int(par)]
+                ic (e)
+                p=p[p['id_product']==par]
                 q=None
                 refill=None
                 p0=None
+                date_out = None
                 for i in p.index:
+                    if not date_out and p.at[i,'qnt']<=0:
+                        date_out = p.at[i,'date_add']
                     if i>0 and i<max(p.index) and p.at[i,'qnt']==q:
                         p.at[i,'qnt'] = None
                     else:
                         if q!=None and q<p.at[i,'qnt']:
                             #print('<<<',i)
                             refill=i
+                            date_out = None
 
                         q = p.at[i,'qnt']
                         p.at[i,'qnt2']=q
@@ -828,22 +843,31 @@ class StockData(models.Model):
                 last_ix=max(p['index'])           
 
                 p['predicton']=f(p['index'])
+                if date_out: p['date_out'] = date_out
 
-                last_adj = p.iloc[-1]['qnt']-p.iloc[-1]['predicton']
-                p=p.append({'date_add':last_dt+pd.DateOffset(days=1),
-                                    'index':last_ix+1,'reference':p.iloc[-1]['reference'],'predicton':f(last_ix+1)+last_adj},ignore_index=True)
+                already_out = (p.iloc[-1]['qnt']<=0)
 
-                for i in range(2,191):
-                    if f(last_ix+i)+last_adj>=0:
-                        pass
-                    else:
+                if not already_out:
+                    last_adj = p.iloc[-1]['qnt']-p.iloc[-1]['predicton']
+                    p=p.append({'date_add':last_dt+pd.DateOffset(days=1),
+                                        'index':last_ix+1,'reference':p.iloc[-1]['reference'],'predicton':f(last_ix+1)+last_adj,},ignore_index=True)
+
+                    for i in range(2,191):
+                        if f(last_ix+i)+last_adj>=0:
+                            pass
+                        else:
+                            p=p.append({'date_add':last_dt+pd.DateOffset(days=i),
+                                        'index':last_ix+i,'qnt':0,'reference':p.iloc[-1]['reference'],'predicton':f(last_ix+i)+last_adj,'getting_out':True},ignore_index=True)
+                            break;
+
+                    if i>=190:
                         p=p.append({'date_add':last_dt+pd.DateOffset(days=i),
-                                    'index':last_ix+i,'reference':0,'predicton':f(last_ix+i)+last_adj},ignore_index=True)
-                        break;
+                                    'index':last_ix+i,'predicton':f(last_ix+i),'reference':p.iloc[-1]['reference'],'getting_out':False},ignore_index=True)
 
-                if i>=190:
-                    p=p.append({'date_add':last_dt+pd.DateOffset(days=i),
-                                'index':last_ix+i,'predicton':f(last_ix+i),'reference':int(f(last_ix+i)),},ignore_index=True)
+                #else:
+                #    i = 2
+                #    p=p.append({'date_add':last_dt+pd.DateOffset(days=i),
+                #                'index':last_ix+i,'predicton':f(last_ix+i),'reference':int(f(last_ix+i)),},ignore_index=True)
                 
                 if refill:
                     p=p0.append(p,ignore_index=True)

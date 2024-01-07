@@ -1,3 +1,5 @@
+import requests
+import json
 from django.db import models
 
 # Create your models here.
@@ -199,4 +201,21 @@ class ProductNote(models.Model):
     note = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True,)
     created_by = models.PositiveIntegerField()
+
+class PrintCategory:
+    html = ''
+    
+    def __init__(self,id_category,n=None) -> None:
+        self.id = id_category
+        self.n = int(n) if n else 1000
+
+        print (self.n,type(self.n))
+
+        h={'Accept':'application/json, text/javascript, */*; q=0.01'}
+        r=requests.get(f'https://www.gellifique.eu/category({id_category})',headers=h)
+        self.response = json.loads(r.text)
+
+
+        self.rendered_products_header = self.response['rendered_products_header']
+        self.rendered_products = self.response['rendered_products']
 

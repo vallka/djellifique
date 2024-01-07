@@ -5,6 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import json
 from datetime import datetime
+from icecream import ic
 
 from rest_framework import viewsets,generics
 from rest_framework.views import APIView
@@ -314,13 +315,14 @@ class StockTableView(generics.ListAPIView):
         par=pars[0]
         cat = None
         if len(pars) > 1: cat = pars[1]
-        print('par',par,cat)
+        ic('par',par,cat)
         
         p = StockData.get_data(par) 
 
         if par=='*':
             last_dt=max(p['date_add'])
-            p=p[(p['date_add']==last_dt) & (p['qnt']>0)]
+            p=p[(p['date_add']==last_dt)]
+            #p=p[(p['date_add']==last_dt) & (p['qnt']>0)]
             #p=p[p['qnt']<50]
            
             if cat=='x':
@@ -331,15 +333,23 @@ class StockTableView(generics.ListAPIView):
 
             #print (p['id_product'])
             p['out_of_stock'] = ' '
+
+            #ic(len(p))
+
             if cat:
                 for id in p['id_product']:
                     try:
                         p1 =StockData.get_data(id)  
-                        if p1.iloc[-1]['reference']==0:
-                            #print (id,p1.iloc[-1]['date_add'],p1.iloc[-1]['reference'])
+                        #ic (id,p1.iloc[-1])
+                        if p1.iloc[-1].get('getting_out'):
                             p.loc[p['id_product']==id,'out_of_stock'] = p1.iloc[-1]['date_add'].date()
+                        else:
+                            p.loc[p['id_product']==id,'out_of_stock'] = p1.iloc[-1]['date_out'].date() if p1.iloc[-1].get('date_out') else ''
+
                     except Exception as e:
-                        print (e)                    
+                        ic ('except',e)                    
+
+            
 
             html=p.to_html(
                     index=False,
@@ -347,12 +357,17 @@ class StockTableView(generics.ListAPIView):
                     na_rep=' ',
                     classes="table is-bordered is-striped is-narrow is-hoverable is-fullwidth",)
         else:
-            p.loc[p.index==max(p.index),'qnt']=p.iloc[-1]['reference']      
-            p.loc[p.index==max(p.index),'reference']=p.iloc[0]['reference']      
-            html=p.to_html(
+            #p.loc[p.index==max(p.index),'qnt']=p.iloc[-1]['reference']      
+            #p.loc[p.index==max(p.index),'reference']=p.iloc[0]['reference']      
+
+            #ic(p)
+            p['move'] = p['qnt'].diff()   #.fillna(0).astype(int)
+
+            html=p[::-1].to_html(
                     index=False,
-                    columns=['reference','qnt','date_add'],
+                    columns=['reference','qnt','move','date_add'],
                     na_rep=' ',
+                    float_format='%d',
                     classes="table is-bordered is-striped is-narrow is-hoverable is-fullwidth",
             )
 

@@ -112,3 +112,12 @@ def putfile(request,email):
     
     return HttpResponse(str(settings.FORCE_SCRIPT_NAME or '') + os.path.join(settings.MEDIA_URL,'customer-certificates',email,filename))
 
+
+class PrintCategoryView(generic.TemplateView):
+    template_name = 'prestashop/printcategory.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['n'] = self.request.GET.get('n')
+        context['category'] = PrintCategory(self.kwargs['id_category'],context['n'])
+        return context

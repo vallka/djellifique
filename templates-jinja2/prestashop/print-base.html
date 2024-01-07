@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title></title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-size: 11pt;
+}
+
+.h1 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 48pt;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+#content_div {
+  width: 518pt;
+  height: 760pt;
+  overflow: hidden;
+  /*border: solid black 1px;*/
+  position:relative;
+}
+
+#content_div footer {
+  position: absolute;
+  bottom:0;
+}
+
+#content_div footer img {
+  width: 100%;
+}
+
+.list-add-to-cart, .product-list-reviews, .product-flags, .regular-price, .discount-percentage, .sr-only, .pagination, .up {
+  display: none;
+}
+
+.category-cover {
+  display: none;
+}
+
+
+.card-block {
+  padding: 0;
+}
+.card {
+  position: relative;
+  display: block;
+  margin-bottom: .75rem;
+  border-radius: 0;
+  border: none;
+}
+
+.products {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.product-miniature {
+  margin: 0 3px;
+  width: 162px;
+  border: 1pt solid rgb(217, 106, 154);
+  margin: 0 2pt 5pt;
+  padding: 1px;
+  display: none;
+}
+
+.products article:nth-child(1), 
+.products article:nth-child(2), 
+.products article:nth-child(3), 
+.products article:nth-child(4), 
+.products article:nth-child(5), 
+.products article:nth-child(6), 
+.products article:nth-child(7), 
+.products article:nth-child(8), 
+.products article:nth-child(9), 
+.products article:nth-child(10), 
+.products article:nth-child(11), 
+.products article:nth-child(12)
+{
+  display: block;
+}
+
+.product-miniature img {
+  width: 100%;
+  height:auto;
+  aspect-ratio: 1;
+}
+
+.product-title {
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 10pt;
+  margin: 0;
+  height: 28pt;
+}
+
+.product-price-and-shipping {
+  text-align: center;
+  font-size: 10pt;
+  margin: 0;
+  position: absolute;
+  top: 12pt;
+  right: 3pt;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+.product-description {
+  position: relative;
+}
+
+</style>
+
+</head>
+
+<body>
+
+{% block content %}
+<div id="content_div">
+  content
+</div>
+{% endblock content %}
+
+</html>

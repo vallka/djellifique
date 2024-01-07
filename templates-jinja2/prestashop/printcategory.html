@@ -1,0 +1,14 @@
+{% extends "prestashop/print-base.html" %}
+
+{% block content %}
+<div id="content_div">
+
+
+{{category.rendered_products_header|safe}}    
+{{category.rendered_products|safe}}    
+
+<footer>
+    <img src="{{ static ('images/footer.png') }}"
+</footer>
+</div>
+{% endblock content %}
