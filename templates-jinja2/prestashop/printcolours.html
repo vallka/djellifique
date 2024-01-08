@@ -1,0 +1,65 @@
+{% extends "prestashop/print-base.html" %}
+
+{% block head %}
+{{ super() }}
+
+<style>
+.category-cover {
+    display: none;
+}
+
+.product img {
+  clip-path: inset(36px 24px 20px 108px);
+  left: -110px;
+  position: relative;
+  overflow: hidden;
+  top: -36px;
+  width: 200px;
+  height: auto;
+}
+    .flex-container {
+      display: flex;
+      background-color: white;
+      max-width: 1826px;
+      flex-wrap: wrap;
+      margin-top: 30pt;
+    }
+    
+    .flex-container > div {
+      background-color: white;
+      width: 68px;
+      position: relative;
+      overflow: hidden;
+      height: 136px;
+    }
+    
+</style>
+{% endblock head %}
+  
+
+{% block content %}
+
+{% for page in pages %}
+<div id="content_div">
+
+    {{category.rendered_products_header|safe}}  
+
+    <div class="flex-container">
+        {% for p in page.products %}
+
+
+        <div class="product"><img src="{{p.cover.bySize.large_default.url}}?tr=w-250"></div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <footer>
+        <img src="{{ static ('images/footer.png') }}"
+    </footer>
+    
+</div>
+{% endfor %}
+
+{% endblock content %}

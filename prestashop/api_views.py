@@ -638,7 +638,7 @@ VALUES
                         sql="insert ignore into ps17_category_product(id_product,id_category,position) values(%s,%s,%s)"
                         logger.info(sql)
                         with connections[db].cursor() as cursor:
-                            cursor.execute(sql,[p.id_product,category_id,999])
+                            cursor.execute(sql,[p.id_product,category_id,1000+n])
 
                         if make_default:
                             sql="update ps17_product set id_category_default=%s where id_product=%s"

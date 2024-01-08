@@ -215,6 +215,18 @@ class PrintCategory:
         r=requests.get(f'https://www.gellifique.eu/category({id_category})',headers=h)
         self.response = json.loads(r.text)
 
+        #print(self.response.keys())
+
+        #print(self.response['products'][0]["id_product"])
+        #print(self.response['products'][0]["price"])
+        #print(self.response['products'][0]["name"])
+        #print(self.response['products'][0]["reference"])
+        #print(self.response['products'][0]["description_short"])
+        #print(self.response['products'][0]["cover"]["bySize"]["large_default"]["url"])
+
+        self.products = self.response['products']
+
+        print(len(self.products))
 
         self.rendered_products_header = self.response['rendered_products_header']
         self.rendered_products = self.response['rendered_products']

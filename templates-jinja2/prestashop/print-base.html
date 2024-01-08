@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+{% block head %}
+
 <title></title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +20,7 @@ body {
 
 .h1 {
   font-family: 'Oswald', sans-serif;
-  font-size: 48pt;
+  font-size: 46pt;
   margin: 0;
   text-transform: uppercase;
 }
@@ -38,91 +41,9 @@ body {
 #content_div footer img {
   width: 100%;
 }
-
-.list-add-to-cart, .product-list-reviews, .product-flags, .regular-price, .discount-percentage, .sr-only, .pagination, .up {
-  display: none;
-}
-
-.category-cover {
-  display: none;
-}
-
-
-.card-block {
-  padding: 0;
-}
-.card {
-  position: relative;
-  display: block;
-  margin-bottom: .75rem;
-  border-radius: 0;
-  border: none;
-}
-
-.products {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-}
-
-.product-miniature {
-  margin: 0 3px;
-  width: 162px;
-  border: 1pt solid rgb(217, 106, 154);
-  margin: 0 2pt 5pt;
-  padding: 1px;
-  display: none;
-}
-
-.products article:nth-child(1), 
-.products article:nth-child(2), 
-.products article:nth-child(3), 
-.products article:nth-child(4), 
-.products article:nth-child(5), 
-.products article:nth-child(6), 
-.products article:nth-child(7), 
-.products article:nth-child(8), 
-.products article:nth-child(9), 
-.products article:nth-child(10), 
-.products article:nth-child(11), 
-.products article:nth-child(12)
-{
-  display: block;
-}
-
-.product-miniature img {
-  width: 100%;
-  height:auto;
-  aspect-ratio: 1;
-}
-
-.product-title {
-  text-align: center;
-  text-transform: uppercase;
-  font-size: 10pt;
-  margin: 0;
-  height: 28pt;
-}
-
-.product-price-and-shipping {
-  text-align: center;
-  font-size: 10pt;
-  margin: 0;
-  position: absolute;
-  top: 12pt;
-  right: 3pt;
-}
-
-a {
-  text-decoration: none;
-  color: black;
-}
-
-.product-description {
-  position: relative;
-}
-
 </style>
+
+{% endblock head %}
 
 </head>
 

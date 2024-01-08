@@ -12,4 +12,5 @@ urlpatterns = [
     path('upload-cert/<str:email>/', UploadPageView.as_view(), name='upload-cert'),
     path('customer-cert/<str:email>/', CertListView.as_view(), name='cert-list'),
     path('printcategory/<int:id_category>/', PrintCategoryView.as_view(), name='printcategory'),
+    path('printcolours/<int:id_category>/', PrintColoursView.as_view(), name='printcolours'),
 ]
