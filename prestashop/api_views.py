@@ -714,7 +714,7 @@ VALUES
 class ProductNoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductNote
-        fields = ['id_product', 'note', 'created_at', 'created_by']
+        fields = ['id_product', 'note', 'created_at', 'created_by', 'domain']
 
 class ProductNoteViewSet(viewsets.ModelViewSet):
     queryset = ProductNote.objects.all()
@@ -723,6 +723,7 @@ class ProductNoteViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         id_product = self.request.query_params.get('id_product')
+        domain = self.request.query_params.get('domain')
         if id_product:
-            return self.queryset.filter(id_product=id_product).order_by('-created_at')
+            return self.queryset.filter(id_product=id_product,domain=domain).order_by('-created_at')
         return self.queryset

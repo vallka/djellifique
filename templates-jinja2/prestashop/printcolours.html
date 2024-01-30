@@ -42,18 +42,18 @@
 {% for page in pages %}
 <div id="content_div">
 
-    {{category.rendered_products_header|safe}}  
+    <div class="block-category card card-block">
+      <h1 class="h1">Esmalte semipermanente</h1>
+    </div>    
 
     <div class="flex-container">
         {% for p in page.products %}
-
 
         <div class="product"><img src="{{p.cover.bySize.large_default.url}}?tr=w-250"></div>
 
         {% endfor %}
 
     </div>
-
 
     <footer>
         <img src="{{ static ('images/footer.png') }}"

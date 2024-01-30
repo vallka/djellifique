@@ -122,6 +122,20 @@ class PrintCategoryView(generic.TemplateView):
         context['category'] = PrintCategory(self.kwargs['id_category'],context['n'])
         return context
     
+class PrintCategoriesView(generic.TemplateView):
+    template_name = 'prestashop/printcategories.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pages'] = []
+        context['pages'].append({'category': PrintCategory(169,16)})
+        context['pages'].append({'category': PrintCategory(171,16)})
+        context['pages'].append({'category': PrintCategory(170,16)})
+        context['pages'].append({'category': PrintCategory(172,16)})
+
+        return context
+    
+
 class PrintColoursView(generic.TemplateView):
     template_name = 'prestashop/printcolours.html'
 
@@ -131,13 +145,9 @@ class PrintColoursView(generic.TemplateView):
         context['category'] = PrintCategory(self.kwargs['id_category'],context['n'])
         
         context['pages'] = []
-        context['pages'].append({'products':context['category'].products[0:50]})
-        context['pages'].append({'products':context['category'].products[50:100]})
-        context['pages'].append({'products':context['category'].products[100:150]})
-        #context['pages'][0]['products'] = page1
-        #context['pages'][1]['products'] = context['category'].products[50:100]
-        #context['pages'][2]['products'] = context['category'].products[100:150]
 
-
+        context['pages'].append({'products':context['category'].products[0:60],})
+        context['pages'].append({'products':context['category'].products[60:120],})
+        context['pages'].append({'products':context['category'].products[120:180]})
         
         return context    

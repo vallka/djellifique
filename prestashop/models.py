@@ -201,6 +201,12 @@ class ProductNote(models.Model):
     note = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True,)
     created_by = models.PositiveIntegerField()
+    
+    class Domains(models.IntegerChoices):
+        CO_UK = 1
+        EU = 2
+
+    domain = models.IntegerField(default=Domains.CO_UK,choices=Domains.choices)
 
 class PrintCategory:
     html = ''
@@ -229,5 +235,5 @@ class PrintCategory:
         print(len(self.products))
 
         self.rendered_products_header = self.response['rendered_products_header']
-        self.rendered_products = self.response['rendered_products']
+        self.rendered_products = self.response['rendered_products'].replace(' (HEMA FREE)','')
 
