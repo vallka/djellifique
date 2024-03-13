@@ -91,19 +91,20 @@ class UploadPageView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
         context['customer_cert_id'] = self.request.COOKIES.get('customer_cert_id')
 
-        cert_dir = os.path.join(settings.MEDIA_ROOT,'customer-certificates',self.kwargs['email'])
+        if self.kwargs['email']==context['customer_cert_id']:
+            cert_dir = os.path.join(settings.MEDIA_ROOT,'customer-certificates',self.kwargs['email'])
 
-        if os.path.isdir(cert_dir):
-            #logger.error(os.listdir(cert_dir))
-            context['cert_dir'] = cert_dir
-        
-            files = []
-            for f in os.listdir(cert_dir):
-                url = str(settings.FORCE_SCRIPT_NAME or '') + os.path.join(settings.MEDIA_URL,'customer-certificates',self.kwargs['email'],f)
-                #url = '' + os.path.join(settings.MEDIA_URL,'customer-certificates',self.kwargs['email'],f)
-                files.append({'url':url,'file':f})
+            if os.path.isdir(cert_dir):
+                #logger.error(os.listdir(cert_dir))
+                context['cert_dir'] = cert_dir
+            
+                files = []
+                for f in os.listdir(cert_dir):
+                    url = str(settings.FORCE_SCRIPT_NAME or '') + os.path.join(settings.MEDIA_URL,'customer-certificates',self.kwargs['email'],f)
+                    #url = '' + os.path.join(settings.MEDIA_URL,'customer-certificates',self.kwargs['email'],f)
+                    files.append({'url':url,'file':f})
 
-            context['files'] = files
+                context['files'] = files
 
         return context
 
