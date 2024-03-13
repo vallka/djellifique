@@ -47,13 +47,19 @@ img.upl_img {
     width: 100%;
 }
 
+.uploaded-title {
+    padding: 2%;    
+}
 </style>  
 {% endblock %}
 
+{% block breadcrumb %}
+{% endblock breadcrumb %}
+
+
 {% block content %}
 
-{{ email }}
-{{ cert_dir }}
+<div class="uploaded-title">{{ email }}</div>
 
 <ul>
 {% for f in files %}

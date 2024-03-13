@@ -55,7 +55,12 @@ class OrderDetailListView(generic.ListView):
         context['order'] = qs[0]
 
         return context
-    
+
+class OrderDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderDetail
+        fields = "__all__"
+
 class CertListView(generic.TemplateView):    
     template_name = 'prestashop/uploaded.html'
 
@@ -79,13 +84,28 @@ class CertListView(generic.TemplateView):
             context['files'] = files
 
         return context
-class OrderDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderDetail
-        fields = "__all__"
-
 class UploadPageView(generic.TemplateView):
     template_name = 'prestashop/upload.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['customer_cert_id'] = self.request.COOKIES.get('customer_cert_id')
+
+        cert_dir = os.path.join(settings.MEDIA_ROOT,'customer-certificates',self.kwargs['email'])
+
+        if os.path.isdir(cert_dir):
+            #logger.error(os.listdir(cert_dir))
+            context['cert_dir'] = cert_dir
+        
+            files = []
+            for f in os.listdir(cert_dir):
+                url = str(settings.FORCE_SCRIPT_NAME or '') + os.path.join(settings.MEDIA_URL,'customer-certificates',self.kwargs['email'],f)
+                #url = '' + os.path.join(settings.MEDIA_URL,'customer-certificates',self.kwargs['email'],f)
+                files.append({'url':url,'file':f})
+
+            context['files'] = files
+
+        return context
 
 import uuid
 import os
@@ -146,8 +166,11 @@ class PrintColoursView(generic.TemplateView):
         
         context['pages'] = []
 
-        context['pages'].append({'products':context['category'].products[0:60],})
-        context['pages'].append({'products':context['category'].products[60:120],})
-        context['pages'].append({'products':context['category'].products[120:180]})
+        #context['pages'].append({'products':context['category'].products[0:60],})
+        #context['pages'].append({'products':context['category'].products[60:120],})
+        #context['pages'].append({'products':context['category'].products[120:180]})
+        context['pages'].append({'products':context['category'].products[0:50],})
+        context['pages'].append({'products':context['category'].products[50:100],})
+        context['pages'].append({'products':context['category'].products[100:150]})
         
         return context    

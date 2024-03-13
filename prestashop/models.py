@@ -218,7 +218,8 @@ class PrintCategory:
         print (self.n,type(self.n))
 
         h={'Accept':'application/json, text/javascript, */*; q=0.01'}
-        r=requests.get(f'https://www.gellifique.eu/category({id_category})',headers=h)
+        #r=requests.get(f'https://www.gellifique.eu/category({id_category})',headers=h)
+        r=requests.get(f'https://www.gellifique.co.uk/category({id_category})',headers=h)
         self.response = json.loads(r.text)
 
         #print(self.response.keys())

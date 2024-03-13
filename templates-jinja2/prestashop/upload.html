@@ -43,8 +43,17 @@ a {
 
 }
 
+.uploaded {
+  margin-left: 3%;
+  width: 90%;
+}
+
 </style>  
 {% endblock %}
+
+{% block breadcrumb %}
+{% endblock breadcrumb %}
+
 
 {% block content %}
 
@@ -86,6 +95,13 @@ a {
     <div class="uploaded" v-show="$refs.upload && $refs.upload.uploaded && files.length">Uploaded! Thank you! Please <a href="javascript:history.back();">click here</a> to return to you shopping cart. You may need to refresh the page to be able to continue.</div>
   </div>
 
+  customer_cert_id: {{customer_cert_id}}
+  <ul class="uploaded">
+    {% for f in files %}
+        <li><a href="{{f['url']}}">{{f['file']}}</a></li>
+    {% endfor %}
+  </ul>
+    
 
 {% endblock content %}
 
