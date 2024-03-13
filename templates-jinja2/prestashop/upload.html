@@ -43,7 +43,7 @@ a {
 
 }
 
-.uploaded {
+.uploaded-files {
   margin-left: 3%;
   width: 90%;
 }
@@ -88,7 +88,7 @@ a {
   
   <!-- customer_cert_id: {{customer_cert_id}} -->
   
-  <ul class="uploaded">
+  <ul class="uploaded-files">
     <li v-for="file in files">
       <span v-if="typeof(file.response)=='string'"><a target="_blank" v-bind:href="file.response">[[file.name]]</a></span>
       <span v-else>
@@ -98,7 +98,7 @@ a {
   </ul>
 </div>
 
-  <ul class="uploaded">
+  <ul class="uploaded-files">
     {% for f in files %}
         <li><a href="{{f['url']}}">{{f['file']}}</a></li>
     {% endfor %}
