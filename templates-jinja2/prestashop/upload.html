@@ -85,8 +85,7 @@ a {
 
     <div class="uploading" v-show="$refs.upload && $refs.upload.active">Uploading, please wait... <span id="pro-gress"></span></div>
     <div class="uploaded" v-show="$refs.upload && $refs.upload.uploaded && files.length">Uploaded! Thank you! Please <a href="javascript:history.back();">click here</a> to return to you shopping cart. You may need to refresh the page to be able to continue.</div>
-  </div>
-
+  
   <!-- customer_cert_id: {{customer_cert_id}} -->
   
   <ul class="uploaded">
@@ -97,6 +96,7 @@ a {
       </span>
     </li>
   </ul>
+</div>
 
   <ul class="uploaded">
     {% for f in files %}
