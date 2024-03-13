@@ -46,6 +46,11 @@ a {
 .uploaded-files {
   margin-left: 3%;
   width: 90%;
+  text-align: left;
+}
+
+.return {
+  text-align: center;
 }
 
 </style>  
@@ -104,6 +109,9 @@ a {
     {% endfor %}
   </ul>
     
+  <div class="return">
+    <a href="javascript:history.back();">&lt;&lt; return</a>
+  </div>
 
 {% endblock content %}
 
