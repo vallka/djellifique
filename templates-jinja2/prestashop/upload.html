@@ -58,14 +58,6 @@ a {
 {% block content %}
 
 <div id="app">
-    <ul>
-      <li v-for="file in files">
-        <span v-if="typeof(file.response)=='string'"><a target="_blank" v-bind:href="file.response">[[file.name]]</a></span>
-        <span v-else>
-        [[file.name]]
-        </span>
-      </li>
-    </ul>
     <file-upload
       ref="upload"
       v-model="files"
@@ -95,7 +87,17 @@ a {
     <div class="uploaded" v-show="$refs.upload && $refs.upload.uploaded && files.length">Uploaded! Thank you! Please <a href="javascript:history.back();">click here</a> to return to you shopping cart. You may need to refresh the page to be able to continue.</div>
   </div>
 
-  customer_cert_id: {{customer_cert_id}}
+  <!-- customer_cert_id: {{customer_cert_id}} -->
+  
+  <ul class="uploaded">
+    <li v-for="file in files">
+      <span v-if="typeof(file.response)=='string'"><a target="_blank" v-bind:href="file.response">[[file.name]]</a></span>
+      <span v-else>
+      [[file.name]]
+      </span>
+    </li>
+  </ul>
+
   <ul class="uploaded">
     {% for f in files %}
         <li><a href="{{f['url']}}">{{f['file']}}</a></li>
