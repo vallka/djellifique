@@ -254,6 +254,7 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
+#SECURE_REFERRER_POLICY = 'unsafe-url'
 
 LOGGING = {
     'version': 1,

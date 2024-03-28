@@ -190,6 +190,7 @@ class ColourChartView(generic.TemplateView):
         print('get')
         r = super().get(request, *args, **kwargs)
         r.headers['Content-Security-Policy'] = "frame-ancestors 'self' *.gellifique.co.uk *.gellifique.eu; default-src 'self' 'unsafe-inline' *"
+        r.headers['Referrer-Policy'] = "unsafe-url"
         return r
         
     def get_context_data(self, **kwargs):
