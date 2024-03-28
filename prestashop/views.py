@@ -186,6 +186,12 @@ class PrintColoursView(generic.TemplateView):
 class ColourChartView(generic.TemplateView):
     template_name = 'prestashop/viewcolours.html'
 
+    def get(self, request, *args, **kwargs):
+        print('get')
+        r = super().get(request, *args, **kwargs)
+        r.headers['Content-Security-Policy'] = "frame-ancestors 'self' *.gellifique.co.uk *.gellifique.eu; default-src 'self' 'unsafe-inline' *"
+        return r
+        
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['id_category'] = self.kwargs.get('id_category',170)

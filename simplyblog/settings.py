@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'stats',
     'pos',
     'gtranslator',
-    'chatbot',
+    #'chatbot',
 
     'django.contrib.admin',
     'django.contrib.auth',
