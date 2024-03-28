@@ -36,6 +36,7 @@
 {% endblock skin_css %}
 
 {% block ga %}
+{% if not no_gtag %}
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-JZDER3XRFC"></script>
 <script>
@@ -45,10 +46,12 @@
 
   gtag('config', 'G-JZDER3XRFC');
 </script>
+{% endif %}
 {% endblock ga %}
 
 {% block header %} 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+{% if not no_header %}
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   
     <a class="navbar-brand" style="z-index: 2;" href="https://www.gellifique.co.uk/en/"><img src="{{ static ('images/logo-professional-263.png') }}"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,6 +94,7 @@
   </nav>
 
 {% block breadcrumb %}
+{% if not no_breadcrumb %}
 <nav data-depth="3" class="breadcrumb hidden-sm-down">
   <ol itemscope="" itemtype="http://schema.org/BreadcrumbList">
           
@@ -100,7 +104,6 @@
           </a>
           <meta itemprop="position" content="1">
         </li>
-      
           
         {% if post %}
         <li itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem">
@@ -113,13 +116,15 @@
     
   </ol>
 </nav>
+{% endif %}
 {% endblock breadcrumb %}
 
-
+{% endif %}
 {% endblock header %} 
 
 {% block footer %}
-<footer>
+{% if not no_footer %}
+  <footer>
     <div class="container-fluid">
         <div class="row justify-content-start align-items-start">
           <div class="col-12 col-md-4 col-lg-3">
@@ -176,13 +181,15 @@
       </div>
 
     <div class="copy">© 2020-2023 - GellifiQue® </div>
-</footer>
+  </footer>
+{% endif %}
 {% endblock footer %}
 
 {% block javascript %}
 
 {{ super() }}
 
+{% if not no_header %}
 {% if current_domain!=1 %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -200,6 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+{% endif %}
 {% endif %}
 
 {% endblock javascript %}

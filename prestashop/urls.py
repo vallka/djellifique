@@ -14,4 +14,7 @@ urlpatterns = [
     path('printcategory/<int:id_category>/', PrintCategoryView.as_view(), name='printcategory'),
     path('printcategories/', PrintCategoriesView.as_view(), name='printcategories'),
     path('printcolours/<int:id_category>/', PrintColoursView.as_view(), name='printcolours'),
+    path('colourchart/', ColourChartView.as_view(), name='colourchart_default'),
+    path('colourchart/<int:id_category>/', ColourChartView.as_view(), name='colourchart'),
+    path('save_sort/', save_sort, name='save_sort'),
 ]

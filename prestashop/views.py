@@ -1,5 +1,20 @@
+import uuid
+import os
+import json
+from django.conf import settings
+
+from django.views.generic import TemplateView
+from django.http import JsonResponse,HttpResponseRedirect,HttpResponse
+
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
 from django.views import generic
 from rest_framework import serializers
+from django.db import connections
+
+db = 'presta'
+
 
 # Create your views here.
 from .models import *
@@ -108,14 +123,7 @@ class UploadPageView(generic.TemplateView):
 
         return context
 
-import uuid
-import os
-from django.conf import settings
 
-from django.views.generic import TemplateView
-from django.http import HttpResponse
-
-from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 def putfile(request,email):
@@ -139,8 +147,7 @@ class PrintCategoryView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['n'] = self.request.GET.get('n')
-        context['category'] = PrintCategory(self.kwargs['id_category'],context['n'])
+        context['category'] = PrintCategory(self.kwargs['id_category'])
         return context
     
 class PrintCategoriesView(generic.TemplateView):
@@ -149,10 +156,10 @@ class PrintCategoriesView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['pages'] = []
-        context['pages'].append({'category': PrintCategory(169,16)})
-        context['pages'].append({'category': PrintCategory(171,16)})
-        context['pages'].append({'category': PrintCategory(170,16)})
-        context['pages'].append({'category': PrintCategory(172,16)})
+        context['pages'].append({'category': PrintCategory(169)})
+        context['pages'].append({'category': PrintCategory(171)})
+        context['pages'].append({'category': PrintCategory(170)})
+        context['pages'].append({'category': PrintCategory(172)})
 
         return context
     
@@ -162,8 +169,8 @@ class PrintColoursView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['n'] = self.request.GET.get('n')
-        context['category'] = PrintCategory(self.kwargs['id_category'],context['n'])
+        context['category'] = PrintCategory(self.kwargs['id_category'])
+        context['id_category'] = self.kwargs['id_category']
         
         context['pages'] = []
 
@@ -175,3 +182,48 @@ class PrintColoursView(generic.TemplateView):
         context['pages'].append({'products':context['category'].products[100:150]})
         
         return context    
+    
+class ColourChartView(generic.TemplateView):
+    template_name = 'prestashop/viewcolours.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['id_category'] = self.kwargs.get('id_category',170)
+        context['category'] = PrintCategory(context['id_category'])
+        
+        context['pages'] = []
+
+        context['pages'].append({'products':context['category'].products,})
+
+        context['no_header'] = True
+        context['no_footer'] = True
+        context['no_gtag'] = True
+        
+        return context        
+    
+@require_POST
+def save_sort(request):
+    global db
+
+    #db = 'presta'
+    #if obj['shop_context']=='eu':
+    #    db = 'presta_eu'
+    #    id_shop = 2
+
+    print('save_post')
+    data = request.POST
+    print(data['id_category'])
+    ids = json.loads(data['sort'])
+    print(ids)
+
+    with connections[db].cursor() as cursor:
+        pos = 1
+        for id in ids:
+            print('id_product=',id)
+            sql = "update ps17_category_product set position=%s where id_category=%s and id_product=%s"
+            cursor.execute(sql,[pos,data['id_category'],id])
+            pos += 1
+    
+    r = {'result':'ok'} 
+
+    return JsonResponse(r)    

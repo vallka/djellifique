@@ -1,0 +1,177 @@
+{% extends "base_skinned.html" %}
+
+
+{% block skin_css %}
+{{ super() }}
+
+<style>
+.btn-primary {
+    background-color: #f766a2;
+}
+
+.btn-primary:hover,.btn-primary:focus {
+    background-color: #f1247a;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.blog_content {
+    background-color: inherit !important;
+}
+
+.category-cover {
+    display: none;
+}
+
+.product img {
+  clip-path: inset(36px 24px 20px 108px);
+  left: -110px;
+  position: relative;
+  overflow: hidden;
+  top: -36px;
+  width: 200px;
+  height: auto;
+}
+    .flex-container {
+      display: flex;
+      background-color: white;
+      max-width: 1826px;
+      flex-wrap: wrap;
+      margin-top: 30pt;
+    }
+    
+    .flex-container > div {
+      background-color: white;
+      width: 68px;
+      position: relative;
+      overflow: hidden;
+      height: 136px;
+    }
+    
+</style>
+{% endblock skin_css %}
+  
+{% block breadcrumb %}
+{% endblock breadcrumb %}
+
+{% block content %}
+
+{% for page in pages %}
+<div id="content_div">
+
+    <div class="block-category ">
+      <!-- h1 class="h1">Esmalte semipermanente</!-->
+    </div>    
+
+    <div class="flex-container" id="products">
+        {% for p in page.products %}
+
+        <div class="product" data-id="{{p.id_product}}"><img src="{{p.cover.bySize.large_default.url}}?tr=w-250"></div>
+
+        {% endfor %}
+
+    </div>
+
+    <div class="block-buttons ">
+        <button class="btn btn-primary" disabled id="btn-save">Save</button>
+        <button class="btn btn-primary" disabled id="btn-restore">Restore</button>
+    </div>
+
+</div>
+{% endfor %}
+
+
+
+{% endblock content %}
+
+{% block javascript %}
+
+{{ super() }}
+
+<style>
+.chosen {
+    border: solid 1px #666;
+}
+</style>
+
+<script src="{{ static ('js/base_int_gellifique.js') }}"></script>
+<script src="{{ static ('js/sortable.js') }}"></script>
+
+<script>
+    var el = document.getElementById('products');
+    var id_category='{{id_category}}';
+    var original_sort = [];
+    var sortable = Sortable.create(el,{
+        chosenClass: "chosen",
+        animation: 150,  
+	    easing: "cubic-bezier(1, 0, 0, 1)",
+        store: {
+            /**
+             * Get the order of elements. Called once during initialization.
+             * @param   {Sortable}  sortable
+             * @returns {Array}
+             */
+            get: function (sortable) {
+                console.log('sortable-get');
+                original_sort = sortable.toArray();
+                return [];
+            },
+
+            /**
+             * Save the order of elements. Called onEnd (when the item is dropped).
+             * @param {Sortable}  sortable
+             */
+            set: function (sortable) {
+                var order = sortable.toArray();
+                console.log('sortable-set');
+                console.log(order);
+                document.getElementById('btn-save').disabled = false ;
+                document.getElementById('btn-restore').disabled = false ;
+            }
+        }
+    });
+    document.getElementById('btn-restore').addEventListener('click',function(){
+        sortable.sort(original_sort,true);
+        document.getElementById('btn-save').disabled = true ;
+        document.getElementById('btn-restore').disabled = true ;
+    });
+
+    document.getElementById('btn-save').addEventListener('click',function(){
+    
+        spinner_on();
+
+        let url = '/prestashop/save_sort/';
+        $.ajax({
+            method: "post",
+            async: false,
+            data: {
+                    "csrfmiddlewaretoken": "{{csrf_token}}",
+                    "id_category": id_category,
+                    "sort": JSON.stringify(sortable.toArray())
+            },
+            dataType: "json",
+            url: url,
+            //headers: {"Authorization": "Token 6b246cc18769c6ec02dc20009649d5ae5903d454"},
+            success: function(data) {
+                console.log(data);
+                alert('Updated');
+                //document.location.href = '/prestashop/order/';
+                original_sort = sortable.toArray();
+                spinner_off();
+
+            },
+            error:  function (errdata) {
+                console.info('error');
+                console.info(errdata);
+                alert(errdata.statusText)
+            }
+         });
+
+    
+        document.getElementById('btn-save').disabled = true ;
+        document.getElementById('btn-restore').disabled = true ;
+    });
+
+</script>
+    
+{% endblock javascript %}

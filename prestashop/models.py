@@ -209,17 +209,16 @@ class ProductNote(models.Model):
     domain = models.IntegerField(default=Domains.CO_UK,choices=Domains.choices)
 
 class PrintCategory:
-    html = ''
     
-    def __init__(self,id_category,n=None) -> None:
+    def __init__(self,id_category) -> None:
         self.id = id_category
-        self.n = int(n) if n else 1000
-
-        print (self.n,type(self.n))
 
         h={'Accept':'application/json, text/javascript, */*; q=0.01'}
         #r=requests.get(f'https://www.gellifique.eu/category({id_category})',headers=h)
-        r=requests.get(f'https://www.gellifique.co.uk/category({id_category})',headers=h)
+        r=requests.get(f'https://www.gellifique.co.uk/category({id_category})?order=product.position.asc',headers=h)
+
+        print(r)
+
         self.response = json.loads(r.text)
 
         #print(self.response.keys())
