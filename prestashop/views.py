@@ -204,7 +204,10 @@ class ColourChartView(generic.TemplateView):
         context['no_header'] = True
         context['no_footer'] = True
         context['no_gtag'] = True
-        
+
+        context['HTTP_REFERER'] = self.request.META.get('HTTP_REFERER')
+
+      
         return context        
     
 @require_POST
