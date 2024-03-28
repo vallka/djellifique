@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 from django.views import generic
 from rest_framework import serializers
 from django.db import connections
+from icecream import ic
 
 db = 'presta'
 
@@ -190,7 +191,7 @@ class ColourChartView(generic.TemplateView):
         print('get')
         r = super().get(request, *args, **kwargs)
         r.headers['Content-Security-Policy'] = "frame-ancestors 'self' *.gellifique.co.uk *.gellifique.eu; default-src 'self' 'unsafe-inline' *"
-        r.headers['Referrer-Policy'] = "unsafe-url"
+        #r.headers['Referrer-Policy'] = "unsafe-url"
         return r
         
     def get_context_data(self, **kwargs):
@@ -207,6 +208,12 @@ class ColourChartView(generic.TemplateView):
         context['no_gtag'] = True
 
         context['HTTP_REFERER'] = self.request.META.get('HTTP_REFERER')
+        
+        if self.request.GET.get('a'):
+            context['can_save'] = 1
+
+
+        #ic(self.request.META)
 
       
         return context        

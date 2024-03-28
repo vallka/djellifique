@@ -84,11 +84,12 @@ height: 136px;
 
     </div>
 
+    {% if can_save %}
     <div class="block-buttons ">
         <button class="btn btn-primary" disabled id="btn-save">Save</button>
         <button class="btn btn-primary" disabled id="btn-restore">Restore</button>
-        Referer: {{HTTP_REFERER}}
     </div>
+    {% endif %}
 
 </div>
 {% endfor %}
@@ -138,11 +139,14 @@ height: 136px;
                 var order = sortable.toArray();
                 console.log('sortable-set');
                 console.log(order);
-                document.getElementById('btn-save').disabled = false ;
-                document.getElementById('btn-restore').disabled = false ;
+                document.getElementById('btn-save') && (document.getElementById('btn-save').disabled = false) ;
+                document.getElementById('btn-restore') && (document.getElementById('btn-restore').disabled = false) ;
             }
         }
     });
+
+    {% if can_save %}
+
     document.getElementById('btn-restore').addEventListener('click',function(){
         sortable.sort(original_sort,true);
         document.getElementById('btn-save').disabled = true ;
@@ -184,6 +188,7 @@ height: 136px;
         document.getElementById('btn-save').disabled = true ;
         document.getElementById('btn-restore').disabled = true ;
     });
+    {% endif %}
 
 </script>
     
