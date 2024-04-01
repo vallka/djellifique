@@ -210,12 +210,18 @@ class ProductNote(models.Model):
 
 class PrintCategory:
     
-    def __init__(self,id_category) -> None:
+    def __init__(self,id_category,host) -> None:
+        self.host = host
+
+        if '127.0.0.1' in host or 'gellifique.eu' in host:
+            server = 'www.gellifique.eu'
+        else:
+            server = 'www.gellifique.co.uk'
+
         self.id = id_category
 
         h={'Accept':'application/json, text/javascript, */*; q=0.01'}
-        #r=requests.get(f'https://www.gellifique.eu/category({id_category})',headers=h)
-        r=requests.get(f'https://www.gellifique.co.uk/category({id_category})?order=product.position.asc',headers=h)
+        r=requests.get(f'https://{server}/category({id_category})?order=product.position.asc',headers=h)
 
         print(r)
 

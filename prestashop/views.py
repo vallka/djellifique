@@ -148,7 +148,7 @@ class PrintCategoryView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['category'] = PrintCategory(self.kwargs['id_category'])
+        context['category'] = PrintCategory(self.kwargs['id_category'],self.request.META['HTTP_HOST'])
         return context
     
 class PrintCategoriesView(generic.TemplateView):
@@ -157,10 +157,10 @@ class PrintCategoriesView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['pages'] = []
-        context['pages'].append({'category': PrintCategory(169)})
-        context['pages'].append({'category': PrintCategory(171)})
-        context['pages'].append({'category': PrintCategory(170)})
-        context['pages'].append({'category': PrintCategory(172)})
+        context['pages'].append({'category': PrintCategory(169,self.request.META['HTTP_HOST'])})
+        context['pages'].append({'category': PrintCategory(171,self.request.META['HTTP_HOST'])})
+        context['pages'].append({'category': PrintCategory(170,self.request.META['HTTP_HOST'])})
+        context['pages'].append({'category': PrintCategory(172,self.request.META['HTTP_HOST'])})
 
         return context
     
@@ -170,7 +170,7 @@ class PrintColoursView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['category'] = PrintCategory(self.kwargs['id_category'])
+        context['category'] = PrintCategory(self.kwargs['id_category'],self.request.META['HTTP_HOST'])
         context['id_category'] = self.kwargs['id_category']
         
         context['pages'] = []
@@ -197,7 +197,7 @@ class ColourChartView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['id_category'] = self.kwargs.get('id_category',170)
-        context['category'] = PrintCategory(context['id_category'])
+        context['category'] = PrintCategory(context['id_category'],self.request.META['HTTP_HOST'])
         
         context['pages'] = []
 
@@ -222,21 +222,29 @@ class ColourChartView(generic.TemplateView):
 def save_sort(request):
     global db
 
-    #db = 'presta'
-    #if obj['shop_context']=='eu':
-    #    db = 'presta_eu'
-    #    id_shop = 2
+    host = request.META['HTTP_HOST']
 
-    print('save_post')
+    if '127.0.0.1' in host or 'gellifique.eu' in host:
+        db = 'presta_eu'
+        id_shop = 2
+    else:
+        db = 'presta'
+        id_shop = 1
+
+    #print('save_post')
     data = request.POST
-    print(data['id_category'])
+    #print(data['id_category'])
     ids = json.loads(data['sort'])
-    print(ids)
+    ids_commaed = ','.join(ids)
 
     with connections[db].cursor() as cursor:
+        sql = f"update ps17_category_product set position=%s where id_category=%s and id_product not in ({ids_commaed})"
+        #print(sql)
+        pos = 9999
+        cursor.execute(sql,[pos,data['id_category']])
         pos = 1
         for id in ids:
-            print('id_product=',id)
+            #print('id_product=',id)
             sql = "update ps17_category_product set position=%s where id_category=%s and id_product=%s"
             cursor.execute(sql,[pos,data['id_category'],id])
             pos += 1
