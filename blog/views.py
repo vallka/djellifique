@@ -126,7 +126,7 @@ class SearchView(generic.ListView):
         context['breadcrumb'] = f'Search: {self.q} ({self.len})' 
         context['page_title'] = context['breadcrumb']
         context['current_domain'] = self.domain
-        context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('//blog.','//www.') + self.request.get_full_path()
+        context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('blog.','www.') + self.request.get_full_path()
         return context        
 
 
@@ -197,7 +197,7 @@ class HomeView(generic.ListView):
         context['product_carousel'] = self.getBlogProducts()
         context['product_carousel2'] = self.getBlogProducts('2')
         context['current_domain'] = self.domain
-        context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('//blog.','//www.') + self.request.get_full_path()
+        context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('blog.','www.') + self.request.get_full_path()
 
         return context        
 
@@ -251,7 +251,7 @@ class PostView(generic.DetailView):
             self.domain = Post.Domains.CO_UK
 
         context['current_domain'] = self.domain
-        context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('//blog.','//www.') + self.request.get_full_path()
+        context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('blog.','www.') + self.request.get_full_path()
 
         this_dt = context['post'].blog_start_dt
 
