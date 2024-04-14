@@ -20,7 +20,6 @@ from .models import *
 from gtranslator.models import *
 from newsletter.models import *
 
-
 class ListView(generic.ListView):
     model = Post
     paginate_by = 10
@@ -89,14 +88,14 @@ class SearchView(generic.ListView):
     def get_queryset(self):
         host = self.request.META['HTTP_HOST']
         if '127.0.0.1' in host or 'gellifique.eu' in host:
-            domain = Post.Domains.EU
+            self.domain = Post.Domains.EU
         else:
-            domain = Post.Domains.CO_UK
+            self.domain = Post.Domains.CO_UK
 
         self.q = self.request.GET.get('q')
 
         #sql = Post.objects.filter(blog_start_dt__lte="'"+str(timezone.now())+"'",blog=True,).query
-        sql = Post.objects.filter(blog=True,draft=False,domain=domain).query
+        sql = Post.objects.filter(blog=True,draft=False,domain=self.domain).query
         sql = re.sub('ORDER BY.*$','',str(sql))
 
         #posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,title__contains=q)
@@ -108,6 +107,8 @@ class SearchView(generic.ListView):
 
         posts = Post.objects.raw(sql,[self.q])
         self.len = len(posts)
+        for p in posts:
+            p.translated() #in place
         return posts
 
         return None
@@ -124,6 +125,8 @@ class SearchView(generic.ListView):
 
         context['breadcrumb'] = f'Search: {self.q} ({self.len})' 
         context['page_title'] = context['breadcrumb']
+        context['current_domain'] = self.domain
+        context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('//blog.','//www.') + self.request.get_full_path()
         return context        
 
 
@@ -137,11 +140,11 @@ class HomeView(generic.ListView):
 
         host = self.request.META['HTTP_HOST']
         if '127.0.0.1' in host or 'gellifique.eu' in host:
-            domain = Post.Domains.EU
+            self.domain = Post.Domains.EU
         else:
-            domain = Post.Domains.CO_UK
+            self.domain = Post.Domains.CO_UK
         
-        posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,draft=False,domain=domain).order_by('-blog_start_dt')
+        posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,draft=False,domain=self.domain).order_by('-blog_start_dt')
         cat_slug = self.kwargs.get('slug')
         self.request.session['category'] = cat_slug
 
@@ -172,13 +175,7 @@ class HomeView(generic.ListView):
         context['post'] = context['post_list'] and context['post_list'][0]
         context['categories'] = Category.objects.all().order_by('id')
 
-        page = int(self.request.GET.get('page',1))
-
-        host = self.request.META['HTTP_HOST']
-        if '127.0.0.1' in host or 'gellifique.eu' in host:
-            domain = Post.Domains.EU
-        else:
-            domain = Post.Domains.CO_UK
+        ic(self.request.get_full_path())
 
         if self.home:
             context['breadcrumb'] = 'Home'
@@ -191,7 +188,7 @@ class HomeView(generic.ListView):
                         'slug':cat.slug,
                         'posts':Post.objects.filter(blog_start_dt__lte=timezone.now(),
                         blog=True,draft=False,
-                        domain=domain,
+                        domain=self.domain,
                         category=cat).exclude(id__in=self.shown).order_by('-blog_start_dt')[:3]})
         else:
             context['breadcrumb'] = self.cat.category
@@ -199,7 +196,8 @@ class HomeView(generic.ListView):
         context['page_title'] = context['breadcrumb']
         context['product_carousel'] = self.getBlogProducts()
         context['product_carousel2'] = self.getBlogProducts('2')
-        context['current_domain'] = domain
+        context['current_domain'] = self.domain
+        context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('//blog.','//www.') + self.request.get_full_path()
 
         return context        
 
@@ -240,32 +238,20 @@ class PostView(generic.DetailView):
 
         return post.translated()
 
-        lang = get_language()
-
-        if not lang or lang == 'en':
-            post.lang = lang
-            return post
-
-        #post_lang = get_object_or_404(PostLang, post=post, lang_iso_code=lang)
-        try:
-            post_lang = PostLang.objects.get(post=post, lang_iso_code=lang)
-        except PostLang.DoesNotExist:
-            post.lang = lang
-            return post
-
-        if post_lang.title: post.title = post_lang.title
-        if post_lang.email_subject: post.email_subject = post_lang.email_subject
-        if post_lang.text: post.text = post_lang.text
-
-        post.lang = lang
-
-        return post
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         #context['breadcrumb'] = re.sub(r'[^\x00-\x7F]',' ', context['post'].title)
         context['breadcrumb'] = context['post'].title
         context['categories'] = Category.objects.all().order_by('id')
+
+        host = self.request.META['HTTP_HOST']
+        if '127.0.0.1' in host or 'gellifique.eu' in host:
+            self.domain = Post.Domains.EU
+        else:
+            self.domain = Post.Domains.CO_UK
+
+        context['current_domain'] = self.domain
+        context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('//blog.','//www.') + self.request.get_full_path()
 
         this_dt = context['post'].blog_start_dt
 
@@ -310,24 +296,6 @@ class NewsletterView(generic.DetailView):
     def get_object(self, queryset=None):
         post = get_object_or_404(Post, slug=self.kwargs['slug'])
         return post.translated()
-
-        lang = self.kwargs.get('lang')
-
-        if not lang or lang == 'en':
-            post.lang = lang
-        else:
-            post_lang = get_object_or_404(PostLang, post=post, lang_iso_code=lang)
-
-            if post_lang.title: post.title = post_lang.title
-            if post_lang.email_subject: post.email_subject = post_lang.email_subject
-            if post_lang.text: post.text = post_lang.text
-
-            post.text = re.sub(r'(https://www\.gellifique\.co\.uk/)(en)/',f"\g<1>{lang}/",post.text)
-            post.text = re.sub(r'(https://www\.gellifique\.eu/)(en)/',f"\g<1>{lang}/",post.text)
-
-            post.lang = lang
-
-        return post
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

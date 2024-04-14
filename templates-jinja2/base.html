@@ -10,6 +10,12 @@
 <meta name="description" content="{% block description %}Meta Description{% endblock description %}">
 <meta name="keywords" content="{% block keywords %}Meta keywords{% endblock keywords %}">
 
+{% block canonical %}
+{% if canonical_url %}
+<link rel="canonical" href="{{ canonical_url }}">
+{% endif %}
+{% endblock canonical %}
+
 <title>{% block title %}Blog{% endblock title %}</title>
 
 {% block json_ld %}

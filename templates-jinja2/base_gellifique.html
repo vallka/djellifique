@@ -53,7 +53,7 @@
 {% if not no_header %}
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
   
-    <a class="navbar-brand" style="z-index: 2;" href="https://www.gellifique.co.uk/en/"><img src="{{ static ('images/logo-professional-263.png') }}"></a>
+    <a class="navbar-brand" style="z-index: 2;" href="https://www.gellifique.co.uk/{{ get_language() }}/"><img src="{{ static ('images/logo-professional-263.png') }}"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -73,7 +73,6 @@
       {% endblock header_nav %} 
       <form class="form-inline search-box d-flex justify-content-lg-end" action="{{ url ('blog:search') }}">
 
-        {% if current_domain!=1 %}
         <select class="form-control bg-primary" id="lang-switch">
           <option {% if get_language()=='en' %}selected{% endif %} >en</option>
           <option {% if get_language()=='es' %}selected{% endif %} >es</option>
@@ -85,9 +84,8 @@
           <option {% if get_language()=='it' %}selected{% endif %} >it</option>
           <option {% if get_language()=='uk' %}selected{% endif %} >uk</option>
         </select>
-        {% endif %}
 
-        <input name="q" class="form-control mr-sm-2" type="text" placeholder="Search">
+        <input name="q" class="form-control mr-sm-2" type="text" placeholder="Search" value="{%if q%}{{q}}{%endif%}">
         <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
       </form>
     </div>
@@ -190,7 +188,6 @@
 {{ super() }}
 
 {% if not no_header %}
-{% if current_domain!=1 %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const langSwitch = document.getElementById('lang-switch');
@@ -207,7 +204,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
-{% endif %}
 {% endif %}
 
 {% endblock javascript %}

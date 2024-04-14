@@ -228,8 +228,7 @@ Produce output in JSON format like this:
     'title': '...translated title...', 
     'subject': '...translated subject...',
     'subsubject': '...translated subsubject...',
-    'text': '...translated text...',
-    'your_comments': '... if you have any comments or questions, put here...'
+    'text': '...translated text...'
 
 Input JSON below:    
     
@@ -237,9 +236,9 @@ Input JSON below:
 """
 
             data = {
-                #'model': 'gpt-3.5-turbo',
-                'model': 'gpt-3.5-turbo-1106',
-                #'model': 'gpt-4-1106-preview',
+                'model': 'gpt-3.5-turbo',
+                #'model': 'gpt-3.5-turbo-1106',
+                #'model': 'gpt-4-turbo',
                 'messages': [
                     {'role': 'system', 'content': 'You are a translator with a knowledge of beauty industry and manicure in particular.'},
                     {'role': 'user', 'content': prompt}
@@ -259,6 +258,9 @@ Input JSON below:
             print(f'DONE============================= {lang}')
             ic(response)
 
+            print(response['choices'][0]['message']['content'])
+
+
             translation = json.loads(response['choices'][0]['message']['content'])
             #ic(response['usage'])
 
@@ -267,10 +269,8 @@ Input JSON below:
             subsubject = translation.get('subsubject')
 
             translated_text = translation.get('text')
-            your_comments = translation.get('your_comments')
 
             ic(title,subject,subsubject,translated_text)
-            ic(your_comments)
 
             try:
                 postlang = PostLang.objects.get(post=self,lang_iso_code=lang)
@@ -325,7 +325,7 @@ Input JSON below:
             
         super().save(*args, **kwargs)
 
-        if self.domain==Post.Domains.EU:
+        if True or self.domain==Post.Domains.EU:
             ic(AllLanguages.langs[2:])
             for lang in AllLanguages.langs[2:]:
                 try:
