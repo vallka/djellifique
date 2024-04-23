@@ -153,8 +153,7 @@ class HomeView(generic.ListView):
             cat = Category.objects.get(slug=cat_slug)
             self.cat = cat
             posts = posts.filter(category=cat)
-            for p in posts:
-                p.translated() #in place
+            [p.translated() for p in posts]
             return posts
         else:
             self.home = True
@@ -183,13 +182,17 @@ class HomeView(generic.ListView):
             cats = ['news-announcements','health-safety','corporate-company-news','education','new-products','popular-this-month']
             for i,cat_slug in enumerate(cats):
                 cat = Category.objects.get(slug=cat_slug).translate()
+                posts = Post.objects.filter(blog_start_dt__lte=timezone.now(),
+                            blog=True,draft=False,
+                            domain=self.domain,
+                            category=cat).exclude(id__in=self.shown).order_by('-blog_start_dt')[:3]
+
+                [p.translated() for p in posts]
+                
                 context['post_list2'].append({
                         'name':cat.category,
                         'slug':cat.slug,
-                        'posts':Post.objects.filter(blog_start_dt__lte=timezone.now(),
-                        blog=True,draft=False,
-                        domain=self.domain,
-                        category=cat).exclude(id__in=self.shown).order_by('-blog_start_dt')[:3]})
+                        'posts':posts})
         else:
             context['breadcrumb'] = self.cat.category
 
