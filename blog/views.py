@@ -442,19 +442,23 @@ class BlogPostSitemap(Sitemap):
     i18n = True
 
     def get_urls(self, page=1, site=None, protocol=None):
-        ic('BlogPostSitemap.get_urls',site)
+        #ic('BlogPostSitemap.get_urls',site)
         self.site = site
 
         return super().get_urls(page, site, protocol)
 
     def items(self):
         # Assuming you have a method to fetch episodes
-        ic('BlogPostSitemap.items',self,self.site.name)
+        #ic('BlogPostSitemap.items',self,self.site.name)
         return Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,domain=Post.Domains.EU if '.eu' in self.site.name else Post.Domains.CO_UK)
 
     def lastmod(self, obj):
         # Assuming you have a date field for last modification
         return obj.updated_dt
+    
+    def get_domain(self, site=None):
+        domain = super().get_domain(site)
+        return domain.replace('blog.','www.')
 
 class CategoryPostSitemap(Sitemap):
     changefreq = "weekly"
@@ -463,13 +467,16 @@ class CategoryPostSitemap(Sitemap):
     i18n = True
 
     def get_urls(self, page=1, site=None, protocol=None):
-        ic('CategoryPostSitemap.get_urls',site)
+        #ic('CategoryPostSitemap.get_urls',site)
         self.site = site
 
         return super().get_urls(page, site, protocol)
 
     def items(self):
         # Assuming you have a method to fetch episodes
-        ic('CategoryPostSitemap.items',self,self.site.name)
+        #ic('CategoryPostSitemap.items',self,self.site.name)
         return Category.objects.exclude(category__startswith='_')
 
+    def get_domain(self, site=None):
+        domain = super().get_domain(site)
+        return domain.replace('blog.','www.')
