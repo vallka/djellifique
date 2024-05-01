@@ -10,6 +10,8 @@ from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.utils.translation import get_language
+from django.contrib.sitemaps import Sitemap
+
 from icecream import ic
 
 
@@ -432,3 +434,42 @@ Input text below:
     r = {'result':'ok','text':text, 'usage':response['usage']['total_tokens'], 'comments': your_comments} 
 
     return JsonResponse(r)    
+
+class BlogPostSitemap(Sitemap):
+    changefreq = "weekly"
+    priority = 0.6
+    site = None
+    i18n = True
+
+    def get_urls(self, page=1, site=None, protocol=None):
+        ic('BlogPostSitemap.get_urls',site)
+        self.site = site
+
+        return super().get_urls(page, site, protocol)
+
+    def items(self):
+        # Assuming you have a method to fetch episodes
+        ic('BlogPostSitemap.items',self,self.site.name)
+        return Post.objects.filter(blog_start_dt__lte=timezone.now(),blog=True,domain=Post.Domains.EU if '.eu' in self.site.name else Post.Domains.CO_UK)
+
+    def lastmod(self, obj):
+        # Assuming you have a date field for last modification
+        return obj.updated_dt
+
+class CategoryPostSitemap(Sitemap):
+    changefreq = "weekly"
+    priority = 0.6
+    site = None
+    i18n = True
+
+    def get_urls(self, page=1, site=None, protocol=None):
+        ic('CategoryPostSitemap.get_urls',site)
+        self.site = site
+
+        return super().get_urls(page, site, protocol)
+
+    def items(self):
+        # Assuming you have a method to fetch episodes
+        ic('CategoryPostSitemap.items',self,self.site.name)
+        return Category.objects.exclude(category__startswith='_')
+

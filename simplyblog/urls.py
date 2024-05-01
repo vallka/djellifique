@@ -21,6 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static 
 from django.conf.urls.i18n import i18n_patterns
 from django.shortcuts import redirect
+from django.contrib.sitemaps.views import sitemap
 
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -35,6 +36,13 @@ from stats.api_views import *
 from gellifihouse.api_views import *
 from gtranslator.api_views import *
 #from chatbot.views import chatbot
+
+from blog.views import BlogPostSitemap,CategoryPostSitemap
+
+sitemaps = {
+   'blog-cats': CategoryPostSitemap,
+   'blog-posts': BlogPostSitemap, 
+}
 
 
 schema_view = get_schema_view(
@@ -77,6 +85,7 @@ urlpatterns += [
     #path('chatbot/', include('chatbot.urls')),
     path('admin/', admin.site.urls),
     path('markdownx/', include('markdownx.urls')),
+    path('2_blog_sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),  
 
     path('api/v1/gellifihouse/', include(router.urls)),
 

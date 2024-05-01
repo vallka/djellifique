@@ -31,6 +31,9 @@ class Category(models.Model):
     def __str__(self):
         return str(self.slug) + ' -- ' + str(self.category)
 
+    def get_absolute_url(self):
+        return reverse('blog:post-by-cat', kwargs={'slug': self.slug})    
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.category)
