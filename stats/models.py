@@ -156,7 +156,7 @@ ORDER BY date_add DESC
 
             p.sort_index(ascending=False,inplace=True)
             p.reset_index(inplace=True)
-            p = p[0:30]
+            p = p[0:256]
 
         elif par=='dw':
             p = p.groupby(['DOW']).agg({'products':np.mean,

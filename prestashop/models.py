@@ -244,3 +244,9 @@ class PrintCategory:
         self.rendered_products_header = self.response['rendered_products_header']
         self.rendered_products = self.response['rendered_products'].replace(' (HEMA FREE)','')
 
+class ErrorAlert(models.Model):
+    domain = models.CharField(max_length=100)
+    error_type = models.CharField(max_length=100)
+    text = models.TextField(blank=True, null=True)
+    error_dt = models.DateTimeField(null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,)
