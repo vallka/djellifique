@@ -493,7 +493,9 @@ class CustomersBehaviourData(models.Model):
         sql = """
 SELECT cc.* ,
 total_gbp/orders avg_order_gbp,
-IF (orders>1,DATEDIFF(order_last,order_first)/orders,NULL) orders_apart_days
+IF (orders>1,DATEDIFF(order_last,order_first)/orders,NULL) orders_apart_days,
+IF (orders>1,DATE_ADD(order_last,INTERVAL DATEDIFF(order_last,order_first)/orders DAY),NULL) order_due,
+IF (orders>1,DATEDIFF(NOW(),DATE_ADD(order_last,INTERVAL DATEDIFF(order_last,order_first)/orders DAY)),NULL) order_missed
 FROM
 (
 SELECT DISTINCT
@@ -540,9 +542,11 @@ WHERE orders>0
             'orders':'i',
             'order_first':'M',
             'order_last':'M',
+            'order_due':'M',
             'total_gbp':'f',
             'avg_order_gbp':'f',
             'orders_apart_days':'f',
+            'order_missed':'f',
         }
 
     @classmethod

@@ -236,6 +236,8 @@ class CustomersBehaviourTableView(generics.ListAPIView):
                 index=False,
                 na_rep=' ',
                 float_format='{:.2f}'.format,
+                classes="table is-bordered is-striped is-narrow is-hoverable is-fullwidth",
+                table_id="table_by_group"
             )
 
         else:
@@ -246,22 +248,55 @@ class CustomersBehaviourTableView(generics.ListAPIView):
 
             p.loc['--average--','total_gbp'] = None
             p.loc['--average--'] = p.mean()
+            p.loc['--average--','order_due'] = None
+            p.loc['--average--','order_missed'] = None
 
             p.loc['--average--','order_first'] = p['order_first'].min()
             p.loc['--average--','order_last'] = p['order_last'].max()
             p.loc['--average--','customer_name'] = '--average customer--'
 
             html=p.to_html(
-                columns=['customer_name','group','orders','order_first','order_last','total_gbp','avg_order_gbp','orders_apart_days'],
+                columns=['customer_name','group','orders','order_first','order_last','total_gbp','avg_order_gbp','orders_apart_days','order_due','order_missed'],
                 index=False,
                 na_rep=' ',
                 float_format='{:.2f}'.format,
+                classes="table is-bordered is-striped is-narrow is-hoverable is-fullwidth",
+                table_id="table_by_customer"
             )
 
-        html=html.replace('class="dataframe"',
-            'class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"'
-        )
-        #html=html.replace('<td>NaN</td>','<td> </td>')
+            css = """
+<style>
+#table_by_customer td:nth-child(10),
+#table_by_customer th:nth-child(10) {
+    display:none;
+}
+</style>
+"""
+            js = """
+<script>
+$('#table_by_customer tr').each(function(){
+    const d = parseInt(
+            $(this).find('td:nth-child(10)').text()
+        );
+    if (isNaN(d)) {
+        $(this).find('td:nth-child(9)').text(' ');
+    }
+    else if(
+        d > 0
+    ) {
+        $(this).find('td:nth-child(1)').css('color','red');
+        $(this).find('td:nth-child(5)').css('color','red');
+        $(this).find('td:nth-child(9)').css('color','red');
+    }
+    else {
+        $(this).find('td:nth-child(1)').css('color','green');
+        $(this).find('td:nth-child(9)').css('color','green');
+    
+    }
+});
+</script>
+"""
+            html =  js + css + html
 
         return HttpResponse(html)
 
