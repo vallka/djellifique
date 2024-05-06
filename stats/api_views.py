@@ -256,7 +256,7 @@ class CustomersBehaviourTableView(generics.ListAPIView):
             p.loc['--average--','customer_name'] = '--average customer--'
 
             html=p.to_html(
-                columns=['customer_name','group','orders','order_first','order_last','total_gbp','avg_order_gbp','orders_apart_days','order_due','order_missed'],
+                columns=['customer_name','group','orders','order_first','order_last','total_gbp','avg_order_gbp','orders_apart_days','order_due','order_missed','last_cart'],
                 index=False,
                 na_rep=' ',
                 float_format='{:.2f}'.format,
@@ -274,7 +274,25 @@ class CustomersBehaviourTableView(generics.ListAPIView):
 """
             js = """
 <script>
+function isDateOlderThanMonths(dateString,m) {
+  var currentDate = new Date();
+  currentDate.setMonth(currentDate.getMonth() - m);
+  
+  var givenDate = new Date(dateString);
+  
+  return givenDate < currentDate;
+}
+
 $('#table_by_customer tr').each(function(){
+    if (isDateOlderThanMonths($(this).find('td:nth-child(5)').text(),12)) {
+        $(this).css('color','grey');
+
+        if (parseFloat($(this).find('td:nth-child(6)').text()) < 100) {
+            $(this).css('display','none');
+        
+        }
+    }
+
     const d = parseInt(
             $(this).find('td:nth-child(10)').text()
         );

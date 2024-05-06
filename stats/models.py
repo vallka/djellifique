@@ -495,7 +495,8 @@ SELECT cc.* ,
 total_gbp/orders avg_order_gbp,
 IF (orders>1,DATEDIFF(order_last,order_first)/orders,NULL) orders_apart_days,
 IF (orders>1,DATE_ADD(order_last,INTERVAL DATEDIFF(order_last,order_first)/orders DAY),NULL) order_due,
-IF (orders>1,DATEDIFF(NOW(),DATE_ADD(order_last,INTERVAL DATEDIFF(order_last,order_first)/orders DAY)),NULL) order_missed
+IF (orders>1,DATEDIFF(NOW(),DATE_ADD(order_last,INTERVAL DATEDIFF(order_last,order_first)/orders DAY)),NULL) order_missed,
+(SELECT DATE(MAX(ca.date_upd)) FROM ps17_cart ca WHERE ca.id_customer=cc.id_customer) last_cart
 FROM
 (
 SELECT DISTINCT
@@ -547,6 +548,7 @@ WHERE orders>0
             'avg_order_gbp':'f',
             'orders_apart_days':'f',
             'order_missed':'f',
+            'last_cart':'M',
         }
 
     @classmethod
