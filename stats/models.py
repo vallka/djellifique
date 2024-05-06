@@ -148,15 +148,15 @@ ORDER BY date_add DESC
 
         elif par=='d':
             p['Date'] = p['date_add'].astype(str)
-            p.sort_index(ascending=False,inplace=True)
-            p.reset_index(inplace=True)
+            #p.sort_index(ascending=False,inplace=True)
+            #p.reset_index(inplace=True)
 
-            p['P 7day avg'] = p['GBP_products'].rolling(7).mean()
-            p['GM 7day avg'] = p['Gross Margin'].rolling(7).mean()
+            #p['P 7day avg'] = p['GBP_products'].rolling(7).mean()
+            #p['GM 7day avg'] = p['Gross Margin'].rolling(7).mean()
 
-            p.sort_index(ascending=False,inplace=True)
-            p.reset_index(inplace=True)
-            p = p[0:256]
+            #p.sort_index(ascending=False,inplace=True)
+            #p.reset_index(inplace=True)
+            p = p[0:366]
 
         elif par=='dw':
             p = p.groupby(['DOW']).agg({'products':np.mean,
@@ -422,44 +422,29 @@ ORDER BY 1 DESC
         return p
 
 class MonthlyTotalCustomersData(models.Model):
-    month = models.CharField(primary_key=True,max_length=20)
+    year_mon = models.CharField(primary_key=True,max_length=20)
 
     @staticmethod
     def SQL():
 
         sql = """
-SELECT month ,
-
-(SELECT
-COUNT(DISTINCT id_customer)
-FROM `ps17_orders` o1
-WHERE current_state IN
-(SELECT id_order_state FROM ps17_order_state WHERE paid=1)
-AND
-SUBSTR(o1.date_add,1,7)<=oo.month
-) total_customers,
-
-(SELECT
-COUNT(DISTINCT id_customer)
-FROM `ps17_orders` o1
-WHERE current_state IN
-(SELECT id_order_state FROM ps17_order_state WHERE paid=1)
-AND
-SUBSTR(o1.date_add,1,7)<=oo.month
-AND EXISTS(SELECT id_order FROM ps17_orders o2 WHERE o1.id_customer=o2.id_customer AND 
-o2.current_state IN        (SELECT id_order_state FROM ps17_order_state WHERE paid=1) AND 
-SUBSTR(o2.date_add,1,7)>oo.month
-)) loyal_customers
-
+SELECT year_mon,COUNT(id_customer) new_customers,SUM(live) live_customers_mon 
 FROM
 (
-SELECT 
-SUBSTR(DATE_ADD,1,7) month 
-FROM ps17_orders o
-WHERE DATE(DATE_ADD)>='2021-01-01'
-GROUP BY SUBSTR(DATE_ADD,1,7)
-ORDER BY 1 DESC
-) oo
+SELECT c.id_customer,
+DATE_FORMAT(MIN(o.date_add),'%%Y-%%m') year_mon, 
+MAX(o.date_add),
+
+IF(MAX(o.date_add)>DATE_SUB(NOW(),INTERVAL 3 month),1,0) live
+
+FROM ps17_customer c
+JOIN ps17_orders o ON o.id_customer = c.id_customer AND o.current_state IN (SELECT id_order_state FROM ps17_order_state WHERE paid=1) 
+WHERE ACTIVE=1 AND deleted=0
+GROUP BY c.id_customer
+ORDER BY year_mon
+) cc
+GROUP BY year_mon
+ORDER BY year_mon
         """
         
         return sql        
@@ -467,8 +452,8 @@ ORDER BY 1 DESC
     @staticmethod
     def dtypes():
         return {
-            'total_customers':'i',
-            'loyal_customers':'i',
+            'new_customers':'i',
+            'live_customers_mon':'i',
         }
 
     @classmethod
@@ -479,6 +464,7 @@ ORDER BY 1 DESC
         try:
             tm = os.path.getmtime(store_path) 
             if int(time.time())-int(tm) > 24 * 60 * 60:
+            #if int(time.time())-int(tm) > 1:
                 raise Exception("Cache expired")
 
             p = pd.read_pickle(store_path)
@@ -488,6 +474,11 @@ ORDER BY 1 DESC
             queryset = cls.objects.using('presta').raw(cls.SQL())
             p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
             p = p.astype(cls.dtypes())
+
+            p['total_customers'] = p['new_customers'].cumsum()
+            p['live_customers'] = p['live_customers_mon'].cumsum()
+            p['new_customers_year'] = p['new_customers'].rolling(12).sum()
+            p.sort_index(ascending=False,inplace=True)
 
             p.to_pickle(store_path)
 

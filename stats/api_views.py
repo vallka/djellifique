@@ -111,13 +111,13 @@ class SalesFigView(generics.ListAPIView):
             fig.update_xaxes(rangeslider_visible=True, dtick='M1')
 
         elif par=='d':
-            fig = px.line(p,x='Date',y=['GBP_products','P 7day avg','Gross Margin','GM 7day avg'],
+            fig = px.line(p,x='Date',y=['GBP_products','Gross Margin',],
                 labels={
                     'value':'GBP',
                     'variable':' ',
                 },
                 title="Daily sales (30 days)",width=1200, height=500)
-            fig.update_xaxes(rangeslider_visible=True, dtick='D1')
+            fig.update_xaxes(rangeslider_visible=True, dtick='M1')
 
         elif par=='dw':
             fig = px.bar(p,x='DOW',y=['Gross Margin','GBP_products_e',],
@@ -208,7 +208,8 @@ class TotalCustomersTableView(generics.ListAPIView):
 
         html=p.to_html(
                 index=False,
-                columns=['month','total_customers','loyal_customers',],
+                columns=['year_mon','total_customers','live_customers','new_customers','new_customers_year',],
+                float_format='%d',
         )
 
         html=html.replace('class="dataframe"',
