@@ -305,20 +305,8 @@ AND YEAR(DATE_ADD)=YEAR(o.date_add)
 AND (MONTH(DATE_ADD)=MONTH(o.date_add) or '{par}'='y')
 AND NOT EXISTS(SELECT id_order FROM ps17_orders o2 WHERE o1.id_customer=o2.id_customer AND 
 o2.current_state IN        (SELECT id_order_state FROM ps17_order_state WHERE paid=1) AND 
-SUBSTR(o2.date_add,1,{sbstr})<SUBSTR(o1.date_add,1,{sbstr})
+o2.date_add<o1.date_add
 )) new_customers,
-
-(SELECT
-COUNT(DISTINCT id_customer)
-FROM `ps17_orders` o1
-WHERE current_state IN
-(SELECT id_order_state FROM ps17_order_state WHERE paid=1)
-AND YEAR(DATE_ADD)=YEAR(o.date_add)
-AND (MONTH(DATE_ADD)=MONTH(o.date_add) or '{par}'='y')
-AND NOT EXISTS(SELECT id_order FROM ps17_orders o2 WHERE o1.id_customer=o2.id_customer AND
-o2.current_state IN        (SELECT id_order_state FROM ps17_order_state WHERE paid=1) AND
-SUBSTR(o2.date_add,1,{sbstr})>SUBSTR(o1.date_add,1,{sbstr})
-)) last_customers,
 
 COUNT(id_order) orders,
 
@@ -331,7 +319,7 @@ AND YEAR(DATE_ADD)=YEAR(o.date_add)
 AND (MONTH(DATE_ADD)=MONTH(o.date_add) or '{par}'='y')
 AND NOT EXISTS(SELECT id_order FROM ps17_orders o2 WHERE o1.id_customer=o2.id_customer AND 
 o2.current_state IN        (SELECT id_order_state FROM ps17_order_state WHERE paid=1) AND 
-SUBSTR(o2.date_add,1,{sbstr})<SUBSTR(o1.date_add,1,{sbstr})
+o2.date_add<o1.date_add
 )) new_orders,
 
 SUM((total_products_wt-total_discounts_tax_incl)/conversion_rate) sales,
@@ -345,7 +333,7 @@ AND YEAR(DATE_ADD)=YEAR(o.date_add)
 AND (MONTH(DATE_ADD)=MONTH(o.date_add) or '{par}'='y')
 AND NOT EXISTS(SELECT id_order FROM ps17_orders o2 WHERE o1.id_customer=o2.id_customer AND 
 o2.current_state IN        (SELECT id_order_state FROM ps17_order_state WHERE paid=1) AND 
-SUBSTR(o2.date_add,1,{sbstr})<SUBSTR(o1.date_add,1,{sbstr})
+o2.date_add<o1.date_add
 )) new_sales,
 
 (SELECT
@@ -383,7 +371,6 @@ ORDER BY 1 DESC
         return {
             'customers':'i',
             'new_customers':'i',
-            'last_customers':'i',
             'orders':'i',
             'new_orders':'i',
             'sales':'float64',
@@ -493,7 +480,7 @@ class CustomersBehaviourData(models.Model):
         sql = """
 SELECT cc.* ,
 total_gbp/orders avg_order_gbp,
-IF (orders>1,DATEDIFF(order_last,order_first)/orders,NULL) orders_apart_days,
+IF (orders>1,round(DATEDIFF(order_last,order_first)/orders,0),NULL) orders_apart_days,
 IF (orders>1,DATE_ADD(order_last,INTERVAL DATEDIFF(order_last,order_first)/orders DAY),NULL) order_due,
 IF (orders>1,DATEDIFF(NOW(),DATE_ADD(order_last,INTERVAL DATEDIFF(order_last,order_first)/orders DAY)),NULL) order_missed,
 (SELECT DATE(MAX(ca.date_upd)) FROM ps17_cart ca WHERE ca.id_customer=cc.id_customer) last_cart

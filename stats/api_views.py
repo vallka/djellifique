@@ -184,7 +184,7 @@ class CustomersTableView(generics.ListAPIView):
 
         html=p.to_html(
                 index=False,
-                columns=['month' if par=='m' else 'year','customers','new_customers','%nc','last_customers',
+                columns=['month' if par=='m' else 'year','customers','new_customers','%nc',
                     'orders','new_orders','%no',
                     'sales','new_sales','%ns',
                     'registrations','registrations_customers',],
@@ -235,7 +235,8 @@ class CustomersBehaviourTableView(generics.ListAPIView):
                 columns=['group','customers','orders','avg_orders','order_first','order_last','total_gbp','avg_order_gbp','orders_apart_days'],
                 index=False,
                 na_rep=' ',
-                float_format='{:.2f}'.format,
+                #float_format='{:.2f}'.format,
+                float_format='%d',
                 classes="table is-bordered is-striped is-narrow is-hoverable is-fullwidth",
                 table_id="table_by_group"
             )
@@ -247,9 +248,10 @@ class CustomersBehaviourTableView(generics.ListAPIView):
             p.sort_values('total_gbp',ascending=False,inplace=True)
 
             p.loc['--average--','total_gbp'] = None
-            p.loc['--average--'] = p.mean()
+            p.loc['--average--'] = p.mean().round()
             p.loc['--average--','order_due'] = None
             p.loc['--average--','order_missed'] = None
+            p.loc['--average--','last_cart'] = None
 
             p.loc['--average--','order_first'] = p['order_first'].min()
             p.loc['--average--','order_last'] = p['order_last'].max()
@@ -259,7 +261,8 @@ class CustomersBehaviourTableView(generics.ListAPIView):
                 columns=['customer_name','group','orders','order_first','order_last','total_gbp','avg_order_gbp','orders_apart_days','order_due','order_missed','last_cart'],
                 index=False,
                 na_rep=' ',
-                float_format='{:.2f}'.format,
+                #float_format='{:.2f}'.format,
+                float_format='%d',
                 classes="table is-bordered is-striped is-narrow is-hoverable is-fullwidth",
                 table_id="table_by_customer"
             )
