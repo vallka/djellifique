@@ -415,6 +415,27 @@ class MonthlyTotalCustomersData(models.Model):
     def SQL():
 
         sql = """
+SELECT ccc.*
+,
+
+IF (DATE_FORMAT(DATE_SUB(NOW(),INTERVAL 3 MONTH),'%%Y-%%m')>=year_mon,
+(SELECT
+COUNT(DISTINCT id_customer)
+FROM `ps17_orders` o1
+WHERE current_state IN
+(SELECT id_order_state FROM ps17_order_state WHERE paid=1)
+AND
+DATE_FORMAT(o1.date_add,'%%Y-%%m')=year_mon
+AND NOT EXISTS(SELECT id_order FROM ps17_orders o2 WHERE o1.id_customer=o2.id_customer AND 
+o2.current_state IN        (SELECT id_order_state FROM ps17_order_state WHERE paid=1) AND 
+DATE_FORMAT(o2.date_add,'%%Y-%%m')>year_mon
+)
+)
+,NULL
+) lost_customers
+
+FROM
+(
 SELECT year_mon,COUNT(id_customer) new_customers,SUM(live) live_customers_mon 
 FROM
 (
@@ -422,7 +443,7 @@ SELECT c.id_customer,
 DATE_FORMAT(MIN(o.date_add),'%%Y-%%m') year_mon, 
 MAX(o.date_add),
 
-IF(MAX(o.date_add)>DATE_SUB(NOW(),INTERVAL 3 month),1,0) live
+IF(MAX(o.date_add)>DATE_SUB(NOW(),INTERVAL 3 MONTH),1,0) live
 
 FROM ps17_customer c
 JOIN ps17_orders o ON o.id_customer = c.id_customer AND o.current_state IN (SELECT id_order_state FROM ps17_order_state WHERE paid=1) 
@@ -432,7 +453,7 @@ ORDER BY year_mon
 ) cc
 GROUP BY year_mon
 ORDER BY year_mon
-        """
+) ccc        """
         
         return sql        
 
@@ -464,7 +485,7 @@ ORDER BY year_mon
 
             p['total_customers'] = p['new_customers'].cumsum()
             p['live_customers'] = p['live_customers_mon'].cumsum()
-            p['new_customers_year'] = p['new_customers'].rolling(12).sum()
+            #p['new_customers_year'] = p['new_customers'].rolling(12).sum()
             p.sort_index(ascending=False,inplace=True)
 
             p.to_pickle(store_path)

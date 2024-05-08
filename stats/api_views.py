@@ -208,7 +208,7 @@ class TotalCustomersTableView(generics.ListAPIView):
 
         html=p.to_html(
                 index=False,
-                columns=['year_mon','total_customers','live_customers','new_customers','new_customers_year',],
+                columns=['year_mon','total_customers','live_customers','new_customers','lost_customers',],
                 float_format='%d',
         )
 
