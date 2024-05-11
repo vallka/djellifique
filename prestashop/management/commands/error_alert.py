@@ -41,7 +41,12 @@ class Command(BaseCommand):
             last_dt = '2024-01-01 00:00:00'
 
         sql="""
-SELECT id_log,message,object_type,object_id,date_add from ps17_log where date_add>%s and message like '%%Order cannot be created%%' ORDER BY id_log
+SELECT id_log,message,object_type,object_id,date_add from ps17_log where date_add>%s and 
+(
+    message like '%%Order cannot be created%%' or
+    message like '%%onCaptureSuccess.LOST CONTENT%%'
+)
+ORDER BY id_log
         """
 
         result = None
