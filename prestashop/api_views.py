@@ -145,6 +145,7 @@ class UpdateProduct(APIView):
                     for p in queryset:
                         n += 1
                         new_reference = re.sub(obj['search'],obj['replace'],p.reference)
+                        new_reference = new_reference.replace('{id}','{0:0>4}'.format(p.id_product))  # can contain {id} as placeholder for id_product
                         logger.info(f"{n} {p.id_product}: {p.reference}=>{new_reference}")
                         if p.reference!=new_reference:
                             p.reference=new_reference
