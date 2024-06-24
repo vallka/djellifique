@@ -41,7 +41,13 @@ class OrderListView(generic.ListView):
         """
         sql = Order.SQL()
         #logger.error(f'get_queryset sql:{sql}')
-        qs = Order.objects.using('presta').raw(sql)
+
+        if '127.0.0.1' in self.request.META['HTTP_HOST'] or 'gellifique.eu' in self.request.META['HTTP_HOST']:
+            db = 'presta_eu'
+        else:
+            db = 'presta'
+
+        qs = Order.objects.using(db).raw(sql)
         #logger.error(qs)
         return qs
 
@@ -57,7 +63,11 @@ class OrderDetailListView(generic.ListView):
         """
         sql = OrderDetail.SQL()
         #logger.error(f'get_queryset sql:{sql}')
-        qs = OrderDetail.objects.using('presta').raw(sql,[self.kwargs['id_order']])
+        if '127.0.0.1' in self.request.META['HTTP_HOST'] or 'gellifique.eu' in self.request.META['HTTP_HOST']:
+            db = 'presta_eu'
+        else:
+            db = 'presta'
+        qs = OrderDetail.objects.using(db).raw(sql,[self.kwargs['id_order']])
         #logger.error(qs)
         return qs
 
@@ -66,7 +76,12 @@ class OrderDetailListView(generic.ListView):
 
         sql = Order.SQL(one=True)
         #logger.error(f'get_queryset in context sql:{sql}')
-        qs = Order.objects.using('presta').raw(sql,[self.kwargs['id_order']])
+        if '127.0.0.1' in self.request.META['HTTP_HOST'] or 'gellifique.eu' in self.request.META['HTTP_HOST']:
+            db = 'presta_eu'
+        else:
+            db = 'presta'
+        print(sql,self.kwargs['id_order'])
+        qs = Order.objects.using(db).raw(sql,[self.kwargs['id_order']])
 
         context['order'] = qs[0]
 
