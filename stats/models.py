@@ -738,7 +738,9 @@ class StockData(models.Model):
         from ps17_product_attribute_combination ac join ps17_attribute_lang al on id_lang=1 and ac.id_attribute=al.id_attribute
         where id_product_attribute=aa.id_product_attribute)
         )) as id_product
-        ,concat_ws(' - ',reference,if(id_product_attribute=0,null,(
+        ,concat_ws(': ',reference,if(id_product_attribute=0,
+        (select name from ps17_product_lang where id_product=aa.id_product and id_lang=1 and id_shop=1),
+        (
         select name
         from ps17_product_attribute_combination ac join ps17_attribute_lang al on id_lang=1 and ac.id_attribute=al.id_attribute
         where id_product_attribute=aa.id_product_attribute)
