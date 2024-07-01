@@ -83,7 +83,16 @@ class OrderDetailListView(generic.ListView):
         print(sql,self.kwargs['id_order'])
         qs = Order.objects.using(db).raw(sql,[self.kwargs['id_order']])
 
+
+        total_qnt = 0
+        total_qnt_items = 0
+        for p in context['orderdetail_list']:
+            total_qnt += p.product_quantity
+            total_qnt_items += p.product_quantity*p.unity
+
         context['order'] = qs[0]
+        context['total_qnt'] = total_qnt
+        context['total_qnt_items'] = total_qnt_items
 
         return context
 

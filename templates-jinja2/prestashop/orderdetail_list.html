@@ -10,7 +10,7 @@
 
 <style>
 .gel_row {
-  grid-template-columns: 1fr 1fr 3em 3em 3em;
+  grid-template-columns: 120px 1fr 5em 3em;
 }
 
 .gel_row > div {
@@ -18,7 +18,18 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 8px 0;
+  padding: 0;
+}
+
+
+.img_col {
+  width: 120px;
+}
+
+.img_col img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
 }
 
 .gel_row > div.not_ready {
@@ -53,9 +64,8 @@
     <span class="back_link"> <a href="..">&lt;&lt;</a> </span>
     </div>
     <div class="gel_row">
+      <div>image</div>
       <div>name</div>
-      <div>ean13</div>
-      <div>units</div>
       <div>qnt</div>
       <div></div>
     </div>
@@ -64,15 +74,47 @@
   <div class="gel_tbody">
   {% for order in orderdetail_list %}
     <div class="product_row gel_row" data-id_product="{{order.id_product}}">
-      <div>
-        {{order.product_name}} ({{order.product_reference}})
+      <div class="img_col">
+        <img src="https://www.gellifique.co.uk/{{order.id_image}}-medium_default/img.jpg">
       </div>
-      <div class="ean13_col">{{order.product_ean13}}</div>
-      <div class="qnt_col">{{order.unity}}</div>
-      <div><span class="product_quantity">{{order.product_quantity}}</span> / <span class="ready_quantity">0</span></div>
-      <div class="checkbox"><input type="checkbox"></div>
+      <div>
+        <div>
+          <b>{{order.product_name}}</b>
+          <br>
+          Ref: <b>{{order.product_reference}}</b>
+          <br>
+          Ean: <b>{{order.product_ean13}}</b>
+          <br>
+          {% if order.unity>1 %}{{order.unity}} items{% endif %}
+        </div>
+      </div>
+      <div class="qnt_col">
+        <div class="qnt_inner">
+          <span class="product_quantity">{{order.product_quantity}}</span>
+          <br>
+          <span class="product_aquantity">({{order.quantity}})</span>
+          <br>
+          </div>
+
+
+      </div>
+      <div class="checkbox">
+        <div class="chk_inner">
+          <span class="ready_quantity">0</span>
+          <br>
+          <input type="checkbox">
+        </div>  
+      </div>
     </div>
   {% endfor %}
+  <div class="gel_tfoot">
+    <div class="gel_row">
+      <div></div>
+      <div></div>
+      <div>{{total_qnt}} / {{total_qnt_items}}</div>
+      <div></div>
+    </div>
+  </div>
   </div>
 
   <div class="gel_tfoot">
@@ -209,21 +251,21 @@ $(document).ready(function(){
           updateOrder(id_product,product_quantity,ready_quantity);
         }
         if (ready_quantity == product_quantity) {
-          $(this).parent('div').addClass('ready');
-          $(this).parent('div').removeClass('not_ready');
-          $(this).parent('div').removeClass('half_ready');
+          $(this).parents('div.checkbox').addClass('ready');
+          $(this).parents('div.checkbox').removeClass('not_ready');
+          $(this).parents('div.checkbox').removeClass('half_ready');
         }
         else {
           this.checked = false;
           if (ready_quantity == 0) {
-            $(this).parent('div').addClass('not_ready');
-            $(this).parent('div').removeClass('ready');
-            $(this).parent('div').removeClass('half_ready');
+            $(this).parents('div.checkbox').addClass('not_ready');
+            $(this).parents('div.checkbox').removeClass('ready');
+            $(this).parents('div.checkbox').removeClass('half_ready');
           }
           else {
-            $(this).parent('div').addClass('half_ready');
-            $(this).parent('div').removeClass('ready');
-            $(this).parent('div').removeClass('not_ready');
+            $(this).parents('div.checkbox').addClass('half_ready');
+            $(this).parents('div.checkbox').removeClass('ready');
+            $(this).parents('div.checkbox').removeClass('not_ready');
           }
         }
       }

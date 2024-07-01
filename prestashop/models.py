@@ -186,7 +186,7 @@ pr.reference as product_reference,
 p.product_name,
 pr.ean13 as product_ean13,
 p.product_quantity,
-if(pr.unity>1,pr.unity,1) unity,
+IF(pr.product_type='pack',(SELECT COUNT(*) FROM ps17_pack WHERE id_product_pack=p.product_id),1) AS unity,
 a.quantity,
 i.id_image
 	FROM ps17_order_detail p 
