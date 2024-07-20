@@ -188,7 +188,7 @@ class UpdateProduct(APIView):
                     langs = None
                     if obj['what'][5:]=='*':
                         id_lang = 1
-                        langs = range(1,9)  # TODO!!!
+                        langs = range(1,10)  # TODO!!!
                     else:
                         id_lang = int(obj['what'][5:])
 
@@ -232,7 +232,7 @@ class UpdateProduct(APIView):
                                         [new_name,p.id_product,l_id,p.id_shop])
 
                                 n_updated += 1
-                                logger.info(f'saved:{p.id_product},{p.id_lang},{p.id_shop}')
+                                logger.info(f'saved:{p.id_product},{l_id},{p.id_shop}')
                             
                             continue
 
@@ -254,7 +254,7 @@ class UpdateProduct(APIView):
                     langs = None
                     if obj['what'][8:]=='*':
                         id_lang = 1
-                        langs = range(1,9)  # TODO!!!
+                        langs = range(1,10)  # TODO!!!
                     else:
                         id_lang = int(obj['what'][8:])
 
@@ -298,7 +298,7 @@ class UpdateProduct(APIView):
                                         [new_description_short,p.id_product,l_id,p.id_shop])
 
                                 n_updated += 1
-                                logger.info(f'saved:{p.id_product},{p.id_lang},{p.id_shop}')
+                                logger.info(f'saved:{p.id_product},{l_id},{p.id_shop}')
                             
                             continue
 
@@ -320,7 +320,7 @@ class UpdateProduct(APIView):
                     langs = None
                     if obj['what'][12:]=='*':
                         id_lang = 1
-                        langs = range(1,9)  # TODO!!!
+                        langs = range(1,10)  # TODO!!!
                     else:
                         id_lang = int(obj['what'][12:])
 
@@ -364,7 +364,7 @@ class UpdateProduct(APIView):
                                         [new_description,p.id_product,l_id,p.id_shop])
 
                                 n_updated += 1
-                                logger.info(f'saved:{p.id_product},{p.id_lang},{p.id_shop}')
+                                logger.info(f'saved:{p.id_product},{l_id},{p.id_shop}')
                             
                             continue
 
