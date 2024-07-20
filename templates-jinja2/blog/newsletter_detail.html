@@ -288,7 +288,10 @@ h1, h2, h3, h4, h5, h6 {
       width: 2rem;
   }
           
-              
+  footer .company-info {
+    font-size: 0.7rem;
+    padding: 1rem;
+  }
   
   .blog_post .blog_header, .blog_post .blog_header a {
       color: #fff !important;
@@ -492,7 +495,15 @@ h1, h2, h3, h4, h5, h6 {
                 <a href="https://blog.gellifique.co.uk/blog/newsletter/unsubscribe/####email####/####uuid####/">unsubscribe from this list</a> |     
                 <a href="https://{{www_gellifique}}/{{post.lang or 'en'}}/identity">update subscription preferences</a>
             </div>
-        </footer>
+            <div class="company-info">
+              {% if post.domain==1 %}
+              GellifiQue Professional is a limited liability company, registered in Scotland, registered number SC521529. 
+              Registered office is 159 Great Junction Street, Edinburgh, EH6 5LG
+              {% else %}
+              GellifiQue Professional, Calle de Federico Gutiérrez 16, Local Derecha, 28027 Madrid
+              {% endif %}
+        </div>
+          </footer>
     </div>
 </body>
 </html>
