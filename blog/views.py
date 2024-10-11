@@ -129,6 +129,8 @@ class SearchView(generic.ListView):
         context['page_title'] = context['breadcrumb']
         context['current_domain'] = self.domain
         context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('blog.','www.') + self.request.get_full_path()
+        context['page_image'] = context['post'].first_image
+        context['page_description'] = context['post'].first_p
         return context        
 
 
@@ -203,6 +205,8 @@ class HomeView(generic.ListView):
         context['product_carousel2'] = self.getBlogProducts('2')
         context['current_domain'] = self.domain
         context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('blog.','www.') + self.request.get_full_path()
+        context['page_image'] = context['post'].first_image
+        context['page_description'] = context['post'].first_p
 
         return context        
 
@@ -257,6 +261,10 @@ class PostView(generic.DetailView):
 
         context['current_domain'] = self.domain
         context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('blog.','www.') + self.request.get_full_path()
+        context['page_title'] = context['breadcrumb']
+
+        context['page_image'] = context['post'].first_image
+        context['page_description'] = context['post'].first_p
 
         this_dt = context['post'].blog_start_dt
 
