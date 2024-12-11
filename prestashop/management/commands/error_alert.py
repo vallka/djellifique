@@ -26,7 +26,7 @@ class Command(BaseCommand):
         logger.info(today)
 
         self.get_log('presta')
-        #self.get_log('presta_eu')
+        self.get_log('presta_eu')
 
         print('done:'+self.help,str(today))
         logger.error("DONE - %s! - %s",self.help,str(today))
