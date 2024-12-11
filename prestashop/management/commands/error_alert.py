@@ -112,7 +112,7 @@ AND NOT EXISTS
                 errorAlert = ErrorAlert(domain=db,error_type=error_type,text=text,error_dt=new_dt)
                 errorAlert.save()
 
-                text = f"Log: {db}\n\n{text}"
-                #email = EmailMessage(subject='*** Error Alert from Gellifique ***',body=text,to=['vallka@vallka.com'],from_email='admin@gellifique.co.uk')
-                #email.send()
+                text = f"Log:{error_type}: {db}\n\n{text}"
+                email = EmailMessage(subject='*** Error Alert from Gellifique ***',body=text,to=['vallka@vallka.com'],from_email='admin@gellifique.co.uk')
+                email.send()
 
