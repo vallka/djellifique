@@ -22,7 +22,7 @@ def main():
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
     """
-    SERVICE_ACCOUNT_FILE = 'credentials.json'
+    SERVICE_ACCOUNT_FILE = '.gcredentials.json'
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
     credentials = service_account.Credentials.from_service_account_file(
