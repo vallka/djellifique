@@ -34,7 +34,7 @@ class Command(BaseCommand):
     def get_log(self,db='presta'):
         print('get_log')
         try:
-            errorAlert = ErrorAlert.objects.filter(domain=db,error_type='log').latest('id')
+            errorAlert = ErrorAlert.objects.filter(domain=db,).latest('id')
             print(errorAlert)
             last_dt = errorAlert.error_dt
         except ErrorAlert.DoesNotExist:
@@ -74,7 +74,7 @@ AND NOT EXISTS
                     new_dt = row[4]
                     n+=1
 
-            print(sql[1],new_dt)
+            print(sql[1],last_dt)
             cursor.execute(sql[1],[last_dt])
             result2 = cursor.fetchall()
 
@@ -100,12 +100,12 @@ AND NOT EXISTS
                 cursor.execute(sql2,[f"%{pi}%",last_dt])
                 result3 = cursor.fetchall()
 
-                print(result3[0])
+                #print(result3[0])
                 text += result3[0][0]
 
 
             if text:
-                print (text)
+                #print (text)
                 timezone = pytz.timezone('UTC')
                 new_dt = timezone.localize(new_dt)
                 print (new_dt)
@@ -113,6 +113,6 @@ AND NOT EXISTS
                 errorAlert.save()
 
                 text = f"Log: {db}\n\n{text}"
-                email = EmailMessage(subject='*** Error Alert from Gellifique ***',body=text,to=['vallka@vallka.com'],from_email='admin@gellifique.co.uk')
-                email.send()
+                #email = EmailMessage(subject='*** Error Alert from Gellifique ***',body=text,to=['vallka@vallka.com'],from_email='admin@gellifique.co.uk')
+                #email.send()
 
