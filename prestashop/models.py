@@ -250,3 +250,17 @@ class ErrorAlert(models.Model):
     text = models.TextField(blank=True, null=True)
     error_dt = models.DateTimeField(null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True,)
+
+class ProductInventory(models.Model):
+    id_product = models.PositiveIntegerField()
+    inventory_type = models.CharField(max_length=100)
+    value = models.CharField(max_length=255)
+    note = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True,)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+    
+    class Domains(models.IntegerChoices):
+        CO_UK = 1
+        EU = 2
+
+    domain = models.IntegerField(default=Domains.CO_UK,choices=Domains.choices)
