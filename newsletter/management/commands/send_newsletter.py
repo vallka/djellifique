@@ -74,7 +74,8 @@ class Command(BaseCommand):
             self.current_post = newsletter_post[0]
 
             limit = 300
-            custs = self.get_customers(newsletter_post[0].id,limit,newsletter_post[0].domain)
+            #custs = self.get_customers(newsletter_post[0].id,limit,newsletter_post[0].domain)
+            custs = self.get_customers_special(newsletter_post[0].id,limit,newsletter_post[0].domain)
 
             if len(custs):
                 dolog = True
@@ -188,7 +189,7 @@ class Command(BaseCommand):
         return True
 
 
-    def get_customers_special(self,blog_id):
+    def get_customers_special(self,blog_id,limit,domain):
 
         if not MOCK:
             with connections['default'].cursor() as cursor:
@@ -199,7 +200,9 @@ class Command(BaseCommand):
                     select customer_id from dj.newsletter_newsshot where customer_id=c.id_customer
                     and blog_id=%s
                     )
-                    AND c.id_customer>=3705 AND c.id_customer<=3784
+                    AND c.id_customer in (
+                    SELECT id_customer FROM ps17_address a WHERE a.postcode LIKE 'BT%'
+                    )
                     ORDER BY c.id_customer  DESC
                     limit 0,5000
                 """
