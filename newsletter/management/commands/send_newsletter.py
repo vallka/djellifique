@@ -74,8 +74,8 @@ class Command(BaseCommand):
             self.current_post = newsletter_post[0]
 
             limit = 300
-            #custs = self.get_customers(newsletter_post[0].id,limit,newsletter_post[0].domain)
-            custs = self.get_customers_special(newsletter_post[0].id,limit,newsletter_post[0].domain)
+            custs = self.get_customers(newsletter_post[0].id,limit,newsletter_post[0].domain)
+            #custs = self.get_customers_special(newsletter_post[0].id,limit,newsletter_post[0].domain)
 
             if len(custs):
                 dolog = True
