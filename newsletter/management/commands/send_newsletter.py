@@ -201,7 +201,7 @@ class Command(BaseCommand):
                     and blog_id=%s
                     )
                     AND c.id_customer in (
-                    SELECT id_customer FROM ps17_address a WHERE a.postcode LIKE 'BT%'
+                    SELECT id_customer FROM ps17_address a WHERE a.postcode LIKE 'BT%%'
                     )
                     ORDER BY c.id_customer  DESC
                     limit 0,5000
