@@ -6,8 +6,6 @@
 {% block content %}
 {% if orderdetail_list %}
 
-<script src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js"></script>
-
 <style>
 .gel_row {
   grid-template-columns: 120px 1fr 5em 3em;
@@ -45,14 +43,6 @@
 
 </style>
 
-<div>
-  <button id="scan-start">Scan Start</button>
-  <button id="scan-stop" style="display: none;">Stop Scan</button>
-</div>
-  
-<div id="qr-reader" style="width: 350px; height: 300px;display: none;"></div>
-  
-
 <div class="gel_table" data-id_order="{{order.id_order}}">
   <div class="gel_thead">
     <div>{{order.reference}} (<span id="id_order">{{order.id_order}}</span>) {{order.firstname}} {{order.lastname}} 
@@ -73,7 +63,7 @@
 
   <div class="gel_tbody">
   {% for order in orderdetail_list %}
-    <div class="product_row gel_row" data-id_product="{{order.id_product}}">
+    <div class="product_row gel_row" data-id_product="{{order.id_product}}" data-ean="{{order.product_ean13}}">
       <div class="img_col">
         <img src="https://www.gellifique.co.uk/{{order.id_image}}-medium_default/img.jpg">
       </div>
@@ -122,8 +112,8 @@
     <button id="btn-update-status" class="btn btn-success" style="display:none">Set Status</button>
   </div>
   
-  <audio id="audio_yes" src="/static/audio/jazzy-chords.wav'" preload="auto"  ></audio>
-  <audio id="audio_no" src="/static/audio/wrong-buzzer.wav'" preload="auto"  ></audio>
+  <audio id="audio_yes" src="/static/audio/jazzy-chords.wav" preload="auto"  ></audio>
+  <audio id="audio_no" src="/static/audio/wrong-buzzer.wav" preload="auto"  ></audio>
 
 </div>
   {% else %}
@@ -136,53 +126,6 @@
 {% block javascript %}
 {{ super() }}
 <script>
-function onScanSuccess(decodedText, decodedResult) {
-    console.log(`Code scanned = ${decodedText}`, decodedResult);
-    process(decodedResult.decodedText);
-}
-
-var html5QrCode=null;
-const config = { fps: 10, qrbox: 250 };
-
-$().ready(function() {
-    html5QrCode = new Html5Qrcode(/* element id */ "qr-reader",false);
-    
-  $('#scan-start').click(function() {
-    $('#audio_no').get(0).muted = true;
-    $('#audio_no').get(0).volume = 0.01;
-    $('#audio_no').get(0).play();
-    $('#audio_yes').get(0).muted = true;
-    $('#audio_yes').get(0).volume = 0.01;
-    $('#audio_yes').get(0).play();
-
-    $('#qr-reader').show();
-    html5QrCode.start(
-    { facingMode: "environment"} ,
-        config,
-        onScanSuccess,
-        (errorMessage) => {
-            // parse error, ignore it.
-        }).then((ignore) => {
-        // QR Code scanning is started.
-            $('#scan-start').hide();
-            $('#scan-stop').show();
-        })
-        .catch((err) => {
-        // Start failed, handle it.
-        });
-  });
-  $('#scan-stop').click(function() {
-    html5QrCode.stop().then((ignore) => {
-        // QR Code scanning is stopped.
-            $('#scan-start').show();
-            $('#scan-stop').hide();
-            $('#qr-reader').hide();
-        }).catch((err) => {
-        // Stop failed, handle it.
-     });
-  });
-});
-
 var order = {};
 var id_order;
 
@@ -232,6 +175,7 @@ $(document).ready(function(){
     }
   });
 
+  console.log("order");
   console.log(order);
 
   $('input[type=checkbox]').change(function(){
@@ -322,6 +266,7 @@ $(document).ready(function(){
   });
 
 
+  console.log("end of ready");
 
 });
 
@@ -356,12 +301,12 @@ function updateOrder(id_product,product_quantity,ready_quantity) {
 
 
 function process(code) {
+  console.log( 'Process ---:' + code);
 
   let found = false;
   $('.product_row').each(function(){
-    tt = $(this).find('.ean13_col');
-    ttt = tt.text()
-    if (ttt==code) {
+    let ean = $(this).attr('data-ean');
+    if (ean==code) {
       found = this;
     }
 
@@ -385,7 +330,7 @@ function process(code) {
 
 var code='';
   $( "body" ).keyup(function( event ) {
-    //console.log( event.originalEvent.key + ' --- ' + code);
+    console.log( event.originalEvent.key + ' --- ' + code);
   
     if (event.originalEvent.key=='0' ||
         event.originalEvent.key=='1' ||

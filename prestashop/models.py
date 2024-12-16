@@ -178,6 +178,50 @@ class OrderDetail(models.Model):
 
     @staticmethod
     def SQL():
+#        return """
+#
+#SELECT odd.*,i.id_image,a.quantity FROM (
+#
+#SELECT 
+#od.id_order_detail,
+#od.product_id AS product_id,od.product_reference AS product_reference,od.product_name,p.ean13 AS product_ean13,od.product_quantity,p.product_type,NULL AS id_pack
+#,o.id_order,o.id_shop
+#,od.product_attribute_id
+#FROM ps17_orders o
+#JOIN ps17_order_detail od ON o.id_order=od.id_order
+#LEFT JOIN ps17_product p ON od.product_id=p.id_product
+#
+#UNION ALL
+#
+#SELECT 
+#od.id_order_detail,
+#pp.id_product AS product_id,pp.reference AS product_reference,
+#CONCAT(od.product_name,'// ',pl.name) AS product_name,pp.ean13 AS product_ean13,
+#od.product_quantity*pa.quantity AS product_quantity,pp.product_type,p.id_product AS id_pack
+#,o.id_order,o.id_shop
+#,pa.id_product_attribute_item AS product_attribute_id
+#FROM ps17_orders o
+#JOIN ps17_order_detail od ON o.id_order=od.id_order
+#JOIN ps17_product p ON od.product_id=p.id_product
+#LEFT OUTER JOIN ps17_pack pa ON p.id_product=pa.id_product_pack AND p.product_type='pack'
+#LEFT OUTER JOIN ps17_product pp  ON pp.id_product=pa.id_product_item
+#LEFT OUTER JOIN ps17_product_lang pl  ON pl.id_product=pa.id_product_item AND pl.id_lang=1 AND pl.id_shop=o.id_shop
+#
+#WHERE 
+#p.product_type='pack'
+#
+#) odd
+#LEFT OUTER JOIN ps17_image i ON odd.product_id=i.id_product AND i.cover=1 
+#LEFT OUTER JOIN ps17_stock_available a ON a.id_product=odd.product_id 
+#/*AND a.id_product_attribute=p.product_attribute_id */
+#AND a.id_shop=odd.id_shop
+#
+#WHERE id_order=6270
+#
+#ORDER BY product_name
+#
+#"""
+
         return """
 SELECT 
 p.id_order_detail,
@@ -196,6 +240,10 @@ i.id_image
     left outer join ps17_product pr on pr.id_product=p.product_id	
 	WHERE id_order=%s order by product_name
 """
+
+
+
+
 
 class ProductNote(models.Model):
     id_product = models.PositiveIntegerField()
