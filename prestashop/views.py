@@ -85,14 +85,14 @@ class OrderDetailListView(generic.ListView):
 
 
         total_qnt = 0
-        total_qnt_items = 0
         for p in context['orderdetail_list']:
-            total_qnt += p.product_quantity
-            total_qnt_items += p.product_quantity*p.unity
+            if p.product_type!='pack':
+                total_qnt += p.product_quantity
+                if '//' in p.product_name:
+                    p.product_type='pack_content'
 
         context['order'] = qs[0]
         context['total_qnt'] = total_qnt
-        context['total_qnt_items'] = total_qnt_items
 
         return context
 

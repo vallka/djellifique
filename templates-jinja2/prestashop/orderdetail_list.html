@@ -41,6 +41,14 @@
   background-color:  springgreen;
 }
 
+.gel_row_pack > div {
+  background-color:#fff4c9;
+}
+.gel_row_pack_content > div {
+  background-color:#f7f3e4;
+}
+
+
 </style>
 
 <div class="gel_table" data-id_order="{{order.id_order}}">
@@ -63,7 +71,7 @@
 
   <div class="gel_tbody">
   {% for order in orderdetail_list %}
-    <div class="product_row gel_row" data-id_product="{{order.id_product}}" data-ean="{{order.product_ean13}}">
+    <div class="product_row gel_row gel_row_{{order.product_type}}" data-id_product="{{order.product_id}}" data-ean="{{order.product_ean13}}">
       <div class="img_col">
         <img src="https://www.gellifique.co.uk/{{order.id_image}}-medium_default/img.jpg">
       </div>
@@ -71,23 +79,22 @@
         <div>
           <b>{{order.product_name}}</b>
           <br>
-          Ref: <b>{{order.product_reference}}</b>
+          <b>{{order.product_reference}}</b>
           <br>
-          Ean: <b>{{order.product_ean13}}</b>
-          <br>
-          {% if order.unity>1 %}{{order.unity}} items{% endif %}
+          <b>{{order.product_ean13}}</b>
         </div>
       </div>
       <div class="qnt_col">
         <div class="qnt_inner">
           <span class="product_quantity">{{order.product_quantity}}</span>
           <br>
-          <span class="product_aquantity">({{order.quantity}})</span>
+          <span class="product_aquantity">({{order.quantity}}+{{order.proc_quantity}})</span>
           <br>
           </div>
 
 
       </div>
+      {% if order.product_type!='pack' %}
       <div class="checkbox">
         <div class="chk_inner">
           <span class="ready_quantity">0</span>
@@ -95,13 +102,16 @@
           <input type="checkbox">
         </div>  
       </div>
+      {% else %}
+        <div>Set</div>
+      {% endif %}
     </div>
   {% endfor %}
   <div class="gel_tfoot">
     <div class="gel_row">
       <div></div>
       <div></div>
-      <div>{{total_qnt}} / {{total_qnt_items}}</div>
+      <div>{{total_qnt}}</div>
       <div></div>
     </div>
   </div>

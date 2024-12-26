@@ -170,76 +170,124 @@ class OrderDetail(models.Model):
     product_reference = models.CharField(max_length=255, blank=True, null=True,editable=False,)
     product_name = models.CharField(max_length=255, blank=True, null=True,editable=False,)
     product_ean13 = models.CharField(max_length=255, blank=True, null=True,editable=False,)
+    product_type = models.CharField(max_length=255, blank=True, null=True,editable=False,)
     product_quantity = models.PositiveIntegerField(editable=False,db_column=None)
-    unity = models.PositiveIntegerField(editable=False,db_column=None)
-    quantity = models.IntegerField(editable=False,db_column=None)
+    att_name = models.CharField(max_length=255, blank=True, null=True,editable=False,)
     id_image = models.PositiveIntegerField(editable=False,db_column=None)
-
+    quantity = models.IntegerField(editable=False,db_column=None)
+    proc_quantity = models.IntegerField(editable=False,db_column=None)
+    proc_quantity_set = models.IntegerField(editable=False,db_column=None)
 
     @staticmethod
     def SQL():
-#        return """
-#
-#SELECT odd.*,i.id_image,a.quantity FROM (
-#
-#SELECT 
-#od.id_order_detail,
-#od.product_id AS product_id,od.product_reference AS product_reference,od.product_name,p.ean13 AS product_ean13,od.product_quantity,p.product_type,NULL AS id_pack
-#,o.id_order,o.id_shop
-#,od.product_attribute_id
-#FROM ps17_orders o
-#JOIN ps17_order_detail od ON o.id_order=od.id_order
-#LEFT JOIN ps17_product p ON od.product_id=p.id_product
-#
-#UNION ALL
-#
-#SELECT 
-#od.id_order_detail,
-#pp.id_product AS product_id,pp.reference AS product_reference,
-#CONCAT(od.product_name,'// ',pl.name) AS product_name,pp.ean13 AS product_ean13,
-#od.product_quantity*pa.quantity AS product_quantity,pp.product_type,p.id_product AS id_pack
-#,o.id_order,o.id_shop
-#,pa.id_product_attribute_item AS product_attribute_id
-#FROM ps17_orders o
-#JOIN ps17_order_detail od ON o.id_order=od.id_order
-#JOIN ps17_product p ON od.product_id=p.id_product
-#LEFT OUTER JOIN ps17_pack pa ON p.id_product=pa.id_product_pack AND p.product_type='pack'
-#LEFT OUTER JOIN ps17_product pp  ON pp.id_product=pa.id_product_item
-#LEFT OUTER JOIN ps17_product_lang pl  ON pl.id_product=pa.id_product_item AND pl.id_lang=1 AND pl.id_shop=o.id_shop
-#
-#WHERE 
-#p.product_type='pack'
-#
-#) odd
-#LEFT OUTER JOIN ps17_image i ON odd.product_id=i.id_product AND i.cover=1 
-#LEFT OUTER JOIN ps17_stock_available a ON a.id_product=odd.product_id 
-#/*AND a.id_product_attribute=p.product_attribute_id */
-#AND a.id_shop=odd.id_shop
-#
-#WHERE id_order=6270
-#
-#ORDER BY product_name
-#
-#"""
-
         return """
+
+
+SELECT odd.id_order_detail,odd.product_id,odd.product_reference,odd.product_name,odd.product_ean13,odd.product_type,odd.product_quantity,
+IF(product_attribute_id=0,'',
+(SELECT NAME FROM ps17_product_attribute_combination pac 
+JOIN ps17_attribute_lang atl ON atl.id_attribute=pac.id_attribute AND atl.id_lang=1
+WHERE pac.id_product_attribute=odd.product_attribute_id 
+)
+) AS att_name,
+i.id_image,a.quantity ,proc_quantity,proc_quantity_set
+
+FROM (
+
 SELECT 
-p.id_order_detail,
-p.product_id as id_product,
-pr.reference as product_reference,
-p.product_name,
-pr.ean13 as product_ean13,
-p.product_quantity,
-IF(pr.product_type='pack',(SELECT COUNT(*) FROM ps17_pack WHERE id_product_pack=p.product_id),1) AS unity,
-a.quantity,
-i.id_image
-	FROM ps17_order_detail p 
-	left outer join ps17_image i on p.product_id=i.id_product and i.cover=1 
-	left outer join ps17_stock_available a on a.id_product=p.product_id and 	
-	a.id_product_attribute=p.product_attribute_id and a.id_shop=(select id_shop from ps17_orders where id_order=p.id_order)
-    left outer join ps17_product pr on pr.id_product=p.product_id	
-	WHERE id_order=%s order by product_name
+od.id_order_detail,
+od.product_id AS product_id,od.product_reference AS product_reference,od.product_name,p.ean13 AS product_ean13,od.product_quantity,p.product_type,NULL AS id_pack
+,o.id_order,o.id_shop
+,od.product_attribute_id
+FROM ps17_orders o
+JOIN ps17_order_detail od ON o.id_order=od.id_order
+JOIN ps17_product p ON od.product_id=p.id_product
+
+UNION ALL
+
+SELECT 
+od.id_order_detail,
+pp.id_product AS product_id,pp.reference AS product_reference,
+CONCAT(od.product_name,'// ',pl.name) AS product_name,pp.ean13 AS product_ean13,
+od.product_quantity*pa.quantity AS product_quantity,pp.product_type,p.id_product AS id_pack
+,o.id_order,o.id_shop
+,pa.id_product_attribute_item AS product_attribute_id
+FROM ps17_orders o
+JOIN ps17_order_detail od ON o.id_order=od.id_order
+JOIN ps17_product p ON od.product_id=p.id_product
+LEFT OUTER JOIN ps17_pack pa ON p.id_product=pa.id_product_pack AND p.product_type='pack'
+LEFT OUTER JOIN ps17_product pp  ON pp.id_product=pa.id_product_item
+LEFT OUTER JOIN ps17_product_lang pl  ON pl.id_product=pa.id_product_item AND pl.id_lang=1 AND pl.id_shop=o.id_shop
+
+WHERE 
+p.product_type='pack'
+
+) odd
+LEFT OUTER JOIN ps17_image i ON odd.product_id=i.id_product AND i.cover=1 
+LEFT OUTER JOIN ps17_stock_available a ON a.id_product=odd.product_id AND a.id_product_attribute=odd.product_attribute_id AND a.id_shop=odd.id_shop
+
+
+LEFT OUTER JOIN (
+SELECT id_product,SUM(product_quantity) proc_quantity,SUM(packed_quantity) proc_quantity_set
+FROM 
+(
+
+
+SELECT oo.id_product,oo.id_order,oo.product_quantity,oo.packed_quantity  FROM
+(
+SELECT 
+od.product_id AS id_product,o.id_order,od.product_quantity,p.product_type,o.current_state,o.date_upd,NULL AS id_pack,o.id_shop,0 AS packed_quantity
+FROM ps17_orders o
+JOIN ps17_order_detail od ON o.id_order=od.id_order
+JOIN ps17_product p ON od.product_id=p.id_product
+
+UNION ALL
+
+SELECT 
+pp.id_product,o.id_order,od.product_quantity*pa.quantity AS product_quantity,pp.product_type,o.current_state,o.date_upd,p.id_product AS id_pack,o.id_shop,od.product_quantity*pa.quantity AS packed_quantity
+FROM ps17_orders o
+JOIN ps17_order_detail od ON o.id_order=od.id_order
+JOIN ps17_product p ON od.product_id=p.id_product
+LEFT OUTER JOIN ps17_pack pa ON p.id_product=pa.id_product_pack AND p.product_type='pack'
+LEFT OUTER JOIN ps17_product pp  ON pp.id_product=pa.id_product_item
+WHERE 
+p.product_type='pack'
+
+) oo
+WHERE
+current_state IN (2,3,9,11,12,17,20,21,22,23,24,25,26,27,31,39,40)
+AND oo.date_upd>DATE_SUB(NOW(),INTERVAL 1 MONTH)
+AND oo.id_shop=1
+
+
+) agg
+GROUP BY agg.id_product
+) aggg ON aggg.id_product=odd.product_id
+
+
+WHERE id_order=%s
+ORDER BY product_name
+
 """
+
+#        return """
+#SELECT 
+#p.id_order_detail,
+#p.product_id as id_product,
+#pr.reference as product_reference,
+#p.product_name,
+#pr.ean13 as product_ean13,
+#p.product_quantity,
+#IF(pr.product_type='pack',(SELECT COUNT(*) FROM ps17_pack WHERE id_product_pack=p.product_id),1) AS unity,
+#a.quantity,
+#i.id_image
+#	FROM ps17_order_detail p 
+#	left outer join ps17_image i on p.product_id=i.id_product and i.cover=1 
+#	left outer join ps17_stock_available a on a.id_product=p.product_id and 	
+#	a.id_product_attribute=p.product_attribute_id and a.id_shop=(select id_shop from ps17_orders where id_order=p.id_order)
+#    left outer join ps17_product pr on pr.id_product=p.product_id	
+#	WHERE id_order=%s order by product_name
+#"""
 
 
 
