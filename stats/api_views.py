@@ -27,7 +27,7 @@ class SalesTableView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         par = self.kwargs.get('par')
 
-        p = DailySalesData.get_data(par) 
+        p = DailySalesData.get_data(par,get_site(request)) 
 
         if par=='y':
             html=p.to_html(columns=['Year','orders','products','GBP_cost','GBP_p_exVAT','VAT 20pc','GBP_products','GBP_shipping','GBP_paid','P estimated','Gross Margin','GM estimated'],index=False)
@@ -69,7 +69,7 @@ class SalesFigView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
         par = self.kwargs.get('par')
 
-        p = DailySalesData.get_data(par) 
+        p = DailySalesData.get_data(par,get_site(request)) 
 
         if par=='y':
             p.loc[p.index[1],'P estimated'] = p.loc[p.index[1],'GBP_products']
@@ -177,7 +177,7 @@ class CustomersTableView(generics.ListAPIView):
         par = self.kwargs.get('par')
 
         print('par',par)
-        p = MonthlyCustomersData.get_data(par) 
+        p = MonthlyCustomersData.get_data(par,get_site(request)) 
 
         if par=='y':
             p = p.rename(columns={'month':'year'})
@@ -204,7 +204,7 @@ class TotalCustomersTableView(generics.ListAPIView):
         par = self.kwargs.get('par')
 
         print('par',par)
-        p = MonthlyTotalCustomersData.get_data(par) 
+        p = MonthlyTotalCustomersData.get_data(par,get_site(request)) 
 
         html=p.to_html(
                 index=False,
@@ -226,7 +226,7 @@ class CustomersBehaviourTableView(generics.ListAPIView):
         par = self.kwargs.get('par')
 
         print('par=',par)
-        p = CustomersBehaviourData.get_data(par) 
+        p = CustomersBehaviourData.get_data(par,get_site(request)) 
 
 
         if par=='g':
@@ -333,7 +333,7 @@ class ProductsTableView(generics.ListAPIView):
         if len(pars) > 1: cat = pars[1]
         print('par',par,cat)
         
-        p = ProductsData.get_data(par) 
+        p = ProductsData.get_data(par,get_site(request)) 
 
         if cat=='x':
             p = p[(p['bt']==0) & (p['gelclr']==0) & (p['procare']==0) & (p['soakoff']==0) & (p['fileoff']==0) & (p['acry']==0) & (p['qt']==0) & (p['outlet']==0) & (p['archive']==0)]
@@ -374,7 +374,7 @@ class StockTableView(generics.ListAPIView):
         if len(pars) > 1: cat = pars[1]
         ic('par',par,cat)
         
-        p = StockData.get_data(par) 
+        p = StockData.get_data(par,get_site(request)) 
 
         if par=='*':
             last_dt=max(p['date_add'])
@@ -396,7 +396,7 @@ class StockTableView(generics.ListAPIView):
             if cat:
                 for id in p['id_product']:
                     try:
-                        p1 =StockData.get_data(id)  
+                        p1 =StockData.get_data(id,get_site(request))  
                         #ic (id,p1.iloc[-1])
                         if p1.iloc[-1].get('getting_out'):
                             p.loc[p['id_product']==id,'out_of_stock'] = p1.iloc[-1]['date_add'].date()
@@ -438,7 +438,7 @@ class StockFigView(generics.ListAPIView):
 
         print('StockFigView:'+par)
 
-        p = StockData.get_data(par) 
+        p = StockData.get_data(par,get_site(request)) 
         #print(p[0:5])
 
         if par!='*':

@@ -9,6 +9,12 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+def get_site(request):
+    host = request.META['HTTP_HOST']
+    if '127.0.0.1' in host or 'gellifique.eu' in host:
+        return 'eu'
+    else:
+        return 'uk'
 
 # Create your views here.
 class PageView(LoginRequiredMixin,generic.TemplateView):

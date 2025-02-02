@@ -25,7 +25,8 @@ class DailySalesData(models.Model):
     @staticmethod
     def dtypes():
         return {
-            'date_add':'M',
+            #'date_add':'M',
+            'date_add':'datetime64[s]',
             'products':'i',
             'orders':'i',
             'GBP_cost':'float64',
@@ -62,8 +63,8 @@ ORDER BY date_add DESC
 
         return sql        
 
-    def get_data(par='d'):
-        store_path = settings.MEDIA_ROOT + '/statsdata-v3.pkl'
+    def get_data(par='d',site='uk'):
+        store_path = settings.MEDIA_ROOT + f'/{site}' + '/statsdata-v3.pkl'
         
         try:
             tm = os.path.getmtime(store_path) 
@@ -73,7 +74,7 @@ ORDER BY date_add DESC
             p = pd.read_pickle(store_path)
         except Exception as e:
             print (e)
-            queryset = DailySalesData.objects.using('presta').raw(DailySalesData.SQL())
+            queryset = DailySalesData.objects.using('presta_eu' if site=='eu' else 'presta').raw(DailySalesData.SQL())
             p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
             p = p.astype(DailySalesData.dtypes())
 
@@ -380,9 +381,9 @@ ORDER BY 1 DESC
         }
 
     @classmethod
-    def get_data(cls,par='m'):
+    def get_data(cls,par='m',site='uk'):
         print('par',par)
-        store_path = settings.MEDIA_ROOT + f'/stats-customers-data-{par}-v1.pkl'
+        store_path = settings.MEDIA_ROOT  + f'/{site}' + f'/stats-customers-data-{par}-v1.pkl'
         
         try:
             tm = os.path.getmtime(store_path) 
@@ -393,7 +394,7 @@ ORDER BY 1 DESC
         except Exception as e:
             print (e)
             print(cls.SQL(par))
-            queryset = cls.objects.using('presta').raw(cls.SQL(par))
+            queryset = cls.objects.using('presta_eu' if site=='eu' else 'presta').raw(cls.SQL(par))
             p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
             p = p.astype(cls.dtypes())
 
@@ -465,9 +466,9 @@ ORDER BY year_mon
         }
 
     @classmethod
-    def get_data(cls,par='t'):
+    def get_data(cls,par='t',site='uk'):
         print('par',par)
-        store_path = settings.MEDIA_ROOT + f'/stats-customers-data-{par}-v1.pkl'
+        store_path = settings.MEDIA_ROOT  + f'/{site}' + f'/stats-customers-data-{par}-v1.pkl'
         
         try:
             tm = os.path.getmtime(store_path) 
@@ -479,7 +480,7 @@ ORDER BY year_mon
         except Exception as e:
             print (e)
             print(cls.SQL())
-            queryset = cls.objects.using('presta').raw(cls.SQL())
+            queryset = cls.objects.using('presta_eu' if site=='eu' else 'presta').raw(cls.SQL())
             p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
             p = p.astype(cls.dtypes())
 
@@ -549,20 +550,24 @@ WHERE orders>0
             'id_customer':'i',
             'id_default_group':'i',
             'orders':'i',
-            'order_first':'M',
-            'order_last':'M',
-            'order_due':'M',
+            #'order_first':'M',
+            #'order_last':'M',
+            #'order_due':'M',
+            'order_first':'datetime64[s]',
+            'order_last':'datetime64[s]',
+            'order_due':'datetime64[s]',
             'total_gbp':'f',
             'avg_order_gbp':'f',
             'orders_apart_days':'f',
             'order_missed':'f',
-            'last_cart':'M',
+            #'last_cart':'M',
+            'last_cart':'datetime64[s]',
         }
 
     @classmethod
-    def get_data(cls,par='c'):
+    def get_data(cls,par='c',site='uk'):
         print('par',par)
-        store_path = settings.MEDIA_ROOT + f'/stats-customers-behaviour-v2.pkl'
+        store_path = settings.MEDIA_ROOT  + f'/{site}' + f'/stats-customers-behaviour-v2.pkl'
         
         try:
             tm = os.path.getmtime(store_path) 
@@ -573,7 +578,7 @@ WHERE orders>0
         except Exception as e:
             print (e)
             print(cls.SQL())
-            queryset = cls.objects.using('presta').raw(cls.SQL())
+            queryset = cls.objects.using('presta_eu' if site=='eu' else 'presta').raw(cls.SQL())
             p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
             p = p.astype(cls.dtypes())
 
@@ -641,8 +646,10 @@ ORDER BY aa.quantity DESC
         return {
             'id_product':'f',
             'sold':'i',
-            'min_date':'M',
-            'max_date':'M',
+            #'min_date':'M',
+            #'max_date':'M',
+            'min_date':'datetime64[s]',
+            'max_date':'datetime64[s]',
             'bt':'i',
             'gelclr':'i',	
             'procare':'i',	
@@ -655,9 +662,9 @@ ORDER BY aa.quantity DESC
         }
 
     @classmethod
-    def get_data(cls,par='c'):
+    def get_data(cls,par='c',site='uk'):
         print('par',par)
-        store_path = settings.MEDIA_ROOT + f'/stats-products-v4.pkl'
+        store_path = settings.MEDIA_ROOT  + f'/{site}' + f'/stats-products-v4.pkl'
         
         try:
             tm = os.path.getmtime(store_path) 
@@ -668,7 +675,7 @@ ORDER BY aa.quantity DESC
         except Exception as e:
             print (e)
             print(cls.SQL())
-            queryset = cls.objects.using('presta').raw(cls.SQL())
+            queryset = cls.objects.using('presta_eu' if site=='eu' else 'presta').raw(cls.SQL())
             p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
             p = p.astype(cls.dtypes())
 
@@ -705,7 +712,8 @@ ORDER BY aa.quantity DESC
                                                 'archive':np.max,
                                                 })
 
-            p['months_in_sale'] = (p['max_date'].astype('M')-p['min_date'].astype('M'))/np.timedelta64(1,'M')
+            #p['months_in_sale'] = (p['max_date'].astype('M')-p['min_date'].astype('M'))/np.timedelta64(1,'M')
+            p['months_in_sale'] = (p['max_date'].astype('datetime64[s]')-p['min_date'].astype('datetime64[s]'))/(np.timedelta64(1,'s')*30.44 * 24 * 60 * 60)
             p['per_month'] = p['sold'] / p['months_in_sale']
             p.loc[p['months_in_sale']==0,'per_month']=0
 
@@ -768,7 +776,8 @@ class StockData(models.Model):
             'id':'i',
             'id_product':'str',
             'qnt':'i',
-            'date_add':'M',
+            #'date_add':'M',
+            'date_add':'datetime64[s]',
             'bt':'i',
             'gelclr':'i',	
             'procare':'i',	
@@ -781,9 +790,9 @@ class StockData(models.Model):
         }
 
     @classmethod
-    def get_data(cls,par='*'):
+    def get_data(cls,par='*',site='uk'):
         #ic('par',par)
-        store_path = settings.MEDIA_ROOT + f'/stats-stock-v2.pkl'
+        store_path =  settings.MEDIA_ROOT  + f'/{site}' + f'/stats-stock-v2.pkl'
         
         try:
             tm = os.path.getmtime(store_path) 
@@ -794,7 +803,7 @@ class StockData(models.Model):
         except Exception as e:
             ic (e)
             ic(cls.SQL())
-            queryset = cls.objects.using('presta').raw(cls.SQL())
+            queryset = cls.objects.using('presta_eu' if site=='eu' else 'presta').raw(cls.SQL())
             p = pd.DataFrame(raw_queryset_as_values_list(queryset), columns=list(queryset.columns))
             p = p.astype(cls.dtypes())
 
@@ -802,7 +811,7 @@ class StockData(models.Model):
             p.to_pickle(store_path)
             
         if par!='*':
-            store_path = settings.MEDIA_ROOT + f'/stats-stock-{par}-v1.pkl'
+            store_path = settings.MEDIA_ROOT  + f'/{site}' + f'/stats-stock-{par}-v1.pkl'
 
             try:
                 tm = os.path.getmtime(store_path) 
