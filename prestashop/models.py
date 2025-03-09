@@ -110,7 +110,7 @@ class Order(models.Model):
     phone = models.CharField(max_length=255, blank=True, editable=False,)
     country = models.CharField(max_length=255, blank=True, editable=False,)
     currency_code = models.CharField(max_length=3, blank=True, editable=False,)
-    total_paid  = models.FloatField(blank=True, editable=False,)
+    total_paid  = models.DecimalField(blank=True, editable=False,max_digits=6, decimal_places=2)
     total_products_wt   = models.FloatField(blank=True, editable=False,)
     total_shipping_tax_incl  = models.FloatField(blank=True, editable=False,)
     date_add  = models.DateTimeField(blank=True, editable=False,)

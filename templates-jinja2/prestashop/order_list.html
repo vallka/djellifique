@@ -14,12 +14,18 @@
   background-color:  springgreen;
 }
 
+.new {
+    font-weight: bold;
+    background-color: #1ac41a;
+    color: white;
+    padding: 0 1px;
+}
 </style>
   
 <div class="gel_table">
   <div class="gel_thead">
     <div class="gel_row">
-          <div>ref / id
+          <div>id/ref/paid
           </div>
           <div>customer</div>
           <div>state</div>
@@ -29,15 +35,19 @@
   <div class="gel_tbody">
     {% for order in order_list %}
       <div class="gel_row" data-id_order="{{order.id_order}}">
-          <div><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.reference}}</a> <br />
+          <div>
             <a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.id_order}}</a>
+            <br>
+            <a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.reference}}</a>
+            <br>
+            {% if order.currency_code=='GBP' %}£{% endif %}{{ order.total_paid | round(2) }}
           </div>
           <div><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.firstname}} {{order.lastname}}</a>
             {% if order.is_new %}  
-            *NEW*
+            <span class="new">N</span>
             {% endif %}
             <br />
-            {{order.country}}
+            {%if order.country=='United Kingdom'%}{%else%}{{order.country}}:{% endif %} {{order.postcode}}
           </div>
           <div class="order_state"><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.order_state}}</a></div>
           <div><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.date_add.strftime("%d/%m/%y %H:%M")}}</a></div>

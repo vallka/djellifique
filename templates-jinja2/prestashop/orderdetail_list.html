@@ -7,6 +7,10 @@
 {% if orderdetail_list %}
 
 <style>
+
+.gel_thead > div {
+    padding: 3px;
+}
 .gel_row {
   grid-template-columns: 120px 1fr 5em 3em;
 }
@@ -45,7 +49,13 @@
   background-color:#fff4c9;
 }
 .gel_row_pack_content > div {
-  background-color:#f7f3e4;
+  background-color:#fffcf2;
+}
+.new {
+    font-weight: bold;
+    background-color: #1ac41a;
+    color: white;
+    padding: 0 1px;
 }
 
 
@@ -55,18 +65,15 @@
   <div class="gel_thead">
     <div>{{order.reference}} (<span id="id_order">{{order.id_order}}</span>) {{order.firstname}} {{order.lastname}} 
       {% if order.is_new %}  
-      (*NEW*)
+      <span class="new">N</span>
       {% endif %}
-      {{order.order_state}} ({{order.id_order_state}})
+      {{order.order_state}}
     
     <span class="back_link"> <a href="..">&lt;&lt;</a> </span>
+    <span class="back_link"> <a href="..">&lt;&lt;</a> </span>
+    <span class="back_link"> <a href="..">&gt;&gt;</a> </span>
     </div>
-    <div class="gel_row">
-      <div>image</div>
-      <div>name</div>
-      <div>qnt</div>
-      <div></div>
-    </div>
+    
   </div>
 
   <div class="gel_tbody">
@@ -288,6 +295,7 @@ function updateOrder(id_product,product_quantity,ready_quantity) {
   window.localStorage.removeItem('o'+id_order);
   window.localStorage.setItem('o'+id_order, JSON.stringify(order));
 
+  const n_products = $('.product_row').length - $('.product_row.gel_row_pack').length;
 
   let ready = 0;
   $.each(order,function(key,element){
@@ -297,13 +305,13 @@ function updateOrder(id_product,product_quantity,ready_quantity) {
   });
 
 
-  if (ready && $('.product_row').length==ready) {
-    console.log('+ready');
+  if (ready && n_products==ready) {
+    console.log('+ready',ready,n_products);
     window.localStorage.setItem('o'+id_order+'-ready', true);
     $('#btn-update-status').show();
   }
   else {
-    console.log('-not ready');
+    console.log('-not ready',ready,n_products);
     window.localStorage.removeItem('o'+id_order+'-ready');
     $('#btn-update-status').hide();
   }

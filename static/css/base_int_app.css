@@ -438,6 +438,7 @@ hr.after-post {
   background-color:darkgrey;
   gap: 1px;
   padding: 0 1px 1px 1px;
+  width: 100%;
 }
 
 .gel_row > div {
