@@ -144,7 +144,9 @@ class Order(models.Model):
         ,total_paid ,total_products_wt ,total_shipping_tax_incl,o.date_add,o.date_upd
         ,o.id_customer,o.id_address_delivery,a.id_country
         ,ca.name as carrier
-        ,IF((SELECT so.id_order FROM `ps17_orders` so WHERE so.id_customer = o.id_customer AND so.id_order < o.id_order LIMIT 1) > 0, 0, 1) as is_new
+        ,IF((SELECT so.id_order FROM `ps17_orders` so WHERE so.id_customer = o.id_customer AND so.id_order < o.id_order LIMIT 1) > 0, 0, 1) as is_new,
+        (SELECT id_order FROM ps17_orders o_prev WHERE o_prev.id_order<o.id_order ORDER BY id_order DESC LIMIT 1) AS id_order_prev,
+        (SELECT id_order FROM ps17_orders o_prev WHERE o_prev.id_order>o.id_order ORDER BY id_order DESC LIMIT 1) AS id_order_next
         FROM `ps17_orders` o
         JOIN ps17_customer c on o.id_customer=c.id_customer
         JOIN ps17_address a on id_address_delivery=a.id_address
@@ -190,7 +192,7 @@ JOIN ps17_attribute_lang atl ON atl.id_attribute=pac.id_attribute AND atl.id_lan
 WHERE pac.id_product_attribute=odd.product_attribute_id 
 )
 ) AS att_name,
-i.id_image,a.quantity ,proc_quantity,proc_quantity_set
+i.id_image,a.quantity ,proc_quantity,proc_quantity_set,id_pack
 
 FROM (
 

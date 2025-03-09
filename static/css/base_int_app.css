@@ -446,6 +446,13 @@ hr.after-post {
   text-align: center;
 
 }
+
+.gel_row_done > div {
+  background-color:#f7f7f7;
+}
+
+
+
 .gel_thead {
   font-weight: bold;
 }

@@ -69,16 +69,16 @@
       {% endif %}
       {{order.order_state}}
     
-    <span class="back_link"> <a href="..">&lt;&lt;</a> </span>
-    <span class="back_link"> <a href="..">&lt;&lt;</a> </span>
-    <span class="back_link"> <a href="..">&gt;&gt;</a> </span>
+      {% if order.id_order_next %}<span class="back_link"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_next]) }}">&gt;&gt;</a> </span>{% endif %}
+      <span class="back_link"> <a href="{{ url ('prestashop:order') }}">^</a> </span>
+      {% if order.id_order_prev %}<span class="back_link"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_prev]) }}">&lt;&lt;</a> </span>{% endif %}
     </div>
     
   </div>
 
   <div class="gel_tbody">
   {% for order in orderdetail_list %}
-    <div class="product_row gel_row gel_row_{{order.product_type}}" data-id_product="{{order.product_id}}" data-ean="{{order.product_ean13}}">
+    <div class="product_row gel_row gel_row_{{order.product_type}}" data-id_product="{{order.product_id}}" data-ean="{{order.product_ean13}}" {% if order.id_pack %}data-id_pack="{{order.id_pack}}"{% endif %}>
       <div class="img_col">
         <img src="https://www.gellifique.co.uk/{{order.id_image}}-medium_default/img.jpg">
       </div>

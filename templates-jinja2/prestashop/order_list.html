@@ -34,7 +34,7 @@
   </div>
   <div class="gel_tbody">
     {% for order in order_list %}
-      <div class="gel_row" data-id_order="{{order.id_order}}">
+      <div class="gel_row {% if order.id_order_state>=4 and order.id_order_state<=6 %}gel_row_done {% endif %}" data-id_order="{{order.id_order}}">
           <div>
             <a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.id_order}}</a>
             <br>
@@ -49,7 +49,7 @@
             <br />
             {%if order.country=='United Kingdom'%}{%else%}{{order.country}}:{% endif %} {{order.postcode}}
           </div>
-          <div class="order_state"><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.order_state}}</a></div>
+          <div class="order_state"><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.order_state}}</a> {{order.id_order_state}}</div>
           <div><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.date_add.strftime("%d/%m/%y %H:%M")}}</a></div>
       </div>
       {% endfor %}

@@ -83,12 +83,11 @@ class OrderDetailListView(generic.ListView):
         print(sql,self.kwargs['id_order'])
         qs = Order.objects.using(db).raw(sql,[self.kwargs['id_order']])
 
-
         total_qnt = 0
         for p in context['orderdetail_list']:
             if p.product_type!='pack':
-                total_qnt += p.product_quantity
-                if '//' in p.product_name:
+                total_qnt += int(p.product_quantity or 0)
+                if '//' in (p.product_name or ''):
                     p.product_type='pack_content'
 
         context['order'] = qs[0]
