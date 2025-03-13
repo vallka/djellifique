@@ -146,7 +146,7 @@ class Order(models.Model):
         ,ca.name as carrier
         ,IF((SELECT so.id_order FROM `ps17_orders` so WHERE so.id_customer = o.id_customer AND so.id_order < o.id_order LIMIT 1) > 0, 0, 1) as is_new,
         (SELECT id_order FROM ps17_orders o_prev WHERE o_prev.id_order<o.id_order ORDER BY id_order DESC LIMIT 1) AS id_order_prev,
-        (SELECT id_order FROM ps17_orders o_prev WHERE o_prev.id_order>o.id_order ORDER BY id_order DESC LIMIT 1) AS id_order_next
+        (SELECT id_order FROM ps17_orders o_prev WHERE o_prev.id_order>o.id_order ORDER BY id_order ASC LIMIT 1) AS id_order_next
         FROM `ps17_orders` o
         JOIN ps17_customer c on o.id_customer=c.id_customer
         JOIN ps17_address a on id_address_delivery=a.id_address
@@ -185,7 +185,9 @@ class OrderDetail(models.Model):
         return """
 
 
-SELECT odd.id_order_detail,odd.product_id,odd.product_reference,odd.product_name,odd.product_ean13,odd.product_type,odd.product_quantity,
+SELECT odd.id_order_detail,odd.product_id,odd.product_reference,odd.product_name,
+COALESCE((SELECT ean13 FROM ps17_product_attribute att WHERE att.id_product_attribute=odd.product_attribute_id),odd.product_ean13) product_ean13,
+odd.product_type,odd.product_quantity,
 IF(product_attribute_id=0,'',
 (SELECT NAME FROM ps17_product_attribute_combination pac 
 JOIN ps17_attribute_lang atl ON atl.id_attribute=pac.id_attribute AND atl.id_lang=1
