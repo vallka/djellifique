@@ -38,6 +38,9 @@ class SalesTableView(generics.ListAPIView):
         elif par=='m':
             html=p.to_html(columns=['Month','orders','products','GBP_cost','GBP_p_exVAT','VAT 20pc','GBP_products','GBP_shipping','GBP_paid','P estimated','Gross Margin','GM estimated'],index=False)
 
+        elif par=='w':
+            html=p.to_html(columns=['Week','orders','products','GBP_cost','GBP_p_exVAT','VAT 20pc','GBP_products','GBP_shipping','GBP_paid','P estimated','Gross Margin','GM estimated'],index=False)
+
         elif par=='d':
             html=p.to_html(columns=['Date','orders','products','GBP_cost','GBP_p_exVAT','VAT 20pc','GBP_products','GBP_shipping','GBP_paid','Gross Margin'],index=False)
 
@@ -108,6 +111,18 @@ class SalesFigView(generics.ListAPIView):
                     'variable':' ',
                 },
                 title="Monthly sales",width=1200, height=500)
+            fig.update_xaxes(rangeslider_visible=True, dtick='M1')
+
+        elif par=='w':
+            p.loc[p.index[1],'P estimated'] = p.loc[p.index[1],'GBP_products']
+            p.loc[p.index[1],'GM estimated'] = p.loc[p.index[1],'Gross Margin']
+
+            fig = px.line(p,x='Week', y=['GBP_products','P estimated','Gross Margin','GM estimated'],
+                labels={
+                    'value':'GBP',
+                    'variable':' ',
+                },
+                title="Weekly sales",width=1200, height=500)
             fig.update_xaxes(rangeslider_visible=True, dtick='M1')
 
         elif par=='d':

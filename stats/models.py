@@ -79,6 +79,8 @@ ORDER BY date_add DESC
             p = p.astype(DailySalesData.dtypes())
 
             p['Y'] = p['date_add'].dt.year
+            p['W'] = p['date_add'].dt.isocalendar().week
+            p['WD'] = p['date_add'].dt.isocalendar().day
             p['M'] = p['date_add'].dt.month
             p['D'] = p['date_add'].dt.day
             p['Q'] = p['date_add'].dt.quarter
@@ -146,6 +148,28 @@ ORDER BY date_add DESC
             p['Month'] = p['Y'].astype(str)+'-'+p['M'].astype(str)
             p.loc[p.index[0],'P estimated'] = round(p.loc[p.index[0],'GBP_products']*p.loc[p.index[0],'DIM']/p.loc[p.index[0],'D'],2)
             p.loc[p.index[0],'GM estimated'] = round(p.loc[p.index[0],'Gross Margin']*p.loc[p.index[0],'DIM']/p.loc[p.index[0],'D'],2)
+
+        elif par=='w':
+            p = p.groupby(['Y','W']).agg({'products':np.sum,
+                                                'orders':np.sum,
+                                                'GBP_cost':np.sum,
+                                                'GBP_products':np.sum,
+                                                'GBP_p_exVAT':np.sum,
+                                                'GBP_shipping':np.sum,
+                                                'GBP_paid':np.sum,
+                                                'VAT 20pc':np.sum,
+                                                'Gross Margin':np.sum,
+                                                'D':np.max,
+                                                'DIM':np.max,
+                                                }).sort_index(ascending=False)
+            p.reset_index(inplace=True)
+            p['Week'] = p['Y'].astype(str)+'-'+p['W'].astype(str)
+            p.loc[p.index[0],'P estimated'] = None
+            p.loc[p.index[0],'GM estimated'] = None
+
+            #p.loc[p.index[0],'P estimated'] = round(p.loc[p.index[0],'GBP_products']*7/p.loc[p.index[0],'WD'],2)
+            #p.loc[p.index[0],'GM estimated'] = round(p.loc[p.index[0],'Gross Margin']*7/p.loc[p.index[0],'WD'],2)
+            p = p[0:54]
 
         elif par=='d':
             p['Date'] = p['date_add'].astype(str)
