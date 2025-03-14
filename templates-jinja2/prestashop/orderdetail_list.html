@@ -61,6 +61,13 @@
 
 </style>
 
+<div style="text-align: center;">
+  {% if order.id_order_prev %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_prev]) }}"><i class="fa fa-backward"></i></a></span>{% endif %}
+  <span style="padding: 3px;"> <a href="{{ url ('prestashop:order') }}"><i class="fa fa-eject"></i></a> </span>
+  {% if order.id_order_next %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_next]) }}"><i class="fa fa-forward"></i></a></span>{% endif %}
+
+</div>
+
 <div class="gel_table" data-id_order="{{order.id_order}}">
   <div class="gel_thead">
     <div>{{order.reference}} (<span id="id_order">{{order.id_order}}</span>) {{order.firstname}} {{order.lastname}} 
@@ -68,10 +75,6 @@
       <span class="new">N</span>
       {% endif %}
       {{order.order_state}}
-    
-      {% if order.id_order_next %}<span class="back_link"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_next]) }}">&gt;&gt;</a> </span>{% endif %}
-      <span class="back_link"> <a href="{{ url ('prestashop:order') }}">^</a> </span>
-      {% if order.id_order_prev %}<span class="back_link"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_prev]) }}">&lt;&lt;</a> </span>{% endif %}
     </div>
     
   </div>

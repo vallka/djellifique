@@ -51,6 +51,29 @@ class OrderListView(generic.ListView):
         #logger.error(qs)
         return qs
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        sql = """
+            SELECT name,COUNT(id_order) o_qnt FROM ps17_orders o 
+            JOIN ps17_order_state_lang sl ON sl.id_order_state=o.current_state AND sl.id_lang=1 
+            WHERE
+            current_state  IN (2,3,9,11,12,17,20,21,22,23,24,25,26,27,31,39,40)
+            AND o.date_add>=DATE_SUB(NOW(),INTERVAL 1 MONTH)
+            GROUP BY name
+            ORDER BY name
+        """
+
+        with connections[db].cursor() as cursor:
+            cursor.execute(sql)
+            result = cursor.fetchall()
+        context['o_qnt'] = result
+
+        print(result)
+
+        return context
+
+
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order

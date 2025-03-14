@@ -183,18 +183,19 @@ class OrderDetail(models.Model):
     @staticmethod
     def SQL():
         return """
-
-
 SELECT odd.id_order_detail,odd.product_id,odd.product_reference,odd.product_name,
-COALESCE((SELECT ean13 FROM ps17_product_attribute att WHERE att.id_product_attribute=odd.product_attribute_id),odd.product_ean13) product_ean13,
-odd.product_type,odd.product_quantity,
+COALESCE((SELECT ean13 FROM ps17_product_attribute att WHERE att.id_product_attribute=odd.product_attribute_id),odd.product_ean13) product_ean13
+,odd.product_type,odd.product_quantity,
 IF(product_attribute_id=0,'',
 (SELECT NAME FROM ps17_product_attribute_combination pac 
 JOIN ps17_attribute_lang atl ON atl.id_attribute=pac.id_attribute AND atl.id_lang=1
 WHERE pac.id_product_attribute=odd.product_attribute_id 
 )
 ) AS att_name,
-i.id_image,a.quantity ,proc_quantity,proc_quantity_set,id_pack
+COALESCE(
+(SELECT ai.id_image FROM ps17_product_attribute_image ai,ps17_image ai2 WHERE odd.product_attribute_id=ai.id_product_attribute AND ai.id_image=ai2.id_image ORDER BY POSITION LIMIT 1),
+i.id_image) AS id_image,
+a.quantity ,proc_quantity,proc_quantity_set,id_pack
 
 FROM (
 
