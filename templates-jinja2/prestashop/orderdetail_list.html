@@ -61,7 +61,7 @@
 
 </style>
 
-<div style="text-align: center;">
+<div style="text-align: center;font-size: 24px;">
   {% if order.id_order_prev %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_prev]) }}"><i class="fa fa-backward"></i></a></span>{% endif %}
   <span style="padding: 3px;"> <a href="{{ url ('prestashop:order') }}"><i class="fa fa-eject"></i></a> </span>
   {% if order.id_order_next %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_next]) }}"><i class="fa fa-forward"></i></a></span>{% endif %}
@@ -92,13 +92,18 @@
           <b>{{order.product_reference}}</b>
           <br>
           <b>{{order.product_ean13}}</b>
+          <br>
+          <b>£{{order.unit_price_tax_incl | round(2)}}</b>
         </div>
       </div>
       <div class="qnt_col">
         <div class="qnt_inner">
           <span class="product_quantity">{{order.product_quantity}}</span>
           <br>
-          <span class="product_aquantity">({{order.quantity}}+{{order.proc_quantity}})</span>
+          <br>
+          Avail:
+          <br>
+          <span class="product_aquantity">{{order.quantity}}{% if order.proc_quantity %}({{order.proc_quantity}}){% endif %}</span>
           <br>
           </div>
 

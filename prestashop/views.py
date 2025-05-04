@@ -64,6 +64,11 @@ class OrderListView(generic.ListView):
             ORDER BY name
         """
 
+        if '127.0.0.1' in self.request.META['HTTP_HOST'] or 'gellifique.eu' in self.request.META['HTTP_HOST']:
+            db = 'presta_eu'
+        else:
+            db = 'presta'
+
         with connections[db].cursor() as cursor:
             cursor.execute(sql)
             result = cursor.fetchall()

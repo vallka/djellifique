@@ -184,7 +184,9 @@ class OrderDetail(models.Model):
     def SQL():
         return """
 SELECT odd.id_order_detail,odd.product_id,odd.product_reference,odd.product_name,
+
 COALESCE((SELECT ean13 FROM ps17_product_attribute att WHERE att.id_product_attribute=odd.product_attribute_id),odd.product_ean13) product_ean13
+
 ,odd.product_type,odd.product_quantity,
 IF(product_attribute_id=0,'',
 (SELECT NAME FROM ps17_product_attribute_combination pac 
@@ -195,7 +197,8 @@ WHERE pac.id_product_attribute=odd.product_attribute_id
 COALESCE(
 (SELECT ai.id_image FROM ps17_product_attribute_image ai,ps17_image ai2 WHERE odd.product_attribute_id=ai.id_product_attribute AND ai.id_image=ai2.id_image ORDER BY POSITION LIMIT 1),
 i.id_image) AS id_image,
-a.quantity ,proc_quantity,proc_quantity_set,id_pack
+
+a.quantity ,proc_quantity,proc_quantity_set,id_pack,unit_price_tax_incl
 
 FROM (
 
@@ -204,6 +207,7 @@ od.id_order_detail,
 od.product_id AS product_id,od.product_reference AS product_reference,od.product_name,p.ean13 AS product_ean13,od.product_quantity,p.product_type,NULL AS id_pack
 ,o.id_order,o.id_shop
 ,od.product_attribute_id
+,od.unit_price_tax_incl
 FROM ps17_orders o
 JOIN ps17_order_detail od ON o.id_order=od.id_order
 JOIN ps17_product p ON od.product_id=p.id_product
@@ -217,12 +221,14 @@ CONCAT(od.product_name,'// ',pl.name) AS product_name,pp.ean13 AS product_ean13,
 od.product_quantity*pa.quantity AS product_quantity,pp.product_type,p.id_product AS id_pack
 ,o.id_order,o.id_shop
 ,pa.id_product_attribute_item AS product_attribute_id
+,pps.price*1.2 AS unit_price_tax_incl
 FROM ps17_orders o
 JOIN ps17_order_detail od ON o.id_order=od.id_order
 JOIN ps17_product p ON od.product_id=p.id_product
 LEFT OUTER JOIN ps17_pack pa ON p.id_product=pa.id_product_pack AND p.product_type='pack'
 LEFT OUTER JOIN ps17_product pp  ON pp.id_product=pa.id_product_item
 LEFT OUTER JOIN ps17_product_lang pl  ON pl.id_product=pa.id_product_item AND pl.id_lang=1 AND pl.id_shop=o.id_shop
+LEFT OUTER JOIN ps17_product_shop pps  ON pps.id_product=pa.id_product_item AND pps.id_shop=o.id_shop
 
 WHERE 
 p.product_type='pack'
@@ -230,6 +236,7 @@ p.product_type='pack'
 ) odd
 LEFT OUTER JOIN ps17_image i ON odd.product_id=i.id_product AND i.cover=1 
 LEFT OUTER JOIN ps17_stock_available a ON a.id_product=odd.product_id AND a.id_product_attribute=odd.product_attribute_id AND a.id_shop=odd.id_shop
+ 
 
 
 LEFT OUTER JOIN (
