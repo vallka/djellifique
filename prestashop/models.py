@@ -146,10 +146,12 @@ class Order(models.Model):
         ,ca.name as carrier
         ,IF((SELECT so.id_order FROM `ps17_orders` so WHERE so.id_customer = o.id_customer AND so.id_order < o.id_order LIMIT 1) > 0, 0, 1) as is_new,
         (SELECT id_order FROM ps17_orders o_prev WHERE o_prev.id_order<o.id_order ORDER BY id_order DESC LIMIT 1) AS id_order_prev,
-        (SELECT id_order FROM ps17_orders o_prev WHERE o_prev.id_order>o.id_order ORDER BY id_order ASC LIMIT 1) AS id_order_next
+        (SELECT id_order FROM ps17_orders o_prev WHERE o_prev.id_order>o.id_order ORDER BY id_order ASC LIMIT 1) AS id_order_next,
+        g.name as group_name
         FROM `ps17_orders` o
         JOIN ps17_customer c on o.id_customer=c.id_customer
         JOIN ps17_address a on id_address_delivery=a.id_address
+        JOIN ps17_group_lang g on g.id_group=c.id_default_group and g.id_lang=1 
         join ps17_carrier ca on ca.id_carrier=o.id_carrier
         join ps17_currency cu on cu.id_currency=o.id_currency
         WHERE o.date_add>=DATE_SUB(NOW(),INTERVAL 1 MONTH)
@@ -332,7 +334,7 @@ class PrintCategory:
         h={'Accept':'application/json, text/javascript, */*; q=0.01'}
         r=requests.get(f'https://{server}/category({id_category})?order=product.position.asc',headers=h)
 
-        print(r)
+        #print(r)
 
         self.response = json.loads(r.text)
 
@@ -347,7 +349,7 @@ class PrintCategory:
 
         self.products = self.response['products']
 
-        print(len(self.products))
+        #print(len(self.products))
 
         self.rendered_products_header = self.response['rendered_products_header']
         self.rendered_products = self.response['rendered_products'].replace(' (HEMA FREE)','')

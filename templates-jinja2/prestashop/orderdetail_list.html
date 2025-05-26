@@ -57,6 +57,17 @@
     color: white;
     padding: 0 1px;
 }
+.group_name {
+    font-weight: bold;
+    background-color: #f0a953;
+    color: white;
+    padding: 0 1px;
+}
+.order_note {
+    font-weight: normal;
+    font-style: italic;
+    text-align: left;
+}
 
 
 </style>
@@ -71,10 +82,18 @@
 <div class="gel_table" data-id_order="{{order.id_order}}">
   <div class="gel_thead">
     <div>{{order.reference}} (<span id="id_order">{{order.id_order}}</span>) {{order.firstname}} {{order.lastname}} 
-      {% if order.is_new %}  
-      <span class="new">N</span>
-      {% endif %}
+      {% if order.is_new %}<span class="new">N</span>{% endif %}{% if order.group_name!='Customer' and order.group_name!='Guest' %}<span class="group_name">{{ order.group_name[0:3] }}</span>{% endif %}
+      <br />
       {{order.order_state}}
+      &bull;
+      {%if order.country=='United Kingdom'%}{%else%}{{order.country}}:{% endif %} {{order.postcode}}
+      &bull;
+      ({{ order.carrier.replace('UK Delivery by ', '').replace(' Worldwide', '') }})
+      {% if order.note %}  
+      <div class="order_note"> 
+      {{order.note}}
+      </div> 
+      {% endif %}
     </div>
     
   </div>

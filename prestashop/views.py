@@ -74,7 +74,7 @@ class OrderListView(generic.ListView):
             result = cursor.fetchall()
         context['o_qnt'] = result
 
-        print(result)
+        #print(result)
 
         return context
 
@@ -108,7 +108,7 @@ class OrderDetailListView(generic.ListView):
             db = 'presta_eu'
         else:
             db = 'presta'
-        print(sql,self.kwargs['id_order'])
+        #print(sql,self.kwargs['id_order'])
         qs = Order.objects.using(db).raw(sql,[self.kwargs['id_order']])
 
         total_qnt = 0
@@ -239,7 +239,7 @@ class ColourChartView(generic.TemplateView):
     template_name = 'prestashop/viewcolours.html'
 
     def get(self, request, *args, **kwargs):
-        print('get')
+        #print('get')
         r = super().get(request, *args, **kwargs)
         r.headers['Content-Security-Policy'] = "frame-ancestors 'self' *.gellifique.co.uk *.gellifique.eu; default-src 'self' 'unsafe-inline' *"
         #r.headers['Referrer-Policy'] = "unsafe-url"

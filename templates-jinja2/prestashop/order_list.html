@@ -20,6 +20,12 @@
     color: white;
     padding: 0 1px;
 }
+.group_name {
+    font-weight: bold;
+    background-color: #f0a953;
+    color: white;
+    padding: 0 1px;
+}
 </style>
   
 <div style="display:flex;gap: 10px;">
@@ -56,14 +62,15 @@
             <br>
             {% if order.currency_code=='GBP' %}£{% endif %}{{ order.total_paid | round(2) }}
           </div>
-          <div><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.firstname}} {{order.lastname}}</a>
-            {% if order.is_new %}  
-            <span class="new">N</span>
-            {% endif %}
+          <div>
+            <a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.firstname}} {{order.lastname}}</a> 
+            {% if order.is_new %}<span class="new">N</span>{% endif %}{% if order.group_name!='Customer' and order.group_name!='Guest' %}<span class="group_name">{{ order.group_name[0:3] }}</span>{% endif %}
             <br />
-            {%if order.country=='United Kingdom'%}{%else%}{{order.country}}:{% endif %} {{order.postcode}}
+            <a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{%if order.country=='United Kingdom'%}{%else%}{{order.country}}:{% endif %} {{order.postcode}}</a>
+            <br />
+            <a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">({{ order.carrier.replace('UK Delivery by ', '').replace(' Worldwide', '') }})</a>
           </div>
-          <div class="order_state"><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.order_state}}</a> {{order.id_order_state}}</div>
+          <div class="order_state"><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.order_state}}</a></div>
           <div><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.date_add.strftime("%d/%m/%y %H:%M")}}</a></div>
       </div>
       {% endfor %}
