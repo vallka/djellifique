@@ -41,7 +41,8 @@ COALESCE(
 (SELECT IF(ean13='',NULL,ean13) FROM ps17_product_attribute WHERE id_product_attribute=psa.id_product_attribute),
 p.ean13
 ) ean13,
-psa.quantity
+psa.quantity,
+(SELECT qnt FROM a_stock_history sh WHERE sh.id_product=ps.id_product AND sh.id_product_attribute=psa.id_product_attribute AND DATE_ADD<DATE(NOW()) ORDER BY id DESC LIMIT 0,1 ) last_quantity
 FROM 
 ps17_product_shop ps  
 JOIN ps17_product p ON p.id_product=ps.id_product
@@ -60,11 +61,18 @@ ORDER BY ps.id_product
             if result and len(result):
                 for row in result:
                     print(n,row)
+                    # row = (id_shop,id_product,id_product_attribute,reference,ean13,quantity,last_quantity)
+                    quantity = row[5]
+                    last_quantity = row[6]
+                    restocked = ((last_quantity is None or last_quantity <= 0) and quantity > 0)
+
+                    params = row[:6] + (restocked, row[3], row[4], row[5])
                     cursor.execute(
-                        f"""
-insert into a_stock_history (date_add,id_shop,id_product,id_product_attribute,reference,ean13,qnt) 
-values (date(now()),%s,%s,%s,%s,%s,%s)
-on duplicate key update reference=%s,ean13=%s,qnt=%s
                         """
-                        ,row+(row[-3],row[-2],row[-1]))
+insert into a_stock_history (date_add,id_shop,id_product,id_product_attribute,reference,ean13,qnt,restocked) 
+values (date(now()),%s,%s,%s,%s,%s,%s,%s)
+on duplicate key update reference=%s,ean13=%s,qnt=%s
+                        """,
+                        params
+                    )
                     n+=1
