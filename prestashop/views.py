@@ -106,13 +106,16 @@ class OrderDetailListView(generic.ListView):
         #logger.error(f'get_queryset in context sql:{sql}')
         if '127.0.0.1' in self.request.META['HTTP_HOST'] or 'gellifique.eu' in self.request.META['HTTP_HOST']:
             db = 'presta_eu'
+            img_base = 'https://ik.imagekit.io/gellifiqueeu/tr:w-600,h-600/'
         else:
             db = 'presta'
+            img_base = 'https://ik.imagekit.io/bbwr0ylxa/tr:w-600,h-600/'
         #print(sql,self.kwargs['id_order'])
         qs = Order.objects.using(db).raw(sql,[self.kwargs['id_order']])
 
         total_qnt = 0
         for p in context['orderdetail_list']:
+            p.image = img_base + str(p.id_image) + '/img.jpg'
             if p.product_type!='pack':
                 total_qnt += int(p.product_quantity or 0)
                 if '//' in (p.product_name or ''):
