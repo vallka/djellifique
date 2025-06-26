@@ -154,6 +154,17 @@ class CertListView(generic.TemplateView):
             context['files'] = files
 
         return context
+    
+class CertListJsonView(generic.View):
+    def get(self, request, *args, **kwargs):
+        cert_dir = os.path.join(settings.MEDIA_ROOT, 'customer-certificates', self.kwargs['email'])
+        files = []
+        if os.path.isdir(cert_dir):
+            for f in os.listdir(cert_dir):
+                url = str(settings.FORCE_SCRIPT_NAME or '') + os.path.join(settings.MEDIA_URL, 'customer-certificates', self.kwargs['email'], f)
+                files.append({'url': url, 'file': f})
+        return JsonResponse({'files': files})
+
 class UploadPageView(generic.TemplateView):
     template_name = 'prestashop/upload.html'
 
