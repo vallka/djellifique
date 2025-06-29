@@ -449,30 +449,33 @@ function updateOrder(id_product,product_quantity,ready_quantity) {
 
 
 function process(code) {
-  console.log( 'Process ---:' + code);
+    console.log( 'Process ---:' + code);
 
-  let found = false;
-  $('.product_row').each(function(){
-    let ean = $(this).attr('data-ean');
-    if (ean==code) {
-      found = this;
+    let found = false;
+    $('.product_row').each(function(){
+        let ean = $(this).attr('data-ean');
+        if (ean==code) {
+            found = this;
+            // Scroll the product row into view if not visible
+            if (!$(this).is(':visible') || !isElementInViewport(this)) {
+                this.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }
+
+    });
+    if (!found) {
+        $('#audio_no').get(0).muted = false;
+        $('#audio_no').get(0).volume = 0.5;
+        $('#audio_no').get(0).play();
     }
+    else {
+        $('#audio_yes').get(0).muted = false;
 
-  });
-  if (!found) {
-    $('#audio_no').get(0).muted = false;
-    $('#audio_no').get(0).volume = 0.5;
-    $('#audio_no').get(0).play();
-  }
-  else {
-    $('#audio_yes').get(0).muted = false;
-
-    $('#audio_yes').get(0).volume = 0.5;
-    $('#audio_yes').get(0).play();
-    $(found).find('input[type=checkbox]').prop('checked',true);
-    $(found).find('input[type=checkbox]').change();
-  }
-
+        $('#audio_yes').get(0).volume = 0.5;
+        $('#audio_yes').get(0).play();
+        $(found).find('input[type=checkbox]').prop('checked',true);
+        $(found).find('input[type=checkbox]').change();
+    }
 }
 
 
