@@ -74,15 +74,11 @@ video { width:600; height: 350; border: solid 1px black;}
 <div class="d-flex justify-content-center" style="position:sticky;top:0;z-index:10;background:#fff;">
     <video class="fullscreen" muted playsinline></video>     
 </div>
-<i></i>
-<em></em>
-<b></b>
 
 <div style="text-align: center;font-size: 24px;">
   {% if order.id_order_prev %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_prev]) }}"><i class="fa fa-backward"></i></a></span>{% endif %}
   <span style="padding: 3px;"> <a href="{{ url ('prestashop:order') }}"><i class="fa fa-eject"></i></a> </span>
   {% if order.id_order_next %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_next]) }}"><i class="fa fa-forward"></i></a></span>{% endif %}
-
 </div>
 
 <div class="gel_table" data-id_order="{{order.id_order}}">
@@ -375,7 +371,7 @@ function setup_video() {
                         bebeep();
                         b.innerHTML = '';
                         bds.forEach((bc) => { 
-                            em.innerHTML = (bc.rawValue);
+                            //em.innerHTML = (bc.rawValue);
                             //b.innerHTML = JSON.stringify(bc);
                             if (bc.rawValue.length == 13) {
                                 process(bc.rawValue);
@@ -493,9 +489,9 @@ function process(code) {
 
 
 var code='';
-  $( "body" ).keyup(function( event ) {
+$( "body" ).keyup(function( event ) {
     console.log( event.originalEvent.key + ' --- ' + code);
-  
+
     if (event.originalEvent.key=='0' ||
         event.originalEvent.key=='1' ||
         event.originalEvent.key=='2' ||
@@ -506,19 +502,19 @@ var code='';
         event.originalEvent.key=='7' ||
         event.originalEvent.key=='8' ||
         event.originalEvent.key=='9') {
-          code += event.originalEvent.key;
+            code += event.originalEvent.key;
     }
-  
+
     else if (event.originalEvent.key=='Enter' && code.length==13) {
-      event.preventDefault();
-      const ccode = code;
-      code = '';
-      process(ccode);
+        event.preventDefault();
+        const ccode = code;
+        code = '';
+        process(ccode);
     }
     else {
-      code = '';
+        code = '';
     }
-  
-  });
-  </script>
+
+});
+</script>
 {% endblock %}
