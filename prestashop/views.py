@@ -85,6 +85,7 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class OrderDetailListView(generic.ListView):
+    template_name = 'prestashop/orderdetail_list.html'
 
     def get_queryset(self):
         """
@@ -92,8 +93,11 @@ class OrderDetailListView(generic.ListView):
         sql = OrderDetail.SQL()
         #logger.error(f'get_queryset sql:{sql}')
         if '127.0.0.1' in self.request.META['HTTP_HOST'] or 'gellifique.eu' in self.request.META['HTTP_HOST']:
+            self.template_name = 'prestashop/orderdetail_list_bcd.html'
             db = 'presta_eu'
         else:
+            # You can change the template_name here if needed
+            self.template_name = 'prestashop/orderdetail_list.html'
             db = 'presta'
         qs = OrderDetail.objects.using(db).raw(sql,[self.kwargs['id_order']])
         #logger.error(qs)

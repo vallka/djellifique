@@ -1,0 +1,503 @@
+{% extends "base_int_app.html" %}
+
+{% block title %}Order Detail{% endblock %}
+
+
+{% block content %}
+{% if orderdetail_list %}
+
+<style>
+
+.gel_thead > div {
+    padding: 3px;
+}
+.gel_row {
+  grid-template-columns: 120px 1fr 5em 3em;
+}
+
+.gel_row > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0;
+}
+
+
+.img_col {
+  width: 120px;
+}
+
+.img_col img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.gel_row > div.not_ready {
+  background-color:  pink;
+}
+.gel_row > div.half_ready {
+  background-color:  gold;
+}
+
+.gel_row > div.ready {
+  background-color:  springgreen;
+}
+
+.gel_row_pack > div {
+  background-color:#fff4c9;
+}
+.gel_row_pack_content > div {
+  background-color:#fffcf2;
+}
+.new {
+    font-weight: bold;
+    background-color: #1ac41a;
+    color: white;
+    padding: 0 1px;
+}
+.group_name {
+    font-weight: bold;
+    background-color: #f0a953;
+    color: white;
+    padding: 0 1px;
+}
+.order_note {
+    font-weight: normal;
+    font-style: italic;
+    text-align: left;
+}
+video { width:600; height: 350; border: solid 1px black;}
+
+</style>
+<div class="d-flex justify-content-center my-3">
+    <video class="fullscreen" muted playsinline></video>     
+</div>
+<i></i>
+<em></em>
+<b></b>
+
+<div style="text-align: center;font-size: 24px;">
+  {% if order.id_order_prev %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_prev]) }}"><i class="fa fa-backward"></i></a></span>{% endif %}
+  <span style="padding: 3px;"> <a href="{{ url ('prestashop:order') }}"><i class="fa fa-eject"></i></a> </span>
+  {% if order.id_order_next %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_next]) }}"><i class="fa fa-forward"></i></a></span>{% endif %}
+
+</div>
+
+<div class="gel_table" data-id_order="{{order.id_order}}">
+  <div class="gel_thead">
+    <div>!{{order.reference}} (<span id="id_order">{{order.id_order}}</span>) {{order.firstname}} {{order.lastname}} 
+      {% if order.is_new %}<span class="new">N</span>{% endif %}{% if order.group_name!='Customer' and order.group_name!='Guest' %}<span class="group_name">{{ order.group_name[0:3] }}</span>{% endif %}
+      <br />
+      {{order.order_state}}
+      &bull;
+      {%if order.country=='United Kingdom'%}{%else%}{{order.country}}:{% endif %} {{order.postcode}}
+      &bull;
+      ({{ order.carrier.replace('UK Delivery by ', '').replace(' Worldwide', '') }})
+      {% if order.note %}  
+      <div class="order_note"> 
+      {{order.note}}
+      </div> 
+      {% endif %}
+    </div>
+    
+  </div>
+
+  <div class="gel_tbody">
+  {% for order in orderdetail_list %}
+    <div class="product_row gel_row gel_row_{{order.product_type}}" data-id_product="{{order.product_id}}" data-ean="{{order.product_ean13}}" {% if order.id_pack %}data-id_pack="{{order.id_pack}}"{% endif %}>
+      <div class="img_col">
+        <img src="{{order.image}}">
+      </div>
+      <div>
+        <div>
+          <b>{{order.product_name}}</b>
+          <br>
+          <b>{{order.product_reference}}</b>
+          <br>
+          <b>{{order.product_ean13}}</b>
+          <br>
+          <b>£{{order.unit_price_tax_incl | round(2)}}</b>
+        </div>
+      </div>
+      <div class="qnt_col">
+        <div class="qnt_inner">
+          <span class="product_quantity">{{order.product_quantity}}</span>
+          <br>
+          <br>
+          Avail:
+          <br>
+          <span class="product_aquantity">{{order.quantity}}{% if order.proc_quantity %}({{order.proc_quantity}}){% endif %}</span>
+          <br>
+          </div>
+
+
+      </div>
+      {% if order.product_type!='pack' %}
+      <div class="checkbox">
+        <div class="chk_inner">
+          <span class="ready_quantity">0</span>
+          <br>
+          <input type="checkbox">
+        </div>  
+      </div>
+      {% else %}
+        <div>Set</div>
+      {% endif %}
+    </div>
+  {% endfor %}
+  <div class="gel_tfoot">
+    <div class="gel_row">
+      <div></div>
+      <div></div>
+      <div>{{total_qnt}}</div>
+      <div></div>
+    </div>
+  </div>
+  </div>
+
+  <div class="gel_tfoot">
+    <button id="btn-reset" class="btn btn-danger">Reset</button>
+    <button id="btn-update-status" class="btn btn-success" style="display:none">Set Status</button>
+  </div>
+  
+  <audio id="audio_yes" src="/static/audio/jazzy-chords.wav" preload="auto"  ></audio>
+  <audio id="audio_no" src="/static/audio/wrong-buzzer.wav" preload="auto"  ></audio>
+
+</div>
+  {% else %}
+    <p>There are no orders.</p>
+  {% endif %}     
+{% endblock content %}
+
+
+
+{% block javascript %}
+{{ super() }}
+<script>
+var order = {};
+var id_order;
+
+$(document).ready(function(){
+  id_order = $('.gel_table').attr('data-id_order');
+  order = JSON.parse(window.localStorage.getItem('o'+id_order));
+  if (! order) order = {};
+
+  if (window.localStorage.getItem('o'+id_order+'-ready')) {
+    $('#btn-update-status').show();
+  }
+
+  $('.product_row').each(function(){
+    const product_quantity = parseInt($(this).find('.product_quantity').text());
+    const id_product = 'p'+$(this).attr('data-id_product');
+    console.log('initp:'+id_product+':'+order[id_product]);
+    if (order[id_product]) {
+      console.log('init-set:'+id_product);
+      if (product_quantity!=order[id_product][0]) {
+        order[id_product][0] = product_quantity;
+      }
+
+      $(this).find('.ready_quantity').text(order[id_product][1]);
+      if (order[id_product][1]==product_quantity) {
+        console.log('!ready');
+        $(this).find('div.checkbox').addClass('ready');
+        $(this).find('div.checkbox').removeClass('not_ready');
+        $(this).find('div.checkbox').removeClass('half_ready');
+
+        $(this).find('input[type=checkbox]').prop('checked',true);
+      }
+      else if (order[id_product][1] > 0) {
+        console.log('!half ready');
+        $(this).find('div.checkbox').removeClass('ready');
+        $(this).find('div.checkbox').removeClass('not_ready');
+        $(this).find('div.checkbox').addClass('half_ready');
+      }
+      else {
+        console.log('!not ready');
+        $(this).find('div.checkbox').addClass('not_ready');
+      }
+    }
+    else {
+      order[id_product] = [product_quantity,0];    
+      $(this).find('div.checkbox').addClass('not_ready');
+      console.log('init:'+id_product);
+    }
+  });
+
+  console.log("order");
+  console.log(order);
+
+  $('input[type=checkbox]').change(function(){
+    console.log('change:'+this.checked);
+
+    const id_product = 'p'+$(this).parents('div.gel_row').attr('data-id_product');
+    const product_quantity = parseInt($(this).parents('div.gel_row').find('.product_quantity').text());
+    let ready_quantity = parseInt($(this).parents('div.gel_row').find('.ready_quantity').text());
+
+    console.log(id_product+':'+product_quantity+':'+ready_quantity);
+
+
+    if (this.checked) {
+      if (ready_quantity != product_quantity) {
+        if (ready_quantity < product_quantity) {
+          $(this).parents('div.gel_row').find('.ready_quantity').text(++ready_quantity);
+          updateOrder(id_product,product_quantity,ready_quantity);
+        }
+        if (ready_quantity == product_quantity) {
+          $(this).parents('div.checkbox').addClass('ready');
+          $(this).parents('div.checkbox').removeClass('not_ready');
+          $(this).parents('div.checkbox').removeClass('half_ready');
+        }
+        else {
+          this.checked = false;
+          if (ready_quantity == 0) {
+            $(this).parents('div.checkbox').addClass('not_ready');
+            $(this).parents('div.checkbox').removeClass('ready');
+            $(this).parents('div.checkbox').removeClass('half_ready');
+          }
+          else {
+            $(this).parents('div.checkbox').addClass('half_ready');
+            $(this).parents('div.checkbox').removeClass('ready');
+            $(this).parents('div.checkbox').removeClass('not_ready');
+          }
+        }
+      }
+    }
+    else {
+      if (ready_quantity > 0) {
+        this.checked = true;
+      }
+    }
+
+  });
+
+
+  $('#btn-reset').click(function () {
+    order = {};
+    console.log('reset')
+
+    $('.product_row').each(function(){
+      $(this).find('div.checkbox').addClass('not_ready');
+        $(this).find('div.checkbox').removeClass('ready');
+        $(this).find('div.checkbox').removeClass('half_ready');
+
+        $(this).find('input[type=checkbox]').prop('checked',false);
+        $(this).find('.ready_quantity').text(0);
+    });
+
+    window.localStorage.removeItem('o'+id_order);
+    window.localStorage.removeItem('o'+id_order+'-ready');
+
+    $('#btn-update-status').hide();
+
+    document.activeElement.blur(); //remove focus from Reset button!!!
+  });
+
+
+  $('#btn-update-status').click(function () {
+    let url = '/api/v1/prestashop/order/updatestatus/';
+    $.ajax({
+      method: "post",
+      async: false,
+      data: {
+            "id_order": id_order,
+            "id_status": 39,
+      },
+      dataType: "json",
+      url: url,
+      headers: {"Authorization": "Token 6b246cc18769c6ec02dc20009649d5ae5903d454"},
+      success: function(data) {
+        console.log(data);
+        //alert('Updated');
+        document.location.href = '/prestashop/order/';
+
+    }});
+  });
+
+  setup_video();
+  console.log("end of ready");
+
+});
+
+function setup_video() {
+let str = null;
+    let iid = null;
+    let jsn = null;
+    let bit = 500;
+    let vid = document.querySelector('video');
+    let b = document.querySelector('b');
+    let i = document.querySelector('i');
+    let em = document.querySelector('em');
+    let svg = document.querySelector('svg');
+    let cts = {
+        video: {
+            facingMode: { ideal: 'environment' },
+            width: { ideal: 600, max: 600 },
+            height: { ideal: 300, max: 300 },
+            aspectRatio: { ideal: 0.5,exact: 0.5 },
+            frameRate: { ideal: 30 }
+        },
+        audio: false
+    };
+    let fmt = {
+        formats: [
+            'ean_13'
+        ]
+    };
+    navigator.mediaDevices.getUserMedia(cts).then((stream) => {
+        str = stream;
+        vid.srcObject = stream;
+        vid.play();
+    });
+    let dec = () => {
+        try {
+            BarcodeDetector.getSupportedFormats().then((suf) => {
+                let kep = [];
+                suf.forEach((smt) => {
+                    if ( fmt.formats.includes(smt) ) {
+                        kep.push(smt);
+                    }
+                });
+                fmt.formats = kep;
+                //i.innerHTML = JSON.stringify(fmt.formats);
+                let bcd = new BarcodeDetector(fmt);
+                let detected = false;
+                iid = setInterval(() => {
+                if (detected) return;
+                bcd.detect(vid)
+                .then(bds => {
+                    if (JSON.stringify(bds) !== '[]') {
+                        detected = true;
+                        bebeep();
+                        b.innerHTML = '';
+                        bds.forEach((bc) => { 
+                            em.innerHTML = (bc.rawValue);
+                            //b.innerHTML = JSON.stringify(bc);
+                        });
+                        setTimeout(() => {
+                            detected = false;
+                        }, 3000);
+                    }
+                })
+                .catch((err) => console.error(err));
+                }, bit);
+            });
+        } catch (error) {
+            console.error("An error occured:", error);
+        }
+    };
+    let lmd = async () => {
+        let { BarcodeDetectorPolyfill } = await import('https://fastly.jsdelivr.net/npm/barcode-detector@3/dist/es/polyfill.min.js');
+        try {
+            window['BarcodeDetector'].getSupportedFormats();
+        } catch {
+            window['BarcodeDetector'] = BarcodeDetectorPolyfill();
+        }
+        dec();
+    };
+    if ( !('BarcodeDetector' in window) ) {
+        lmd();
+    } else {
+        dec();
+    }
+}
+
+function bebeep() {
+    const beep = new AudioContext();
+    const oscillator = beep.createOscillator();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(1000, beep.currentTime);
+    oscillator.connect(beep.destination);
+    oscillator.start();
+    oscillator.stop(beep.currentTime + 0.15);
+}
+
+function updateOrder(id_product,product_quantity,ready_quantity) {
+  console.log('updateOrder:'+id_product+':'+product_quantity+':'+ready_quantity);
+
+  order[id_product] = [product_quantity,ready_quantity];
+  window.localStorage.removeItem('o'+id_order);
+  window.localStorage.setItem('o'+id_order, JSON.stringify(order));
+
+  const n_products = $('.product_row').length - $('.product_row.gel_row_pack').length;
+
+  let ready = 0;
+  $.each(order,function(key,element){
+    if (Array.isArray(element)) {
+      if (element[0]==element[1]) ++ready;
+    }
+  });
+
+
+  if (ready && n_products==ready) {
+    console.log('+ready',ready,n_products);
+    window.localStorage.setItem('o'+id_order+'-ready', true);
+    $('#btn-update-status').show();
+  }
+  else {
+    console.log('-not ready',ready,n_products);
+    window.localStorage.removeItem('o'+id_order+'-ready');
+    $('#btn-update-status').hide();
+  }
+}
+
+
+function process(code) {
+  console.log( 'Process ---:' + code);
+
+  let found = false;
+  $('.product_row').each(function(){
+    let ean = $(this).attr('data-ean');
+    if (ean==code) {
+      found = this;
+    }
+
+  });
+  if (!found) {
+    $('#audio_no').get(0).muted = false;
+    $('#audio_no').get(0).volume = 0.5;
+    $('#audio_no').get(0).play();
+  }
+  else {
+    $('#audio_yes').get(0).muted = false;
+
+    $('#audio_yes').get(0).volume = 0.5;
+    $('#audio_yes').get(0).play();
+    $(found).find('input[type=checkbox]').prop('checked',true);
+    $(found).find('input[type=checkbox]').change();
+  }
+
+}
+
+
+var code='';
+  $( "body" ).keyup(function( event ) {
+    console.log( event.originalEvent.key + ' --- ' + code);
+  
+    if (event.originalEvent.key=='0' ||
+        event.originalEvent.key=='1' ||
+        event.originalEvent.key=='2' ||
+        event.originalEvent.key=='3' ||
+        event.originalEvent.key=='4' ||
+        event.originalEvent.key=='5' ||
+        event.originalEvent.key=='6' ||
+        event.originalEvent.key=='7' ||
+        event.originalEvent.key=='8' ||
+        event.originalEvent.key=='9') {
+          code += event.originalEvent.key;
+    }
+  
+    else if (event.originalEvent.key=='Enter' && code.length==13) {
+      event.preventDefault();
+      const ccode = code;
+      code = '';
+      process(ccode);
+    }
+    else {
+      code = '';
+    }
+  
+  });
+  </script>
+{% endblock %}
