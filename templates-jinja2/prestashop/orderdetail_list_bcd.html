@@ -321,7 +321,7 @@ $(document).ready(function(){
 });
 
 function setup_video() {
-let str = null;
+    let str = null;
     let iid = null;
     let jsn = null;
     let bit = 500;
@@ -374,6 +374,11 @@ let str = null;
                         bds.forEach((bc) => { 
                             em.innerHTML = (bc.rawValue);
                             //b.innerHTML = JSON.stringify(bc);
+                            if (bc.rawValue.length == 13) {
+                                process(bc.rawValue);
+                            } else {
+                                console.warn("Invalid barcode length:", bc.rawValue);
+                            }
                         });
                         setTimeout(() => {
                             detected = false;
