@@ -171,6 +171,9 @@ video { width:600; height: 350; border: solid 1px black;}
 
 {% block javascript %}
 {{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@0.9.15/dist/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@undecaf/barcode-detector-polyfill@0.9.21/dist/index.js"></script>
+
 <script>
 var order = {};
 var id_order;
@@ -392,11 +395,11 @@ function setup_video() {
         }
     };
     let lmd = async () => {
-        let { BarcodeDetectorPolyfill } = await import('https://fastly.jsdelivr.net/npm/barcode-detector@3/dist/es/polyfill.min.js');
+        //let { BarcodeDetectorPolyfill } = await import('https://fastly.jsdelivr.net/npm/barcode-detector@3/dist/es/polyfill.min.js');
         try {
             window['BarcodeDetector'].getSupportedFormats();
         } catch {
-            window['BarcodeDetector'] = BarcodeDetectorPolyfill();
+            window['BarcodeDetector'] = barcodeDetectorPolyfill.BarcodeDetectorPolyfill;
         }
         dec();
     };
