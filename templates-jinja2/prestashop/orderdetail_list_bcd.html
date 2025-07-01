@@ -351,10 +351,10 @@ function setup_video() {
         vid.srcObject = stream;
         vid.play();
     });*/
-    navigator.mediaDevices.getUserMedia({video: true}).then((stream) => {
+    navigator.mediaDevices.getUserMedia(ctc).then((stream) => {
         str = stream;
         const track = stream.getVideoTracks()[0];
-        track.applyConstraints(cts).then(() => {
+        track.applyConstraints(cts.video).then(() => {
             console.log('Applied constraints:', cts);
             vid.srcObject = stream;
             vid.play();
