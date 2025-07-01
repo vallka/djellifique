@@ -346,19 +346,8 @@ function setup_video() {
             'ean_13'
         ]
     };
-    /*navigator.mediaDevices.getUserMedia(cts).then((stream) => {
+    navigator.mediaDevices.getUserMedia(cts).then((stream) => {
         str = stream;
-        vid.srcObject = stream;
-        vid.play();
-    });*/
-    navigator.mediaDevices.getUserMedia(ctc).then((stream) => {
-        str = stream;
-        const track = stream.getVideoTracks()[0];
-        track.applyConstraints(cts.video).then(() => {
-            console.log('Applied constraints:', cts);
-        }).catch((err) => {
-            console.error('Error applying constraints:', err);
-        });
         vid.srcObject = stream;
         vid.play();
     });
