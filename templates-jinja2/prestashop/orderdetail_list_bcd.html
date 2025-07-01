@@ -346,8 +346,15 @@ function setup_video() {
             'ean_13'
         ]
     };
-    navigator.mediaDevices.getUserMedia(cts).then((stream) => {
+    /*navigator.mediaDevices.getUserMedia(cts).then((stream) => {
         str = stream;
+        vid.srcObject = stream;
+        vid.play();
+    });*/
+    navigator.mediaDevices.getUserMedia({video: true}).then((stream) => {
+        str = stream;
+        const track = stream.getVideoTracks()[0];
+        track.applyConstraints(cts);
         vid.srcObject = stream;
         vid.play();
     });
