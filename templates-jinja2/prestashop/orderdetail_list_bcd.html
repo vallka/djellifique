@@ -354,9 +354,13 @@ function setup_video() {
     navigator.mediaDevices.getUserMedia({video: true}).then((stream) => {
         str = stream;
         const track = stream.getVideoTracks()[0];
-        track.applyConstraints(cts);
-        vid.srcObject = stream;
-        vid.play();
+        track.applyConstraints(cts).then(() => {
+            console.log('Applied constraints:', cts);
+            vid.srcObject = stream;
+            vid.play();
+        }).catch((err) => {
+            console.error('Error applying constraints:', err);
+        });
     });
     let dec = () => {
         try {
