@@ -356,11 +356,11 @@ function setup_video() {
         const track = stream.getVideoTracks()[0];
         track.applyConstraints(cts.video).then(() => {
             console.log('Applied constraints:', cts);
-            vid.srcObject = stream;
-            vid.play();
         }).catch((err) => {
             console.error('Error applying constraints:', err);
         });
+        vid.srcObject = stream;
+        vid.play();
     });
     let dec = () => {
         try {
