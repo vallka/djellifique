@@ -2,6 +2,12 @@
 
 {% block title %}Order Detail{% endblock %}
 
+{% block header %} 
+<div id="video_div" class="justify-content-center" style="position:sticky;top:0;z-index:10;background:#fff;display:none;">
+  <video class="fullscreen" muted playsinline></video>     
+</div>
+{{ super() }}
+{% endblock %}
 
 {% block content %}
 {% if orderdetail_list %}
@@ -70,15 +76,21 @@
 }
 video { width:600; height: 350; border: solid 1px black;}
 
+.fa-camera.active {
+  color: #e71212;
+}
+
 </style>
-<div class="d-flex justify-content-center" style="position:sticky;top:0;z-index:10;background:#fff;">
-    <video class="fullscreen" muted playsinline></video>     
-</div>
 
 <div style="text-align: center;font-size: 24px;">
   {% if order.id_order_prev %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_prev]) }}"><i class="fa fa-backward"></i></a></span>{% endif %}
   <span style="padding: 3px;"> <a href="{{ url ('prestashop:order') }}"><i class="fa fa-eject"></i></a> </span>
   {% if order.id_order_next %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_next]) }}"><i class="fa fa-forward"></i></a></span>{% endif %}
+  <span style="padding: 3px;">
+    <a href="#" id="video_button">
+      <i class="fa fa-camera" id="video_icon"></i>
+    </a>
+  </span>
 </div>
 
 <div class="gel_table" data-id_order="{{order.id_order}}">
@@ -346,10 +358,63 @@ function setup_video() {
             'ean_13'
         ]
     };
-    navigator.mediaDevices.getUserMedia(cts).then((stream) => {
+
+
+    let videoStatus = window.localStorage.getItem('video');
+    console.log('videoStatus:', videoStatus);
+    if (videoStatus === null) {
+      videoStatus = '0';
+      window.localStorage.setItem('video', videoStatus);
+    }
+    if (videoStatus === '1') {
+      $('#video_div').show();
+      $('#video_icon').addClass('active');
+
+    } else {
+      $('#video_div').hide();
+      $('#video_icon').removeClass('active');
+    }
+    $('#video_button').off('click.toggleVideo').on('click.toggleVideo', function(e) {
+      e.preventDefault();
+      let isVisible = $('#video_div').is(':visible');
+      console.log('Video visibility:', isVisible);
+      if (isVisible) {
+        $('#video_div').hide();
+        $('#video_icon').removeClass('active');
+        window.localStorage.setItem('video', '0');
+        stopVideoStream();
+      } else {
+        $('#video_div').show();
+        $('#video_icon').addClass('active');
+        window.localStorage.setItem('video', '1');
+        navigator.mediaDevices.getUserMedia(cts).then((stream) => {
+          str = stream;
+          vid.srcObject = stream;
+          vid.play();
+        });
+      }
+    });
+    if (videoStatus === '1') {
+      navigator.mediaDevices.getUserMedia(cts).then((stream) => {
         str = stream;
         vid.srcObject = stream;
         vid.play();
+      });
+    }
+    navigator.mediaDevices.getUserMedia(cts).then((stream) => {
+      str = stream;
+      vid.srcObject = stream;
+      vid.play();
+
+      // Add a stop function to stop the video stream
+      window.stopVideoStream = function() {
+        if (str) {
+          str.getTracks().forEach(track => track.stop());
+          vid.pause();
+          vid.srcObject = null;
+        }
+      };
+
     });
     let dec = () => {
         try {
@@ -407,6 +472,7 @@ function setup_video() {
     } else {
         dec();
     }
+
 }
 
 function bebeep() {
