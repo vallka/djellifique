@@ -200,7 +200,7 @@ COALESCE(
 (SELECT ai.id_image FROM ps17_product_attribute_image ai,ps17_image ai2 WHERE odd.product_attribute_id=ai.id_product_attribute AND ai.id_image=ai2.id_image ORDER BY POSITION LIMIT 1),
 i.id_image) AS id_image,
 
-a.quantity ,proc_quantity,proc_quantity_set,id_pack,unit_price_tax_incl
+a.quantity ,proc_quantity,proc_quantity_set,id_pack,unit_price_tax_incl,product_attribute_id
 
 FROM (
 
@@ -240,17 +240,14 @@ LEFT OUTER JOIN ps17_image i ON odd.product_id=i.id_product AND i.cover=1
 LEFT OUTER JOIN ps17_stock_available a ON a.id_product=odd.product_id AND a.id_product_attribute=odd.product_attribute_id AND a.id_shop=odd.id_shop
  
 
-
 LEFT OUTER JOIN (
-SELECT id_product,SUM(product_quantity) proc_quantity,SUM(packed_quantity) proc_quantity_set
+SELECT id_product,SUM(product_quantity) proc_quantity,SUM(packed_quantity) proc_quantity_set,product_attribute_id AS pa_id
 FROM 
 (
-
-
-SELECT oo.id_product,oo.id_order,oo.product_quantity,oo.packed_quantity  FROM
+SELECT oo.id_product,oo.id_order,oo.product_quantity,oo.packed_quantity,product_attribute_id  FROM
 (
 SELECT 
-od.product_id AS id_product,o.id_order,od.product_quantity,p.product_type,o.current_state,o.date_upd,NULL AS id_pack,o.id_shop,0 AS packed_quantity
+od.product_id AS id_product,o.id_order,od.product_quantity,p.product_type,o.current_state,o.date_upd,NULL AS id_pack,o.id_shop,0 AS packed_quantity,product_attribute_id
 FROM ps17_orders o
 JOIN ps17_order_detail od ON o.id_order=od.id_order
 JOIN ps17_product p ON od.product_id=p.id_product
@@ -258,7 +255,7 @@ JOIN ps17_product p ON od.product_id=p.id_product
 UNION ALL
 
 SELECT 
-pp.id_product,o.id_order,od.product_quantity*pa.quantity AS product_quantity,pp.product_type,o.current_state,o.date_upd,p.id_product AS id_pack,o.id_shop,od.product_quantity*pa.quantity AS packed_quantity
+pp.id_product,o.id_order,od.product_quantity*pa.quantity AS product_quantity,pp.product_type,o.current_state,o.date_upd,p.id_product AS id_pack,o.id_shop,od.product_quantity*pa.quantity AS packed_quantity,product_attribute_id
 FROM ps17_orders o
 JOIN ps17_order_detail od ON o.id_order=od.id_order
 JOIN ps17_product p ON od.product_id=p.id_product
@@ -275,8 +272,8 @@ AND oo.id_shop=1
 
 
 ) agg
-GROUP BY agg.id_product
-) aggg ON aggg.id_product=odd.product_id
+GROUP BY agg.id_product,pa_id
+) aggg ON aggg.id_product=odd.product_id AND pa_id=odd.product_attribute_id
 
 
 WHERE id_order=%s
