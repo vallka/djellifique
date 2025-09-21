@@ -3,8 +3,20 @@
 {% block title %}Order Detail{% endblock %}
 
 {% block header %} 
-<div id="video_div" class="justify-content-center" style="position:sticky;top:0;z-index:10;background:#fff;display:none;">
-  <video class="fullscreen" muted playsinline></video>     
+<div style="position:sticky;top:0;z-index:10;">
+  <div style="text-align: left;font-size: 24px;">
+    <span style="padding: 3px;">
+      <a href="#" id="video_button">
+        <i class="fa fa-camera" id="video_icon"></i>
+      </a>
+    </span>
+    {% if order.id_order_prev %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_prev]) }}"><i class="fa fa-backward"></i></a></span>{% endif %}
+    <span style="padding: 3px;"> <a href="{{ url ('prestashop:order') }}"><i class="fa fa-eject"></i></a> </span>
+    {% if order.id_order_next %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_next]) }}"><i class="fa fa-forward"></i></a></span>{% endif %}
+  </div>
+  <div id="video_div" class="justify-content-center" style="background:#fff;display:none;">
+    <video class="fullscreen" muted playsinline></video>     
+  </div>
 </div>
 {{ super() }}
 {% endblock %}
@@ -82,16 +94,6 @@ video { width:600; height: 350; border: solid 1px black;}
 
 </style>
 
-<div style="text-align: center;font-size: 24px;">
-  {% if order.id_order_prev %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_prev]) }}"><i class="fa fa-backward"></i></a></span>{% endif %}
-  <span style="padding: 3px;"> <a href="{{ url ('prestashop:order') }}"><i class="fa fa-eject"></i></a> </span>
-  {% if order.id_order_next %}<span style="padding: 3px;"> <a href="{{ url ('prestashop:order_detail',args=[order.id_order_next]) }}"><i class="fa fa-forward"></i></a></span>{% endif %}
-  <span style="padding: 3px;">
-    <a href="#" id="video_button">
-      <i class="fa fa-camera" id="video_icon"></i>
-    </a>
-  </span>
-</div>
 
 <div class="gel_table" data-id_order="{{order.id_order}}">
   <div class="gel_thead">
@@ -114,7 +116,7 @@ video { width:600; height: 350; border: solid 1px black;}
 
   <div class="gel_tbody">
   {% for order in orderdetail_list %}
-    <div class="product_row gel_row gel_row_{{order.product_type}}" data-id_product="{{order.product_id}}" data-ean="{{order.product_ean13}}" {% if order.id_pack %}data-id_pack="{{order.id_pack}}"{% endif %}>
+    <div class="product_row gel_row gel_row_{{order.product_type}}" data-id_product="{{order.product_id}}{%if order.product_attribute_id%}-{{order.product_attribute_id}}{%endif%}" data-ean="{{order.product_ean13}}" {% if order.id_pack %}data-id_pack="{{order.id_pack}}"{% endif %}>
       <div class="img_col">
         <img src="{{order.image}}">
       </div>

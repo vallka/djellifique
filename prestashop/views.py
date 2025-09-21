@@ -98,6 +98,7 @@ class OrderDetailListView(generic.ListView):
         else:
             # You can change the template_name here if needed
             self.template_name = 'prestashop/orderdetail_list.html'
+            self.template_name = 'prestashop/orderdetail_list_bcd.html'
             db = 'presta'
         qs = OrderDetail.objects.using(db).raw(sql,[self.kwargs['id_order']])
         #logger.error(qs)
