@@ -60,9 +60,8 @@ h4 {
 
 
 {% block header %} 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  
-    <a class="navbar-brand" style="z-index: 2;" href="{{ url ('prestashop:order') }}">App Home</a>
+<div style="position:sticky;top:0;z-index:10;">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -70,14 +69,17 @@ h4 {
       {% block header_nav %} 
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a class="nav-link" href="{{ url ('prestashop:order') }}">App Home</a>
+          <a class="nav-link" href="{{ url ('prestashop:order') }}">Orders</a>
+          <a class="nav-link" href="{{ url ('prestashop:order') }}">Products</a>
         </li>
       </ul>
       {% endblock header_nav %} 
     </div>
+
+    <a class="navbar-brand" style="z-index: 2;" href="{{ url ('prestashop:order') }}">A</a>
+
   </nav>
-
-
+</div>
 {% endblock header %} 
 
 {% block footer %}

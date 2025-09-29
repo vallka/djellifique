@@ -13,9 +13,9 @@ body {
 
 .navbar {
   font-family: 'Open Sans', sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
-  padding: .2rem 1rem;
+  padding: .2rem 0rem;
 }
 
 .navbar-above {
@@ -39,9 +39,14 @@ body {
 }
 .nav-link {
   color: white !important;
+  padding: 5px;
 }
 .nav-link:hover {
   color: #d73672 !important;
+}
+.navbar-text {
+  color: white !important;
+  text-transform: none;
 }
 
 
