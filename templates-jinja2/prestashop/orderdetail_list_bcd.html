@@ -26,9 +26,15 @@
         <i class="fa fa-camera" id="video_icon"></i>
       </a>
     </span>
+    <span style="padding: 3px;font-size: 24px;">
+      <a class="nav-link" href="{{ url ('prestashop:order') }}"><i class="fa fa-eject"></i></a> </span>
+    </span>
+    <span style="padding: 3px;font-size: 16/px;">
     {% if order.id_order_prev %}<a class="nav-link" href="{{ url ('prestashop:order_detail',args=[order.id_order_prev]) }}"><i class="fa fa-backward"></i></a></span>{% endif %}
-    <a class="nav-link" href="{{ url ('prestashop:order') }}"><i class="fa fa-eject"></i></a> </span>
+    </span>
+    <span style="padding: 3px;font-size: 16/px;">
     {% if order.id_order_next %}<a class="nav-link" href="{{ url ('prestashop:order_detail',args=[order.id_order_next]) }}"><i class="fa fa-forward"></i></a></span>{% endif %}
+    </span>
 
     <span class="navbar-text">{{order.id_order}} {{order.firstname}} {{order.lastname}}</span>
   </nav>
