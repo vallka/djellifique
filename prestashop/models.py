@@ -147,7 +147,8 @@ class Order(models.Model):
         ,IF((SELECT so.id_order FROM `ps17_orders` so WHERE so.id_customer = o.id_customer AND so.id_order < o.id_order LIMIT 1) > 0, 0, 1) as is_new,
         (SELECT id_order FROM ps17_orders o_prev WHERE o_prev.id_order<o.id_order ORDER BY id_order DESC LIMIT 1) AS id_order_prev,
         (SELECT id_order FROM ps17_orders o_prev WHERE o_prev.id_order>o.id_order ORDER BY id_order ASC LIMIT 1) AS id_order_next,
-        g.name as group_name
+        g.name as group_name,
+        o.total_shipping
         FROM `ps17_orders` o
         JOIN ps17_customer c on o.id_customer=c.id_customer
         JOIN ps17_address a on id_address_delivery=a.id_address

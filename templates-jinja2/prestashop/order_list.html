@@ -63,7 +63,8 @@
             <br />
             <a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{%if order.country=='United Kingdom'%}{%else%}{{order.country}}:{% endif %} {{order.postcode}}</a>
             <br />
-            <a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">({{ order.carrier.replace('UK Delivery by ', '').replace(' Worldwide', '') }})</a>
+            <a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">({{ order.carrier.replace('UK Delivery by ', '').replace(' Worldwide', '').replace(' Delivery', '') }} 
+              {% if order.currency_code=='GBP' %}£{% endif %}{{ order.total_shipping | round(2) }})</a>
           </div>
           <div class="order_state"><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.order_state}}</a></div>
           <div><a href="{{ url ('prestashop:order_detail',args=[order.id_order]) }}">{{order.date_add.strftime("%d/%m/%y %H:%M")}}</a></div>

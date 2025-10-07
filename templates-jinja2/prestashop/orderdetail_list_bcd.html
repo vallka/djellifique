@@ -147,7 +147,7 @@ video { width:600; height: 350; border: solid 1px black;}
       &bull;
       {%if order.country=='United Kingdom'%}{%else%}{{order.country}}:{% endif %} {{order.postcode}}
       &bull;
-      ({{ order.carrier.replace('UK Delivery by ', '').replace(' Worldwide', '') }})
+      ({{ order.carrier.replace('UK Delivery by ', '').replace(' Worldwide', '').replace(' Delivery', '') }} {% if order.currency_code=='GBP' %}£{% endif %}{{ order.total_shipping | round(2) }})
       {% if order.note %}  
       <div class="order_note"> 
       {{order.note}}
