@@ -40,7 +40,8 @@ class Command(BaseCommand):
         if 'ID' in first_row and 'kg' in first_row:
             idx = first_row.index('ID')
             kgx = first_row.index('kg')
-            print(f"***id and kg: {idx}: {kgx}")
+            rcx = first_row.index('Received')
+            print(f"***id and kg: {idx}: {kgx} {rcx}")
             data_range_name = f"{sheet_title}!A2:M"
 
             data = service.spreadsheets().values().get(
@@ -48,10 +49,14 @@ class Command(BaseCommand):
             ).execute()
             values = data.get('values', [])
             for row in values:
-                if len(row)>idx and len(row)>kgx:
-                    print(row[idx],row[kgx])
+                if len(row)>idx and len(row)>kgx and len(row)>rcx:
+                    print(row[idx],row[kgx],row[rcx])
                     if row[idx]:
-                        products.append({'ID':row[idx],'kg':row[kgx]})
+                        try:
+                            kg = float(row[kgx])
+                        except (ValueError, TypeError):
+                            kg = 0.0
+                        products.append({'ID': row[idx], 'kg': kg, 'rc': row[rcx] == 'yes'})
 
         return products
 
@@ -97,28 +102,29 @@ class Command(BaseCommand):
                 for p in products:
                     if not productsd.get(p['ID']): 
                         productsd[p['ID']] = {}
-                    if p['kg']: 
-                        productsd[p['ID']]['kg'] = p['kg'] 
+                        productsd[p['ID']]['kg'] = 0
+                    if p['kg'] and p['rc']: 
+                        productsd[p['ID']]['kg'] += p['kg']
 
 
-                print(productsd)
+                #print(productsd)
 
-                for id,p in productsd.items():
-                    print(id,p)
+                # Option A — sort by numeric product ID (ascending)
+                for pid, p in sorted(productsd.items(), key=lambda kv: int(kv[0])):
+                    print(pid, p)
 
 
-                    #try:
-                    #    pi = ProductInventory.objects.get(id_product=int(p['ID']),inventory_type='to fill kg')
-                    #    print(pi)
-                    #    if pi.value!=p['kg']:
-                    #        print(f"Updating {p['ID']} {p['kg']}")
-                    #        pi.value = p['kg']
-                    #        pi.save()
-#
-                    #except ProductInventory.DoesNotExist:
-                    #    print(f"Adding {p['ID']} {p['kg']}")
-                    #    pi = ProductInventory(id_product=int(p['ID']),inventory_type='to fill kg',value=p['kg'])
-                    #    pi.save()
+                    try:
+                        pi = ProductInventory.objects.get(id_product=pid,inventory_type='to fill kg')
+                        print(pi)
+                        if pi.value!=str(p['kg']):
+                            print(f"Updating {pid} {p['kg']}")
+                            pi.value = str(p['kg'])
+                            pi.save()
+                    except ProductInventory.DoesNotExist:
+                        print(f"Adding {pid} {p['kg']}")
+                        pi = ProductInventory(id_product=pid,inventory_type='to fill kg',value=str(p['kg']))
+                        pi.save()
 
         except HttpError as err:
             print(err)
