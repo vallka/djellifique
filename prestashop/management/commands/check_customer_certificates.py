@@ -65,7 +65,7 @@ ORDER BY c.id_customer
                     # now you can use `exists_and_not_empty` (True if dir exists and contains at least one entry)
                     print(n,row,exists_and_not_empty)
 
-                    #cursor.execute("insert ignore into ps17_customer_group (id_customer,id_group) values (%s,4)",[row[0],])
-                    #cursor.execute("update ps17_customer set id_default_group=4 where id_customer=%s and id_default_group<4",[row[0],])
+                    cursor.execute("insert ignore into ps17_customer_group (id_customer,id_group) values (%s,4)",[row[0],])
+                    cursor.execute("update ps17_customer set id_default_group=4 where id_customer=%s and id_default_group<4",[row[0],])
 
                     n+=1
