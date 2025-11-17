@@ -43,8 +43,8 @@ o2.current_state IN        (SELECT id_order_state FROM ps17_order_state WHERE pa
 WHERE c.id_customer NOT IN 
 (SELECT id_customer FROM ps17_customer_group WHERE id_group>=4 
 )
-AND (o2.date_add>DATE_SUB(NOW(),INTERVAL 1 DAY)
-OR c.date_add>DATE_SUB(NOW(),INTERVAL 1 DAY)
+AND (o2.date_add>DATE_SUB(NOW(),INTERVAL 2 DAY)
+OR c.date_add>DATE_SUB(NOW(),INTERVAL 2 DAY)
 )
 
 ORDER BY c.id_customer
@@ -55,6 +55,7 @@ ORDER BY c.id_customer
             result = cursor.fetchall()
 
             n=1
+            updated=0
             print (len(result))
             if result and len(result):
                 for row in result:
@@ -65,7 +66,11 @@ ORDER BY c.id_customer
                     # now you can use `exists_and_not_empty` (True if dir exists and contains at least one entry)
                     print(n,row,exists_and_not_empty)
 
-                    cursor.execute("insert ignore into ps17_customer_group (id_customer,id_group) values (%s,4)",[row[0],])
-                    cursor.execute("update ps17_customer set id_default_group=4 where id_customer=%s and id_default_group<4",[row[0],])
+                    if exists_and_not_empty:
+                        cursor.execute("insert ignore into ps17_customer_group (id_customer,id_group) values (%s,4)",[row[0],])
+                        cursor.execute("update ps17_customer set id_default_group=4 where id_customer=%s and id_default_group<4",[row[0],])
+                        updated+=1
 
                     n+=1
+
+            print(f"Total customers with certificates added to group: {updated} (out of {len(result)})")
