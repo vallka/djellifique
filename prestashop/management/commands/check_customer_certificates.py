@@ -43,8 +43,8 @@ o2.current_state IN        (SELECT id_order_state FROM ps17_order_state WHERE pa
 WHERE c.id_customer NOT IN 
 (SELECT id_customer FROM ps17_customer_group WHERE id_group>=4 
 )
-AND (o2.date_add>DATE_SUB(NOW(),INTERVAL 2 DAY)
-OR c.date_add>DATE_SUB(NOW(),INTERVAL 2 DAY)
+AND (o2.date_add>DATE_SUB(NOW(),INTERVAL 2 MONTH)
+OR c.date_add>DATE_SUB(NOW(),INTERVAL 2 MONTH)
 )
 
 ORDER BY c.id_customer
