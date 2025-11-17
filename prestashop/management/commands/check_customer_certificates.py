@@ -63,6 +63,6 @@ ORDER BY c.id_customer
                     dirname = os.path.join(settings.MEDIA_ROOT, 'customer-certificates', email)
                     exists_and_not_empty = os.path.isdir(dirname) and bool(os.listdir(dirname))
                     # now you can use `exists_and_not_empty` (True if dir exists and contains at least one entry)
-                    print(n,row,dirname,exists_and_not_empty)
+                    print(n,row,exists_and_not_empty)
 
                     n+=1
