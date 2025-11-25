@@ -31,6 +31,9 @@
     .table thead tr:nth-child(2) th {
         top: 36px; /* adjust as needed */
     }
+    .table td, .table-sm td {
+        padding: 0.2rem;
+    }
 </style>
 {% endblock skin_css %}
 
@@ -111,7 +114,7 @@ const app = Vue.createApp({
                 name: {
                     link: 'https://www.gellifique.co.uk/admin734r04xdw/index.php/sell/catalog/products/{id_product}?token=e85a8bd5925e4340412e666147674ff5&_token=',
                 },
-                supplier_reference: {},
+                supplier_reference: {caption: 'Supplier Ref'},
                 quantity: {caption: 'Qty'},
                 kg: {}
                 /*
