@@ -227,10 +227,10 @@ class PrintCategoriesView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['pages'] = []
-        context['pages'].append({'category': PrintCategory(169,self.request.META['HTTP_HOST'])})
-        context['pages'].append({'category': PrintCategory(171,self.request.META['HTTP_HOST'])})
-        context['pages'].append({'category': PrintCategory(170,self.request.META['HTTP_HOST'])})
-        context['pages'].append({'category': PrintCategory(172,self.request.META['HTTP_HOST'])})
+        context['pages'].append({'category': PrintCategory(18,self.request.META['HTTP_HOST'])})
+        context['pages'].append({'category': PrintCategory(19,self.request.META['HTTP_HOST'])})
+        context['pages'].append({'category': PrintCategory(105,self.request.META['HTTP_HOST'])})
+        context['pages'].append({'category': PrintCategory(150,self.request.META['HTTP_HOST'])})
 
         return context
     
@@ -322,3 +322,6 @@ def save_sort(request):
     r = {'result':'ok'} 
 
     return JsonResponse(r)    
+
+class ProductInfoView(generic.TemplateView):
+    template_name = 'prestashop/productinfo.html'

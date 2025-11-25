@@ -329,10 +329,10 @@ class PrintCategory:
 
         self.id = id_category
 
-        h={'Accept':'application/json, text/javascript, */*; q=0.01'}
+        h={'Accept':'application/json, text/javascript, */*; q=0.01', 'Referer': f'https://{server}/'}
         r=requests.get(f'https://{server}/category({id_category})?order=product.position.asc',headers=h)
 
-        #print(r)
+        print(r)
 
         self.response = json.loads(r.text)
 
@@ -347,7 +347,7 @@ class PrintCategory:
 
         self.products = self.response['products']
 
-        #print(len(self.products))
+        print(len(self.products))
 
         self.rendered_products_header = self.response['rendered_products_header']
         self.rendered_products = self.response['rendered_products'].replace(' (HEMA FREE)','')

@@ -38,9 +38,10 @@
   border: 1pt solid rgb(217, 106, 154);
   margin: 0 2pt 5pt;
   padding: 1px;
-  display: none;
+  /*display: none;*/
 }
 
+/*
 .products article:nth-child(1), 
 .products article:nth-child(2), 
 .products article:nth-child(3), 
@@ -56,6 +57,7 @@
 {
   display: block;
 }
+  */
 
 .product-miniature img {
   width: 100%;
@@ -93,13 +95,13 @@ a {
 {% endblock head %}
 
 {% block content %}
-<div id="content_div">
+<div id="content_div" class="content">
 
 
 {{category.rendered_products_header|safe}}    
 {{category.rendered_products|safe}}    
 
-<footer>
+<footer class="print-footer">
     <img src="{{ static ('images/footer.png') }}"
 </footer>
 </div>

@@ -27,19 +27,50 @@ body {
 
 #content_div {
   width: 518pt;
-  height: 760pt;
+  /*height: 760pt;*/
   overflow: hidden;
   /*border: solid black 1px;*/
   position:relative;
 }
 
 #content_div footer {
-  position: absolute;
-  bottom:0;
+  /*position: absolute;*/
+  /*bottom:0;*/
 }
 
 #content_div footer img {
   width: 100%;
+}
+
+@media screen {
+  .print-header, .print-footer { display: none; }
+}
+
+@media print {
+  article {
+    page-break-inside: avoid;      /* old name */
+    break-inside: avoid-page;      /* new name */
+  }
+  body {
+    margin: 0;
+  }
+
+  .print-header, .print-footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    color: #000;
+    background: #fff;
+  }
+
+  .print-header { top: 0; }
+  .print-footer { bottom: 0; }
+
+  /* Make room so content isn’t covered */
+  .content {
+    
+    margin-bottom: 3cm;/* at least footer height */
+  }
 }
 </style>
 
