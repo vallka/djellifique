@@ -260,6 +260,9 @@ Input JSON below:
             response = json.loads(responseobj.text)
             print(f'DONE============================= {lang}')
             ic(response)
+            if response.get('error'):
+                print('ERROR:',response['error'])
+                return {'result':'error','error':response['error']['code']+': '+response['error']['message']}    
 
             print(response['choices'][0]['message']['content'])
 
