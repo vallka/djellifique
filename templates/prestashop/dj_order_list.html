@@ -86,7 +86,7 @@
               <div>
                 {% if o.country == 'United Kingdom' %}{% else %}<strong>{{ o.country }}:</strong> {% endif %} {{ o.postcode }}</div>
             </td>
-            <td>
+            <td class="order_state">
               {{ o.order_state }}
             </td>
             <td>{{ o.date_add|date:"d/m/y H:i" }}</td>
@@ -117,4 +117,22 @@
     {% endif %}
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".gel_row").forEach((row) => {
+    const id = row.dataset.id_order;
+    if (!id) return;
+
+    const isReady = localStorage.getItem(`o${id}-ready`);
+    const stateEl = row.querySelector(".order_state");
+    if (!stateEl) return;
+
+    stateEl.classList.toggle("ready", Boolean(isReady));
+  });
+});  
+</script>
+
 {% endblock %}
