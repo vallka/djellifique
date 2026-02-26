@@ -39,8 +39,22 @@ body{margin:0;font-family:var(--font);color:var(--text);background:var(--bg)}
 
 /* App layout */
 .app{min-height:100vh;display:grid;grid-template-columns:var(--sidebar-w) 1fr}
-.shell{min-width:0;display:grid;grid-template-rows:var(--topbar-h) 1fr auto}
-.content{min-width:0;padding:var(--pad);background: var(--bg-content)}
+
+/* Make the whole right side (shell) a fixed-height column */
+.shell {
+  height: 100vh;              /* important */
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/*.content{min-width:0;padding:var(--pad);background: var(--bg-content)}*/
+/* Content becomes the scroll area */
+.content {
+  overflow: auto;             /* this is the key */
+  flex: 1;                    /* take remaining height */
+  min-height: 0;              /* required for overflow to work in flexbox */
+}
 .footer{padding:10px var(--pad);border-top:1px solid var(--border);color:var(--muted);font-size:12px}
 
 /* Desktop: hide sidebar (full) */
@@ -48,8 +62,25 @@ body{margin:0;font-family:var(--font);color:var(--text);background:var(--bg)}
 .app.sidebar-hidden .sidebar{width:0;padding:0;border-right:0;overflow:hidden}
 
 /* Topbar */
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 var(--pad);border-bottom:1px solid var(--border);height:var(--topbar-h);background: var(--bg-topbar)}
+/*.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 var(--pad);border-bottom:1px solid var(--border);height:var(--topbar-h);background: var(--bg-topbar)}*/
 .topbar__left{display:flex;align-items:center;gap:10px;min-width:0}
+/* Topbar stays at top */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--bg);      /* ensure it covers content when overlapping */
+}
+
+/* Video section sits under topbar and stays visible */
+#video_section {
+  position: sticky;
+  top: var(--topbar-h);       /* sits just below topbar */
+  z-index: 25;
+  background: var(--bg);
+}
+
+
 .crumbs{min-width:0}
 .crumbs__title{font-weight:700}
 .crumbs__sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

@@ -12,8 +12,6 @@
 <body class="app">
   <a class="skip-link" href="#main">Skip to content</a>
 
-  {% block topbar_second %}{% endblock %}
-
   <aside class="sidebar" id="sidebar" aria-label="Primary">
     <div class="sidebar__brand">
       <a class="brand" href="{% url 'prestashop:dashboard' %}">
@@ -91,6 +89,8 @@
       
 
     </header>
+
+    {% block topbar_second %}{% endblock %}
 
     <main class="content" id="main">
       {% if messages %}

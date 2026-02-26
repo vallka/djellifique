@@ -6,14 +6,11 @@
     .top { padding: 10px 12px; }
 
     #wrap {
-      width: min(100vw - 24px, 680px);
-      height: min(36vh, 340px);
+      width: min(100vw, 680px);
+      height: min(25vh, 340px);
       background: #000;
-      border: 1px solid #ccc;
-      border-radius: 12px;
       overflow: hidden;
       position: relative;
-      margin: 8px 12px 0 12px;
     }
 
     #video {
@@ -54,29 +51,17 @@
       filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35));
     }
 
-    #out { margin-top: 8px; white-space: pre-wrap; font-size: 14px; }
+    #out { }
 
-    button { margin-right: 8px; }
-    label { user-select:none; margin-left: 10px; }
   </style>
 
 
 {% endblock %}
 {% block page_title %}{{ order.id_order }} {{ order.firstname }} {{ order.lastname }}{% endblock %}
-{% block page_subtitle %}{% endblock %}
+{% block page_subtitle %}<div id="out" style="display: none;"></div>{% endblock %}
 
 {% block topbar_second %}
-<div>
-  <div class="top">
-    <button id="start">Start</button>
-    <button id="stop" disabled>Stop</button>
-    <label>
-      <input id="mute" type="checkbox" />
-      mute sounds
-    </label>
-    <div id="out">Press Start (HTTPS/localhost required)</div>
-  </div>
-
+<div id="video_section" style="display:none;">
   <div id="wrap">
     <video id="video" autoplay muted playsinline webkit-playsinline></video>
     <div id="roiOverlay"></div>
@@ -230,30 +215,59 @@
   <script src="https://unpkg.com/@zxing/browser@latest"></script>
 
   <script>
-    // -----------------------------
-    // User-editable expected list
-    // -----------------------------
     function barcode_expected(num) {
-      // TODO: replace with your own logic later.
-      const expected_barcodes = new Set([
-        "5901234123457",
-        "4006381333931",
-        "9780201379624"
-      ]);
-      return expected_barcodes.has(num);
+      const rows = document.querySelectorAll(".product_row[data-ean]");
+      const ean = String(num).trim();
+
+      return Array.from(rows).some(row => row.dataset.ean === ean);
     }
 
-    function barcode_is_good(num) {
-      // Dummy hook: call your logic here
-      console.log("barcode_is_good()", num);
+    function barcode_is_good(code) {
+      console.log("barcode_is_good ---:", code);
+
+      const targetEAN = String(code || "").trim();
+      let foundRow = null;
+
+      const rows = document.querySelectorAll(".product_row[data-ean]");
+
+      for (const row of rows) {
+        const ean = (row.getAttribute("data-ean") || "").trim();
+        if (ean !== targetEAN) continue;
+
+        const cb = row.querySelector('input[type="checkbox"]');
+        if (!cb) continue;
+
+        // match your original logic: only pick rows not already checked
+        if (!cb.checked) {
+          foundRow = row;
+
+          // Scroll into view if not visible enough
+          if (!isElementInViewport(row)) {
+            row.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+          break;
+        }
+      }
+
+      if (!foundRow) {
+        // previously played audio_no; now do nothing (or show UI message if you want)
+        console.log("Barcode not found (or all matching rows already ready).");
+        return false;
+      }
+
+      // Trigger the same logic as user click:
+      // set checked, then dispatch "change" so your existing handler runs
+      const checkbox = foundRow.querySelector('input[type="checkbox"]');
+      checkbox.checked = true;
+      checkbox.dispatchEvent(new Event("change", { bubbles: true }));
+
+      return true;
     }
 
     // -----------------------------
     // DOM
     // -----------------------------
-    const startBtn = document.getElementById('start');
-    const stopBtn  = document.getElementById('stop');
-    const muteChk  = document.getElementById('mute');
+    const cameraBtn = document.getElementById('video_button');
     const out      = document.getElementById('out');
     const wrap     = document.getElementById('wrap');
     const video    = document.getElementById('video');
@@ -291,12 +305,39 @@
     // audio
     let audioCtx = null;
 
+    const SCANNER_KEY = "barcode_scanner_on"; // "1" or null
+
     // -----------------------------
     // Helpers
     // -----------------------------
+    function isElementInViewport(el, threshold = 0.25) {
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      const vw = window.innerWidth || document.documentElement.clientWidth;
+
+      // quick reject if completely off-screen
+      if (r.bottom <= 0 || r.right <= 0 || r.top >= vh || r.left >= vw) return false;
+
+      // require at least some portion visible vertically
+      const visibleHeight = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+      const ratio = visibleHeight / Math.max(r.height, 1);
+
+      return ratio >= threshold;
+    }
+    function setScannerPersisted(on) {
+      if (on) localStorage.setItem(SCANNER_KEY, "1");
+      else localStorage.removeItem(SCANNER_KEY);
+    }
+
+    function isScannerPersistedOn() {
+      return localStorage.getItem(SCANNER_KEY) === "1";
+    }
+
     function nowMs() { return Date.now(); }
 
-    function stopAll(msg = 'Stopped') {
+    function stopAll(msg = "Stopped") {
       running = false;
       if (rafId) cancelAnimationFrame(rafId);
       rafId = null;
@@ -312,9 +353,6 @@
       cooldownUntil = 0;
 
       hideMark();
-
-      startBtn.disabled = false;
-      stopBtn.disabled = true;
       out.textContent = msg;
     }
 
@@ -387,7 +425,6 @@
     }
 
     function ensureAudio() {
-      if (muteChk.checked) return null;
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
@@ -467,13 +504,13 @@
     function handleDecision(barcode, ok, reason) {
       // feedback
       if (ok) {
-        out.textContent = `OK ✅  ${barcode}\n${reason}`;
+        out.textContent = `OK ${barcode} ${reason}`;
         showMark('ok');
         beepPattern('ok');
         haptic('ok');
         barcode_is_good(barcode);
       } else {
-        out.textContent = `NO ❌  ${barcode}\n${reason}`;
+        out.textContent = `NO ${barcode} ${reason}`;
         showMark('no');
         beepPattern('no');
         haptic('no');
@@ -562,21 +599,16 @@
       }, 120);
     }
 
-    // -----------------------------
-    // Start/Stop
-    // -----------------------------
-    startBtn.addEventListener('click', async () => {
-      startBtn.disabled = true;
-      stopBtn.disabled = false;
-      out.textContent = 'Starting camera…';
+    async function startScanner(fromUserClick = false) {
+      out.textContent = "Starting camera…";
 
-      // Ensure audio context is created within user gesture (Start click)
-      ensureAudio();
+      // Audio context must be created from user gesture; skip on auto-start
+      if (fromUserClick) ensureAudio();
 
       const constraints = {
         audio: false,
         video: {
-          facingMode: { ideal: 'environment' },
+          facingMode: { ideal: "environment" },
           width:  { ideal: 1280 },
           height: { ideal: 720 }
         }
@@ -592,14 +624,45 @@
         hideMark();
 
         running = true;
-        out.textContent = 'Scanning ROI for EAN-13…';
+        out.textContent = "Scanning ROI for EAN-13…";
         scanLoop();
       } catch (e) {
-        stopAll('Camera error: ' + (e?.message || String(e)));
+        stopAll("Camera error: " + (e?.message || String(e)));
+        setScannerPersisted(false);
+        document.getElementById("video_section").style.display = "none";
+      }
+    }
+
+    cameraBtn.addEventListener("click", async () => {
+      const section = document.getElementById("video_section");
+      const isOpen = section.style.display !== "none";
+
+      if (isOpen || running) {
+        // Turn OFF
+        setScannerPersisted(false);
+        stopAll("Stopped");
+        section.style.display = "none";
+      } else {
+        // Turn ON
+        section.style.display = "block";
+        setScannerPersisted(true);
+        await startScanner(true);
       }
     });
 
-    stopBtn.addEventListener('click', () => stopAll('Stopped'));
+    document.addEventListener("DOMContentLoaded", async () => {
+      const section = document.getElementById("video_section");
+      if (!section) return;
+
+      // default closed unless persisted
+      section.style.display = "none";
+
+      if (isScannerPersistedOn()) {
+        section.style.display = "block";
+        await startScanner(false); // no audio until user clicks somewhere
+      }
+    });
+
   </script>
 {% endblock %}
 

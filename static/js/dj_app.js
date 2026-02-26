@@ -14,7 +14,8 @@
     localStorage.setItem(THEME_KEY, next);
   });
 
-  // ---- Sidebar toggle (simple) ----
+  // ---- Sidebar toggle (simple + persistent on desktop) ----
+  const SIDEBAR_KEY = "admin_sidebar_hidden"; // "1" means hidden on desktop
   const app = document.querySelector(".app");
   const sidebar = document.getElementById("sidebar");
   const backdrop = document.querySelector("[data-backdrop]");
@@ -22,6 +23,25 @@
   function isMobile() {
     return window.matchMedia("(max-width: 980px)").matches;
   }
+
+  function setDesktopSidebarHidden(hidden) {
+    if (hidden) localStorage.setItem(SIDEBAR_KEY, "1");
+    else localStorage.removeItem(SIDEBAR_KEY);
+  }
+
+  function restoreDesktopSidebarState() {
+    if (!app) return;
+    if (isMobile()) {
+      // Mobile: never use persisted desktop state
+      app.classList.remove("sidebar-hidden");
+      return;
+    }
+    const hidden = localStorage.getItem(SIDEBAR_KEY) === "1";
+    app.classList.toggle("sidebar-hidden", hidden);
+  }
+
+  // Restore state on load
+  restoreDesktopSidebarState();
 
   function openSidebar() {
     if (!app || !sidebar) return;
@@ -32,6 +52,7 @@
       document.body.style.overflow = "hidden";
     } else {
       app.classList.remove("sidebar-hidden");
+      setDesktopSidebarHidden(false);
     }
   }
 
@@ -44,6 +65,7 @@
       document.body.style.overflow = "";
     } else {
       app.classList.add("sidebar-hidden");
+      setDesktopSidebarHidden(true);
     }
   }
 
@@ -60,12 +82,15 @@
     if (e.target.closest("a, button, input, select, textarea")) return;
 
     const link = row.querySelector("a[href]");
-    if (link) {
-      link.click();
-    }
+    if (link) link.click();
   });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeSidebar();
+  });
+
+  // If user resizes between mobile/desktop, apply desktop persisted state
+  window.addEventListener("resize", () => {
+    restoreDesktopSidebarState();
   });
 })();
