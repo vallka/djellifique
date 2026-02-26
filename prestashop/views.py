@@ -49,6 +49,7 @@ class OrderListView(generic.ListView):
             self.template_name = 'prestashop/dj_order_list.html'
             db = 'presta_eu'
         else:
+            self.template_name = 'prestashop/dj_order_list.html'
             db = 'presta'
 
         qs = Order.objects.using(db).raw(sql)
