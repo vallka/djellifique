@@ -155,7 +155,9 @@ class Order(models.Model):
         JOIN ps17_group_lang g on g.id_group=c.id_default_group and g.id_lang=1 
         join ps17_carrier ca on ca.id_carrier=o.id_carrier
         join ps17_currency cu on cu.id_currency=o.id_currency
-        WHERE o.date_add>=DATE_SUB(NOW(),INTERVAL 2 WEEK)
+        WHERE  o.current_state!=5 AND
+        o.date_upd>=DATE_SUB(NOW(),INTERVAL 2 WEEK) AND 
+        NOT (o.current_state=4 AND o.date_upd<=DATE_SUB(NOW(),INTERVAL 2 DAY))
 """
 
         #WHERE o.date_add>=DATE_SUB(NOW(),INTERVAL 1 MONTH)
