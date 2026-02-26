@@ -155,8 +155,10 @@ class Order(models.Model):
         JOIN ps17_group_lang g on g.id_group=c.id_default_group and g.id_lang=1 
         join ps17_carrier ca on ca.id_carrier=o.id_carrier
         join ps17_currency cu on cu.id_currency=o.id_currency
-        WHERE o.date_add>=DATE_SUB(NOW(),INTERVAL 1 MONTH)
+        WHERE o.date_add>=DATE_SUB(NOW(),INTERVAL 2 WEEK)
 """
+
+        #WHERE o.date_add>=DATE_SUB(NOW(),INTERVAL 1 MONTH)
         #WHERE o.current_state in (2,3,17,20,21,31,39,40)
         if one:
             sql += " AND o.id_order=%s " 

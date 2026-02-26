@@ -1,13 +1,13 @@
 function getCookie(name) {
   var cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    var cookies = document.cookie.split(';');
+  if (document.cookie && document.cookie !== "") {
+    var cookies = document.cookie.split(";");
     for (var i = 0; i < cookies.length; i++) {
       var cookie = cookies[i].trim();
       // Does this cookie string begin with the name we want?
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
       }
     }
   }
@@ -45,7 +45,10 @@ function updateTimer() {
   var minutes = Math.floor(elapsedTime / (1000 * 60)); // Convert to minutes
 
   // Format time to always show two digits
-  formattedTime = (minutes < 10 ? '0' + minutes : minutes) + ':' + (seconds < 10 ? '0' + seconds : seconds);
+  formattedTime =
+    (minutes < 10 ? "0" + minutes : minutes) +
+    ":" +
+    (seconds < 10 ? "0" + seconds : seconds);
 
   // Update the timer element with the new time
   var timerElement = document.querySelector(".timer");
@@ -60,7 +63,7 @@ function spinner_off() {
   if (spinner) {
     spinner.parentNode.removeChild(spinner);
   }
-  
+
   // Stop the timer
   clearInterval(timerInterval);
 }

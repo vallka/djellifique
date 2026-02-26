@@ -1,0 +1,120 @@
+{% extends "prestashop/dj_base.html" %}
+
+{% block title %}Orders{% endblock %}
+{% block page_title %}Orders{% endblock %}
+{% block page_subtitle %}{% endblock %}
+{% block nav_orders_active %}is-active{% endblock %}
+{% block topbar_actions %}
+  <a class="icon_a" href="{% url 'prestashop:dashboard' %}"><svg class="icon" aria-hidden="true">
+    <use href="{% static_url 'icons/sprite.svg' %}#icon-home"></use>
+  </svg></a>
+
+  <a class="icon_a" href="{% url 'prestashop:productinfo' %}"><svg class="icon" aria-hidden="true">
+    <use href="{% static_url 'icons/sprite.svg' %}#icon-box"></use>
+  </svg></a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  <header class="card__hd">
+    <div class="card__desc">  
+      {% for qnt in o_qnt %}
+        {{ qnt.0 }}: {{ qnt.1 }}<br>
+      {% endfor %}
+    </div>
+
+  </header>
+
+  <div class="card__bd">
+    <form id="filters" method="get" class="toolbar" style="display: none;">
+      <div class="filters">
+        <div class="field field--wide">
+          <label for="q">Search</label>
+          <input class="input" id="q" name="q" placeholder="Order #, email, name…" value="{{ request.GET.q|default:'' }}">
+        </div>
+
+        <div class="field">
+          <label for="status">Status</label>
+          <select class="select" id="status" name="status">
+            <option value="">Any</option>
+            <option value="paid" {% if request.GET.status == "paid" %}selected{% endif %}>Paid</option>
+            <option value="pending" {% if request.GET.status == "pending" %}selected{% endif %}>Pending</option>
+            <option value="refunded" {% if request.GET.status == "refunded" %}selected{% endif %}>Refunded</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="from">From</label>
+          <input class="input" id="from" type="date" name="from" value="{{ request.GET.from|default:'' }}">
+        </div>
+
+        <div class="field">
+          <label for="to">To</label>
+          <input class="input" id="to" type="date" name="to" value="{{ request.GET.to|default:'' }}">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <a class="btn btn--ghost" href="{% url 'prestashop:order' %}">Reset</a>
+      </div>
+    </form>
+
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in order_list %}
+          <tr data-id_order="{{ o.id_order }}" class="clickable gel_row {% if o.id_order_state >= 4 and o.id_order_state <= 7 %}gel_row_done {% endif %}">
+            <td><strong><a href="{% url 'prestashop:order_detail' o.id_order %}"></a>{{ o.id_order }}</a></strong>
+              <br>
+              {{ o.reference }}
+              <br>
+              {{ o.currency_code|currency_symbol }}{{ o.total_paid|floatformat:2 }}
+            </td>
+            <td>
+              <div>{{ o.firstname }} {{ o.lastname }}
+                {% if o.is_new %}<span class="new">N</span>{% endif %}{% if o.group_name != "Customer" and o.group_name != "Guest" %}<span class="group_name">{{ o.group_name|slice:":3" }}</span>{% endif %}
+              </div>
+              <div>
+                {% if o.country == 'United Kingdom' %}{% else %}<strong>{{ o.country }}:</strong> {% endif %} {{ o.postcode }}</div>
+            </td>
+            <td>
+              {{ o.order_state }}
+            </td>
+            <td>{{ o.date_add|date:"d/m/y H:i" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" style="color:var(--muted);">No orders found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if page_obj %}
+      <div style="display:flex; gap:10px; justify-content:space-between; align-items:center; margin-top:14px;">
+        <div style="color:var(--muted); font-size:13px;">
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </div>
+        <div style="display:flex; gap:10px;">
+          {% if page_obj.has_previous %}
+            <a class="btn btn--ghost" href="?">Prev</a>
+          {% endif %}
+          {% if page_obj.has_next %}
+            <a class="btn btn--ghost" href="?">Next</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

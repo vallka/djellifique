@@ -1,0 +1,605 @@
+{% extends "prestashop/dj_base.html" %}
+
+{% block title %}Order Detail{% endblock %}
+{% block extra_css %}
+<style>
+    .top { padding: 10px 12px; }
+
+    #wrap {
+      width: min(100vw - 24px, 680px);
+      height: min(36vh, 340px);
+      background: #000;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      margin: 8px 12px 0 12px;
+    }
+
+    #video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;     /* IMPORTANT: fills wrap horizontally like your Step 1 */
+      background: #000;
+    }
+
+    /* ROI overlay */
+    #roiOverlay {
+      position: absolute;
+      left: 8%;
+      top: 38%;
+      width: 84%;
+      height: 24%;
+      border: 2px solid rgba(255,255,255,.75);
+      border-radius: 10px;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+
+    /* Feedback overlay (check / cross) */
+    #mark {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      background: rgba(0,0,0,0.10);
+    }
+    #mark.show { display: flex; }
+
+    .mark_icon {
+      width: min(38vmin, 160px);
+      height: min(38vmin, 160px);
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35));
+    }
+
+    #out { margin-top: 8px; white-space: pre-wrap; font-size: 14px; }
+
+    button { margin-right: 8px; }
+    label { user-select:none; margin-left: 10px; }
+  </style>
+
+
+{% endblock %}
+{% block page_title %}{{ order.id_order }} {{ order.firstname }} {{ order.lastname }}{% endblock %}
+{% block page_subtitle %}{% endblock %}
+
+{% block topbar_second %}
+<div>
+  <div class="top">
+    <button id="start">Start</button>
+    <button id="stop" disabled>Stop</button>
+    <label>
+      <input id="mute" type="checkbox" />
+      mute sounds
+    </label>
+    <div id="out">Press Start (HTTPS/localhost required)</div>
+  </div>
+
+  <div id="wrap">
+    <video id="video" autoplay muted playsinline webkit-playsinline></video>
+    <div id="roiOverlay"></div>
+
+    <div id="mark" aria-hidden="true"></div>
+  </div>
+
+  <canvas id="roiCanvas" style="display:none;"></canvas>
+</div>    
+{% endblock %}
+
+{% block nav_orders_active %}is-active{% endblock %}
+{% block topbar_actions %}
+  <a class="icon_a" href="{% url 'prestashop:dashboard' %}"><svg class="icon" aria-hidden="true">
+    <use href="{% static_url 'icons/sprite.svg' %}#icon-home"></use>
+  </svg></a>
+
+  <a class="icon_a" href="{% url 'prestashop:order' %}"><svg class="icon" aria-hidden="true">
+    <use href="{% static_url 'icons/sprite.svg' %}#icon-cart"></use>
+  </svg></a>
+
+  {% if order.id_order_prev %}<a class="icon_a" href="{% url 'prestashop:order_detail' order.id_order_prev %}"><svg class="icon" aria-hidden="true">
+    <use href="{% static_url 'icons/sprite.svg' %}#icon-left"></use>
+  </svg></a>{% endif %}
+  {% if order.id_order_next %}<a class="icon_a" href="{% url 'prestashop:order_detail' order.id_order_next %}"><svg class="icon" aria-hidden="true">
+    <use href="{% static_url 'icons/sprite.svg' %}#icon-right"></use>
+  </svg></a>{% endif %}
+
+  <a class="icon_a" href="#" id="video_button"><svg class="icon" aria-hidden="true">
+    <use href="{% static_url 'icons/sprite.svg' %}#icon-camera"></use>
+  </svg></a>
+
+{% endblock %}
+
+
+{% block content %}
+<section class="card">
+  <header class="card__hd">
+    <div class="card__desc">
+
+      <b>{{ order.reference }}</b> {% if order.is_new %}<span class="new">N</span>{% endif %}{% if order.group_name != 'Customer' and order.group_name != 'Guest' %}<span class="group_name">{{ order.group_name|slice:":3" }}</span>{% endif %}
+      <br />
+      {{ order.order_state }}
+      &bull;
+      {% if order.country == 'United Kingdom' %}{% else %}{{ order.country }}:{% endif %} {{ order.postcode }}
+      &bull;
+      {{ order.carrier }}
+      {% if order.note %}  
+      <div class="order_note"> 
+      {{order.note}}
+      </div> 
+      {% endif %}
+      
+    </div>
+
+  </header>
+
+  <div class="card__bd">
+    <div class="table-wrap">
+      <table class="table gel_table" data-id_order="{{order.id_order}}">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in orderdetail_list %}
+          <tr class="product_row gel_row gel_row_{{ o.product_type }}" data-id_product="{{ o.product_id }}{% if o.product_attribute_id %}-{{ o.product_attribute_id }}{% endif %}" data-ean="{{ o.product_ean13 }}" {% if o.id_pack %}data-id_pack="{{ o.id_pack }}"{% endif %}>
+            <td>
+              <div class="img_col"><img src="{{o.image}}"></div>
+            </td>
+            <td>
+              {{ o.product_name }}<br>
+              <b>{{ o.product_reference }}</b>
+              <br>
+              {{ o.product_ean13 }}
+              {% if o.product_type != 'pack_content' %}
+              <br>
+              <b>{{ order.currency_code|currency_symbol }}{{ o.unit_price_tax_incl|floatformat:2}}</b>
+              {% endif %}
+            </td>
+            <td class="qnt_col">
+                <b><span class="product_quantity">{{ o.product_quantity }}</span></b>
+                <br>
+                Avail:
+                <br>
+                <span class="product_aquantity">{{ o.quantity }}{% if o.proc_quantity %}({{ o.proc_quantity }}){% endif %}</span>
+            </td>
+            {% if o.product_type != 'pack' %}
+              <td class="checkbox">
+                <div class="chk_inner">
+                  <span class="ready_quantity">0</span>
+                  <br>
+                  <input type="checkbox">
+                </div>  
+              </td>
+            {% else %}
+                <td>Set</td>
+            {% endif %}
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" style="color:var(--muted);">No order details</details> found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th></th>
+            <th></th>
+            <th class="qnt_col">{{ total_qnt }}</th>
+            <th></th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="gel_tfoot">
+      <button id="btn-reset" class="btn btn-danger">Reset</button>
+      <button id="btn-update-status" class="btn btn-success" style="display:none">Set Status</button>
+    </div>
+
+    {% if page_obj %}
+      <div style="display:flex; gap:10px; justify-content:space-between; align-items:center; margin-top:14px;">
+        <div style="color:var(--muted); font-size:13px;">
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </div>
+        <div style="display:flex; gap:10px;">
+          {% if page_obj.has_previous %}
+            <a class="btn btn--ghost" href="?">Prev</a>
+          {% endif %}
+          {% if page_obj.has_next %}
+            <a class="btn btn--ghost" href="?">Next</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+
+{% endblock %}
+
+{% block extra_js %}
+  <script defer src="{% static_url 'js/dj_orderdetail_list.js' %}"></script>
+
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
+  <script src="https://unpkg.com/@zxing/browser@latest"></script>
+
+  <script>
+    // -----------------------------
+    // User-editable expected list
+    // -----------------------------
+    function barcode_expected(num) {
+      // TODO: replace with your own logic later.
+      const expected_barcodes = new Set([
+        "5901234123457",
+        "4006381333931",
+        "9780201379624"
+      ]);
+      return expected_barcodes.has(num);
+    }
+
+    function barcode_is_good(num) {
+      // Dummy hook: call your logic here
+      console.log("barcode_is_good()", num);
+    }
+
+    // -----------------------------
+    // DOM
+    // -----------------------------
+    const startBtn = document.getElementById('start');
+    const stopBtn  = document.getElementById('stop');
+    const muteChk  = document.getElementById('mute');
+    const out      = document.getElementById('out');
+    const wrap     = document.getElementById('wrap');
+    const video    = document.getElementById('video');
+    const roiCanvas = document.getElementById('roiCanvas');
+    const mark     = document.getElementById('mark');
+
+    // ROI in WRAP coordinates (matches #roiOverlay)
+    // You can adjust height if needed for better reliability:
+    // e.g. h: 0.32 and y: 0.34
+    const ROI = { x: 0.08, y: 0.38, w: 0.84, h: 0.24 };
+
+    // -----------------------------
+    // ZXing setup (EAN-13 only)
+    // -----------------------------
+    const hints = new Map();
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.EAN_13]);
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+
+    const reader = new ZXingBrowser.BrowserMultiFormatReader(hints);
+
+    // -----------------------------
+    // State
+    // -----------------------------
+    let stream = null;
+    let rafId = null;
+    let running = false;
+
+    // double-read confirmation
+    let lastCandidate = null;
+    let candidateCount = 0;
+
+    // cooldown after accept/reject (ms)
+    let cooldownUntil = 0;
+
+    // audio
+    let audioCtx = null;
+
+    // -----------------------------
+    // Helpers
+    // -----------------------------
+    function nowMs() { return Date.now(); }
+
+    function stopAll(msg = 'Stopped') {
+      running = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
+      }
+      if (video.srcObject) video.srcObject = null;
+
+      lastCandidate = null;
+      candidateCount = 0;
+      cooldownUntil = 0;
+
+      hideMark();
+
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+      out.textContent = msg;
+    }
+
+    // EAN-13 checksum validation
+    // Accept only 13 digits; returns true if check digit matches.
+    function isValidEan13(num) {
+      if (!/^\d{13}$/.test(num)) return false;
+      let sum = 0;
+      // digits 1..12 (0-based index 0..11)
+      for (let i = 0; i < 12; i++) {
+        const d = num.charCodeAt(i) - 48;
+        // positions: i=0 is "1st digit" (odd position)
+        // EAN-13: sum odd positions + 3*sum even positions (for first 12 digits)
+        sum += (i % 2 === 0) ? d : (3 * d);
+      }
+      const check = (10 - (sum % 10)) % 10;
+      const last = num.charCodeAt(12) - 48;
+      return check === last;
+    }
+
+    // object-fit: COVER mapping (container ROI -> source crop)
+    function getSourceCropRectCover(vw, vh) {
+      const r = wrap.getBoundingClientRect();
+      const cw = r.width;
+      const ch = r.height;
+
+      // cover scale
+      const scale = Math.max(cw / vw, ch / vh);
+      const dw = vw * scale;
+      const dh = vh * scale;
+
+      // center crop offsets
+      const ox = (cw - dw) / 2;
+      const oy = (ch - dh) / 2;
+
+      // ROI in container coords
+      const rcx = cw * ROI.x;
+      const rcy = ch * ROI.y;
+      const rcw = cw * ROI.w;
+      const rch = ch * ROI.h;
+
+      // container ROI -> displayed video coords
+      const vx1 = rcx - ox;
+      const vy1 = rcy - oy;
+      const vx2 = rcx + rcw - ox;
+      const vy2 = rcy + rch - oy;
+
+      // clamp to displayed video bounds
+      const cx1 = Math.max(0, Math.min(dw, vx1));
+      const cy1 = Math.max(0, Math.min(dh, vy1));
+      const cx2 = Math.max(0, Math.min(dw, vx2));
+      const cy2 = Math.max(0, Math.min(dh, vy2));
+
+      const vW = Math.max(1, cx2 - cx1);
+      const vH = Math.max(1, cy2 - cy1);
+
+      // back to source coords
+      let sx = Math.floor(cx1 / scale);
+      let sy = Math.floor(cy1 / scale);
+      let sw = Math.floor(vW  / scale);
+      let sh = Math.floor(vH  / scale);
+
+      // clamp to source bounds
+      sx = Math.max(0, Math.min(vw - 1, sx));
+      sy = Math.max(0, Math.min(vh - 1, sy));
+      sw = Math.max(1, Math.min(vw - sx, sw));
+      sh = Math.max(1, Math.min(vh - sy, sh));
+
+      return { sx, sy, sw, sh };
+    }
+
+    function ensureAudio() {
+      if (muteChk.checked) return null;
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        // resume must be triggered by user gesture; start button click qualifies
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    }
+
+    function beepPattern(type) {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+
+      const t0 = ctx.currentTime;
+
+      function tone(freq, start, dur, gainVal) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+
+        gain.gain.setValueAtTime(0.0001, t0 + start);
+        gain.gain.exponentialRampToValueAtTime(gainVal, t0 + start + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + start + dur);
+
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(t0 + start);
+        osc.stop(t0 + start + dur + 0.02);
+      }
+
+      if (type === 'ok') {
+        // pleasant double-beep up
+        tone(660, 0.00, 0.10, 0.12);
+        tone(880, 0.12, 0.12, 0.12);
+      } else {
+        // lower "error" beep
+        tone(220, 0.00, 0.18, 0.14);
+        tone(180, 0.20, 0.18, 0.14);
+      }
+    }
+
+    function haptic(type) {
+      if (!navigator.vibrate) return;
+      // keep it short and distinct
+      if (type === 'ok') navigator.vibrate([25, 30, 25]);
+      else navigator.vibrate([60]);
+    }
+
+    function showMark(type) {
+      const isOk = type === 'ok';
+      const svg = isOk
+        ? `<svg class="mark_icon" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+             <circle cx="64" cy="64" r="56" fill="rgba(0,0,0,0.25)"/>
+             <path d="M52 84 L30 62 L22 70 L52 100 L108 44 L100 36 Z" fill="rgba(40, 220, 120, 0.95)"/>
+           </svg>`
+        : `<svg class="mark_icon" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+             <circle cx="64" cy="64" r="56" fill="rgba(0,0,0,0.25)"/>
+             <path d="M38 38 L90 90" stroke="rgba(255, 70, 70, 0.95)" stroke-width="14" stroke-linecap="round"/>
+             <path d="M90 38 L38 90" stroke="rgba(255, 70, 70, 0.95)" stroke-width="14" stroke-linecap="round"/>
+           </svg>`;
+
+      mark.innerHTML = svg;
+      mark.classList.add('show');
+    }
+
+    function hideMark() {
+      mark.classList.remove('show');
+      mark.innerHTML = '';
+    }
+
+    function resetCandidate() {
+      lastCandidate = null;
+      candidateCount = 0;
+    }
+
+    function handleDecision(barcode, ok, reason) {
+      // feedback
+      if (ok) {
+        out.textContent = `OK ✅  ${barcode}\n${reason}`;
+        showMark('ok');
+        beepPattern('ok');
+        haptic('ok');
+        barcode_is_good(barcode);
+      } else {
+        out.textContent = `NO ❌  ${barcode}\n${reason}`;
+        showMark('no');
+        beepPattern('no');
+        haptic('no');
+      }
+
+      // cooldown & clear overlay after 3s, then continue
+      const t = nowMs();
+      cooldownUntil = t + 3000;
+
+      setTimeout(() => {
+        hideMark();
+        // allow next barcode
+        resetCandidate();
+      }, 3000);
+    }
+
+    // -----------------------------
+    // Scan loop
+    // -----------------------------
+    async function scanLoop() {
+      if (!running) return;
+
+      const t = nowMs();
+      if (t < cooldownUntil) {
+        // still cooling down; keep looping but do nothing heavy
+        rafId = requestAnimationFrame(scanLoop);
+        return;
+      }
+
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+
+      if (!vw || !vh) {
+        rafId = requestAnimationFrame(scanLoop);
+        return;
+      }
+
+      const { sx, sy, sw, sh } = getSourceCropRectCover(vw, vh);
+
+      roiCanvas.width = sw;
+      roiCanvas.height = sh;
+      const ctx = roiCanvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, sw, sh);
+
+      try {
+        const result = await reader.decodeFromCanvas(roiCanvas);
+        if (result) {
+          const text = result.getText();
+
+          // ZXing may sometimes include whitespace; normalize
+          const barcode = (text || '').trim();
+
+          // Validate format first
+          if (!/^\d{13}$/.test(barcode)) {
+            // not EAN-13 numeric; ignore (or reject)
+            out.textContent = 'Scanning…\n(non-13-digit result ignored)';
+          } else if (!isValidEan13(barcode)) {
+            // checksum invalid → reject immediately (no need for double-confirm)
+            handleDecision(barcode, false, 'Invalid checksum');
+          } else {
+            // Double-confirm same barcode twice
+            if (barcode === lastCandidate) {
+              candidateCount += 1;
+            } else {
+              lastCandidate = barcode;
+              candidateCount = 1;
+            }
+
+            out.textContent = `Scanning…\nCandidate: ${barcode} (${candidateCount}/2)`;
+
+            if (candidateCount >= 2) {
+              const expected = barcode_expected(barcode);
+              if (expected) handleDecision(barcode, true, 'Expected barcode');
+              else handleDecision(barcode, false, 'Not in expected list');
+            }
+          }
+        }
+      } catch (e) {
+        // Usually NotFoundException while scanning — that's normal.
+        out.textContent = 'Scanning…\n' + (e?.name || String(e));
+      }
+
+      // throttle: ~8–10 tries/sec (mobile-friendly)
+      setTimeout(() => {
+        rafId = requestAnimationFrame(scanLoop);
+      }, 120);
+    }
+
+    // -----------------------------
+    // Start/Stop
+    // -----------------------------
+    startBtn.addEventListener('click', async () => {
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      out.textContent = 'Starting camera…';
+
+      // Ensure audio context is created within user gesture (Start click)
+      ensureAudio();
+
+      const constraints = {
+        audio: false,
+        video: {
+          facingMode: { ideal: 'environment' },
+          width:  { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      };
+
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = stream;
+        await video.play();
+
+        resetCandidate();
+        cooldownUntil = 0;
+        hideMark();
+
+        running = true;
+        out.textContent = 'Scanning ROI for EAN-13…';
+        scanLoop();
+      } catch (e) {
+        stopAll('Camera error: ' + (e?.message || String(e)));
+      }
+    });
+
+    stopBtn.addEventListener('click', () => stopAll('Stopped'));
+  </script>
+{% endblock %}
+

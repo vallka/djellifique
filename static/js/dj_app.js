@@ -1,0 +1,71 @@
+(function () {
+  const root = document.documentElement;
+
+  // ---- Theme toggle (unchanged) ----
+  const THEME_KEY = "admin_theme";
+  const saved = localStorage.getItem(THEME_KEY);
+  if (saved === "light" || saved === "dark") root.dataset.theme = saved;
+
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-theme-toggle]");
+    if (!t) return;
+    const next = root.dataset.theme === "light" ? "dark" : "light";
+    root.dataset.theme = next;
+    localStorage.setItem(THEME_KEY, next);
+  });
+
+  // ---- Sidebar toggle (simple) ----
+  const app = document.querySelector(".app");
+  const sidebar = document.getElementById("sidebar");
+  const backdrop = document.querySelector("[data-backdrop]");
+
+  function isMobile() {
+    return window.matchMedia("(max-width: 980px)").matches;
+  }
+
+  function openSidebar() {
+    if (!app || !sidebar) return;
+
+    if (isMobile()) {
+      sidebar.classList.add("is-open");
+      if (backdrop) backdrop.hidden = false;
+      document.body.style.overflow = "hidden";
+    } else {
+      app.classList.remove("sidebar-hidden");
+    }
+  }
+
+  function closeSidebar() {
+    if (!app || !sidebar) return;
+
+    if (isMobile()) {
+      sidebar.classList.remove("is-open");
+      if (backdrop) backdrop.hidden = true;
+      document.body.style.overflow = "";
+    } else {
+      app.classList.add("sidebar-hidden");
+    }
+  }
+
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("[data-sidebar-open]")) openSidebar();
+    if (e.target.closest("[data-sidebar-close]")) closeSidebar();
+    if (e.target.closest("[data-backdrop]")) closeSidebar();
+
+    // ---- Clickable table rows ----
+    const row = e.target.closest("tr[data-id_order]");
+    if (!row) return;
+
+    // Don't trigger if clicking an actual link, button, input etc.
+    if (e.target.closest("a, button, input, select, textarea")) return;
+
+    const link = row.querySelector("a[href]");
+    if (link) {
+      link.click();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeSidebar();
+  });
+})();
