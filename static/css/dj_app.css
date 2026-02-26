@@ -54,6 +54,8 @@ body{margin:0;font-family:var(--font);color:var(--text);background:var(--bg)}
   overflow: auto;             /* this is the key */
   flex: 1;                    /* take remaining height */
   min-height: 0;              /* required for overflow to work in flexbox */
+  padding:var(--pad);
+  background: var(--bg-content);
 }
 .footer{padding:10px var(--pad);border-top:1px solid var(--border);color:var(--muted);font-size:12px}
 

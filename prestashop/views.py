@@ -102,7 +102,9 @@ class OrderDetailListView(generic.ListView):
             self.template_name = 'prestashop/dj_orderdetail_list.html'
             db = 'presta_eu'
         else:
+            self.template_name = 'prestashop/dj_orderdetail_list.html'
             db = 'presta'
+
         qs = OrderDetail.objects.using(db).raw(sql,[self.kwargs['id_order']])
         #logger.error(qs)
         return qs
