@@ -368,6 +368,15 @@ class DashboardView(generic.TemplateView):
             ORDER BY DATE(DATE_ADD)
         """
 
+        sql3 = """
+        SELECT DATE(DATE_ADD),COUNT(id_order) o_qnt FROM ps17_orders o 
+            JOIN ps17_order_state_lang sl ON sl.id_order_state=o.current_state AND sl.id_lang=1 
+            WHERE
+            o.date_add>=DATE_SUB(NOW(),INTERVAL 1 WEEK)
+            GROUP BY DATE(DATE_ADD)
+            ORDER BY DATE(DATE_ADD) DESC
+        """
+
 
         if '127.0.0.1' in self.request.META['HTTP_HOST'] or 'gellifique.eu' in self.request.META['HTTP_HOST']:
             db = 'presta_eu'
@@ -379,9 +388,13 @@ class DashboardView(generic.TemplateView):
             result = cursor.fetchall()
             cursor.execute(sql2)
             result2 = cursor.fetchall()
+            cursor.execute(sql3)
+            result3 = cursor.fetchall()
 
         context['o_qnt'] = result
         context['o_qnt2'] = result2
+        context['o_qnt3'] = result3
+        
 
         #print(result)
 

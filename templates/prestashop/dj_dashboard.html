@@ -22,6 +22,12 @@
         {{ qnt.0 }}: {{ qnt.1 }}<br>
       {% endfor %}
 
+      <h2><a href="{% url 'prestashop:order' %}">Total Orders Last 7 days</a></h2>
+
+      {% for qnt in o_qnt3 %}
+        {{ qnt.0 }}: {{ qnt.1 }}<br>
+      {% endfor %}
+
     </div>
 
   </div>
