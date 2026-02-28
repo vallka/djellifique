@@ -144,6 +144,17 @@ body{margin:0;font-family:var(--font);color:var(--text);background:var(--bg)}
   background: color-mix(in srgb, var(--text) 4%, transparent);
 }
 
+.h1, h1 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-left: 3px;
+}
+
+.h2, h2 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-left: 3px;
+}
 
 /* Desktop: hide ☰ when sidebar is visible; hide ✕ when sidebar is hidden */
 @media (min-width:981px){
@@ -269,3 +280,8 @@ table a {
   height: 18px;
   color: var(--text);
 }
+
+.order_note {
+    color: #d9534f;
+    font-weight: 700;
+  }

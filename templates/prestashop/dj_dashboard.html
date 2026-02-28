@@ -7,8 +7,23 @@
 
 {% block content %}
 <section class="card">
+
   <div class="card__bd">
-    <h1 style="margin:0; font-size:20px;">Dashboard</h1>
+    <div class="card__desc">  
+      <h2><a href="{% url 'prestashop:order' %}">Orders for Processing</a></h2>
+  
+      {% for qnt in o_qnt %}
+        {{ qnt.0 }}: {{ qnt.1 }}<br>
+      {% endfor %}
+
+      <h2><a href="{% url 'prestashop:order' %}">Orders for Processing by Date</a></h2>
+
+      {% for qnt in o_qnt2 %}
+        {{ qnt.0 }}: {{ qnt.1 }}<br>
+      {% endfor %}
+
+    </div>
+
   </div>
 </section>
 {% endblock %}

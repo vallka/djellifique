@@ -1,0 +1,319 @@
+{% extends "prestashop/dj_base.html" %}
+
+{% block title %}Products{% endblock %}
+{% block page_title %}Products{% endblock %}
+{% block page_subtitle %}{% endblock %}
+{% block nav_products_active %}is-active{% endblock %}
+{% block topbar_actions %}
+  <a class="icon_a" href="{% url 'prestashop:dashboard' %}"><svg class="icon" aria-hidden="true">
+    <use href="{% static_url 'icons/sprite.svg' %}#icon-home"></use>
+  </svg></a>
+
+  <a class="icon_a" href="{% url 'prestashop:order' %}"><svg class="icon" aria-hidden="true">
+    <use href="{% static_url 'icons/sprite.svg' %}#icon-cart"></use>
+  </svg></a>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .h1, h1 {
+        font-size: 16px;
+        font-weight: 700;
+        margin-left: 3px;
+    }
+    .table {
+        width: fit-content;
+    }
+    .table {
+        display: block;
+        max-height: 80vh;
+        overflow: auto;
+    }
+    .table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        box-shadow: 0 2px 2px -1px rgba(0,0,0,0.25);
+    }
+    .table thead tr:first-child th {
+        top: 0;
+    }
+    .table thead tr:nth-child(2) th {
+        top: 22px; /* adjust as needed */
+    }
+    .table td, .table-sm td {
+        padding: 0.2rem;
+    }
+    .table .filter_row th {
+        padding: 0;
+    }
+        
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div id="app">
+    <!-- added count of filtered rows here -->
+    {% verbatim  %}
+    <h1>Products ({{ filteredAndSortedRows.length }})</h1>
+
+    <table v-if="rows.length" class="table table-striped table-hover table-bordered table-sm">
+        <thead>
+            <!-- Filter row -->
+            <tr class="filter_row">
+                <th v-for="col in displayedColumns" :key="'filter-' + col.key">
+                    <input
+                        v-if="col.config.filter !== false"
+                        type="text"
+                        class="form-control form-control-sm"
+                        v-model="filters[col.key]"
+                        @keydown.stop
+                        :placeholder="'Filter ' + (col.config.caption || col.key)"
+                    >
+                </th>
+            </tr>
+
+            <!-- Sorting header row -->
+            <tr>
+                <th v-for="col in displayedColumns"
+                    :key="col.key"
+                    @click="sortColumn(col.key)"
+                    :style="{ cursor: col.config.sort === false ? 'default' : 'pointer' }">
+                    {{ col.config.caption || col.key }}
+                    <span v-if="sortKey === col.key && col.config.sort !== false">
+                        {{ sortOrder === 'asc' ? '▲' : '▼' }}
+                    </span>
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr v-for="(row, index) in filteredAndSortedRows" :key="row.id ?? index">
+                <td v-for="col in displayedColumns" :key="col.key">
+                    <span v-html="formatData(col.key, row)"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p v-else>No data available.</p>
+
+
+
+    {% endverbatim %}
+
+</div>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script src="https://cdn.jsdelivr.net/npm/vue@3.5.24"></script>
+<script>
+const app = Vue.createApp({
+    data() {
+        return {
+            rows: [],
+            sortKey: null,
+            sortOrder: 'asc',
+            filters: {},
+
+            // OPTIONAL: column configuration.
+            // If empty or null, all columns from rows[0] are shown (default behavior).
+            // Example:
+            columns: {
+                name: {
+                    link: 'https://www.gellifique.co.uk/admin734r04xdw/index.php/sell/catalog/products/{id_product}?token=e85a8bd5925e4340412e666147674ff5&_token=',
+                },
+                supplier_reference: {caption: 'Supplier Ref'},
+                quantity: {caption: 'Qty'},
+                kg: {}
+                /*
+                id_product: {
+                    caption: 'Product ID',
+                    link: 'https://www.gellifique.co.uk/admin734r04xdw/index.php/sell/catalog/products/{id_product}?token=e85a8bd5925e4340412e666147674ff5&_token=',
+                    sort: false, // not sortable
+                    filter: true
+                }
+                */
+            },
+
+            // Fallback link templates by column name (still supported).
+            data_links: {
+                id_order: 'https://www.gellifique.co.uk/admin734r04xdw/index.php/sell/orders/{id_order}/view?token=e85a8bd5925e4340412e666147674ff5&_token=',
+                id_product: 'https://www.gellifique.co.uk/admin734r04xdw/index.php/sell/catalog/products/{id_product}?token=e85a8bd5925e4340412e666147674ff5&_token=',
+                id_customer: 'https://www.gellifique.co.uk/admin734r04xdw/index.php/sell/customers/{id_customer}/view?token=e85a8bd5925e4340412e666147674ff5&_token='
+            }
+        };
+    },
+    mounted() {
+        this.fetchrows();
+    },
+    computed: {
+        // Determine which columns to display and their config
+        displayedColumns() {
+            // If columns config is defined and not empty, use it
+            if (this.columns && Object.keys(this.columns).length > 0) {
+                return Object.keys(this.columns).map(key => ({
+                    key,
+                    config: this.columns[key] || {}
+                }));
+            }
+
+            // Fallback: use keys from first row (original behavior)
+            if (this.rows.length) {
+                return Object.keys(this.rows[0]).map(key => ({
+                    key,
+                    config: {} // default config: sortable & filterable
+                }));
+            }
+
+            return [];
+        },
+
+        filteredAndSortedRows() {
+            // 1. Filter
+            let filtered = this.rows.filter(row => {
+                for (const col of this.displayedColumns) {
+                    const key = col.key;
+                    const colConfig = col.config || {};
+
+                    if (colConfig.filter === false) continue;
+
+                    const filterValue = this.filters[key];
+                    if (!filterValue) continue;
+
+                    const cell = row[key];
+                    if (cell == null) return false;
+
+                    const cellStr = String(cell).toLowerCase();
+                    const filterStr = String(filterValue).toLowerCase();
+                    if (!cellStr.includes(filterStr)) return false;
+                }
+                return true;
+            });
+
+            // 2. Sort
+            if (!this.sortKey) return filtered;
+
+            // Check if current sort column is still sortable
+            const colConfig = this.getColumnConfig(this.sortKey);
+            if (colConfig.sort === false) return filtered;
+
+            const key = this.sortKey;
+            const order = this.sortOrder === 'asc' ? 1 : -1;
+
+            return [...filtered].sort((a, b) => {
+                let valA = a[key];
+                let valB = b[key];
+
+                if (valA == null && valB == null) return 0;
+                if (valA == null) return 1 * order;
+                if (valB == null) return -1 * order;
+
+                const numA = parseFloat(valA);
+                const numB = parseFloat(valB);
+
+                if (!isNaN(numA) && !isNaN(numB)) {
+                    if (numA < numB) return -1 * order;
+                    if (numA > numB) return 1 * order;
+                    return 0;
+                }
+
+                valA = String(valA).toLowerCase();
+                valB = String(valB).toLowerCase();
+
+                if (valA < valB) return -1 * order;
+                if (valA > valB) return 1 * order;
+                return 0;
+            });
+        }
+    },
+    methods: {
+        fetchrows() {
+            fetch('https://www.gellifique.co.uk/modules/custom_reporting/view.php?id=15&param=1&output_format=json')
+                .then(response => response.json())
+                .then(data => {
+                    this.rows = data;
+                })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                });
+        },
+
+        getColumnConfig(key) {
+            return (this.columns && this.columns[key]) || {};
+        },
+
+        sortColumn(key) {
+            const colConfig = this.getColumnConfig(key);
+            if (colConfig.sort === false) {
+                return; // sorting disabled for this column
+            }
+
+            if (this.sortKey === key) {
+                this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sortKey = key;
+                this.sortOrder = 'asc';
+            }
+        },
+
+        // Build URL from a template by replacing {field} with row[field]
+        makeDataLink(template, row) {
+            if (!template) return null;
+
+            return template.replace(/{([^}]+)}/g, (match, fieldName) => {
+                const val = row[fieldName];
+                return val != null ? encodeURIComponent(val) : '';
+            });
+        },
+
+        formatData(column_name, row) {
+            const colConfig = this.getColumnConfig(column_name);
+
+            // 1) Link from columns config (highest priority)
+            let linkTemplate = colConfig.link;
+
+            // 2) Fallback to data_links mapping
+            if (!linkTemplate && this.data_links[column_name]) {
+                linkTemplate = this.data_links[column_name];
+            }
+
+            if (linkTemplate) {
+                const url = this.makeDataLink(linkTemplate, row);
+                const label = row[column_name] ?? '';
+                if (!url) return label;
+                return `<a href="${url}" target="_blank" onclick="event.stopPropagation()">${label}</a>`;
+            }
+
+            // 3) existing special column for product view
+            if (column_name === 'name-link') {
+                return `<a href="https://www.gellifique.co.uk/modules/custom_reporting/view.php?id=${row['id']}" target="_blank" onclick="event.stopPropagation()">${row['name-link']}</a>`;
+            }
+
+            // 4) existing 'link-*' columns
+            if (column_name.startsWith('link-')) {
+                const label = column_name.replace('link-', '');
+                const url = row[column_name];
+                if (!url) return '';
+                return `<a href="${url}" target="_blank" onclick="event.stopPropagation()">${label}</a>`;
+            }
+
+            // 5) default – just return the plain value
+            return row[column_name];
+        }
+    }
+});
+
+app.mount('#app');
+
+</script>
+
+
+{% endblock %}

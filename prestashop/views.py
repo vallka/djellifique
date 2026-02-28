@@ -329,7 +329,60 @@ def save_sort(request):
     return JsonResponse(r)    
 
 class ProductInfoView(generic.TemplateView):
-    template_name = 'prestashop/productinfo.html'
+    template_name = 'prestashop/dj_productinfo.html'
 
 class DashboardView(generic.TemplateView):
     template_name = 'prestashop/dj_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        sql = """
+        SELECT '*** ALL STATUSES ***' AS NAME,COUNT(id_order) o_qnt FROM ps17_orders o 
+            JOIN ps17_order_state_lang sl ON sl.id_order_state=o.current_state AND sl.id_lang=1 
+            WHERE
+            current_state  IN (2,3,9,11,12,17,20,21,22,23,24,25,26,27,31,39,40)
+            AND o.date_add>=DATE_SUB(NOW(),INTERVAL 1 MONTH)
+
+            UNION ALL
+            
+            
+        SELECT * FROM (
+        SELECT NAME,COUNT(id_order) o_qnt FROM ps17_orders o 
+            JOIN ps17_order_state_lang sl ON sl.id_order_state=o.current_state AND sl.id_lang=1 
+            WHERE
+            current_state  IN (2,3,9,11,12,17,20,21,22,23,24,25,26,27,31,39,40)
+            AND o.date_add>=DATE_SUB(NOW(),INTERVAL 1 MONTH)
+            GROUP BY NAME
+            ORDER BY NAME
+            ) qq
+        """
+
+        sql2 = """
+        SELECT DATE(DATE_ADD),COUNT(id_order) o_qnt FROM ps17_orders o 
+            JOIN ps17_order_state_lang sl ON sl.id_order_state=o.current_state AND sl.id_lang=1 
+            WHERE
+            current_state  IN (2,3,9,11,12,17,20,21,22,23,24,25,26,27,31,39,40)
+            AND o.date_add>=DATE_SUB(NOW(),INTERVAL 1 MONTH)
+            GROUP BY DATE(DATE_ADD)
+            ORDER BY DATE(DATE_ADD)
+        """
+
+
+        if '127.0.0.1' in self.request.META['HTTP_HOST'] or 'gellifique.eu' in self.request.META['HTTP_HOST']:
+            db = 'presta_eu'
+        else:
+            db = 'presta'
+
+        with connections[db].cursor() as cursor:
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            cursor.execute(sql2)
+            result2 = cursor.fetchall()
+
+        context['o_qnt'] = result
+        context['o_qnt2'] = result2
+
+        #print(result)
+
+        return context
