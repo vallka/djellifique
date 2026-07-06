@@ -201,9 +201,19 @@ JOIN ps17_attribute_lang atl ON atl.id_attribute=pac.id_attribute AND atl.id_lan
 WHERE pac.id_product_attribute=odd.product_attribute_id 
 )
 ) AS att_name,
+
 COALESCE(
-(SELECT ai.id_image FROM ps17_product_attribute_image ai,ps17_image ai2 WHERE odd.product_attribute_id=ai.id_product_attribute AND ai.id_image=ai2.id_image ORDER BY POSITION LIMIT 1),
-i.id_image) AS id_image,
+ (SELECT ai.id_image 
+  FROM ps17_product_attribute_image ai
+  JOIN ps17_product_attribute pa2 ON pa2.id_product_attribute = ai.id_product_attribute
+  JOIN ps17_image ai2 ON ai2.id_image = ai.id_image
+  WHERE odd.product_attribute_id = ai.id_product_attribute
+    AND odd.product_attribute_id <> 0
+    AND pa2.id_product = odd.product_id
+  ORDER BY ai2.position LIMIT 1),
+ i.id_image) AS id_image
+
+,
 
 a.quantity ,proc_quantity,proc_quantity_set,id_pack,unit_price_tax_incl,product_attribute_id
 
