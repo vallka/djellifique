@@ -118,7 +118,7 @@ class SearchView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['post'] = context['post_list'] and context['post_list'][0]
+        context['post'] = context['post_list'][0] if context['post_list'] else None
         context['categories'] = Category.objects.all().order_by('id')
 
         page = int(self.request.GET.get('page',1))
@@ -129,9 +129,10 @@ class SearchView(generic.ListView):
         context['page_title'] = context['breadcrumb']
         context['current_domain'] = self.domain
         context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('blog.','www.') + self.request.get_full_path()
-        context['page_image'] = context['post'].first_image
-        context['page_description'] = context['post'].first_p
-        return context        
+        if context['post']:
+            context['page_image'] = context['post'].first_image
+            context['page_description'] = context['post'].first_p
+        return context
 
 
 class HomeView(generic.ListView):
@@ -175,10 +176,8 @@ class HomeView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['post'] = context['post_list'] and context['post_list'][0]
+        context['post'] = context['post_list'][0] if context['post_list'] else None
         context['categories'] = Category.objects.all().order_by('id')
-
-        ic(self.request.get_full_path())
 
         if self.home:
             context['breadcrumb'] = 'Home'
@@ -205,10 +204,11 @@ class HomeView(generic.ListView):
         context['product_carousel2'] = self.getBlogProducts('2')
         context['current_domain'] = self.domain
         context['canonical_url'] = 'https://' + self.request.META['HTTP_HOST'].replace('blog.','www.') + self.request.get_full_path()
-        context['page_image'] = context['post'].first_image
-        context['page_description'] = context['post'].first_p
+        if context['post']:
+            context['page_image'] = context['post'].first_image
+            context['page_description'] = context['post'].first_p
 
-        return context        
+        return context
 
     def getBlogProducts(self,pos=''):
         post = Post.objects.get(slug='_products_carousel'+pos)
