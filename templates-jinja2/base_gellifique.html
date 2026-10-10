@@ -37,14 +37,51 @@
 
 {% block ga %}
 {% if not no_gtag %}
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-JZDER3XRFC"></script>
+{# Same GA4 property as the shop on that domain; pages without current_domain count as .co.uk #}
+{% set ga_id = 'G-Q0RV245Y7E' if current_domain == 2 else 'G-WPFNSTKTQS' %}
+<!-- Google tag (gtag.js) - same GA4 property as the shop, with Consent Mode v2 -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-JZDER3XRFC');
+  gtag('consent', 'default', {
+    analytics_storage: 'denied',
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied'
+  });
+  gtag('set', {
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false
+  });
+
+  // Follow the shop's cookie banner (PrestaShop config-gtag.tpl), which stores
+  // {analytics: bool, ts} in localStorage on the same origin (www.gellifique.co.uk / .eu).
+  (function () {
+    var STORAGE_KEY = 'cookie_consent_v2_ga4';
+    function analyticsGranted() {
+      try { var c = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); return !!(c && c.analytics); }
+      catch (e) { return false; }
+    }
+    function applyConsent(granted) {
+      gtag('consent', 'update', {
+        analytics_storage: granted ? 'granted' : 'denied',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied'
+      });
+    }
+    if (analyticsGranted()) applyConsent(true);
+    // Choice changed in another tab (e.g. the shop)
+    window.addEventListener('storage', function (e) {
+      if (e.key === STORAGE_KEY) applyConsent(analyticsGranted());
+    });
+  })();
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_id }}"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', '{{ ga_id }}');
 </script>
 {% endif %}
 {% endblock ga %}
@@ -141,6 +178,9 @@
               <li><a href="#">About us</a></li>
               <li><a href="#">Secure payment</a></li>
               <li><a href="#">Cookies Policy</a></li>
+              {% if not no_gtag %}
+              <li><a href="#" id="link-cookie-settings">Cookie Settings</a></li>
+              {% endif %}
               <li><a href="#">Contact us</a></li>
               <li><a href="#">Sitemap</a></li>
             </ul>
@@ -186,6 +226,10 @@
 {% block javascript %}
 
 {{ super() }}
+
+{% if not no_gtag %}
+{% include 'cookie_banner.html' %}
+{% endif %}
 
 {% if not no_header %}
 <script>

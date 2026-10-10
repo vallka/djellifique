@@ -1,0 +1,103 @@
+<!-- Cookie banner - copy of the shop's banner (PrestaShop config-gtag.tpl).
+     Writes the same localStorage key, so a choice made on the blog applies on the shop and vice versa.
+     Consent Mode default / stored-choice handling is in the "ga" block of base_gellifique.html. -->
+<div id="cookie-banner" style="display:none; position:fixed; left:16px; right:16px; bottom:16px; padding:16px; background:#111; color:#fff; border-radius:12px; z-index:99999; font-family:system-ui;">
+  <div style="max-width:980px; margin:0 auto; display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap;">
+    <div style="flex:1 1 420px; min-width:280px;">
+      <div style="font-weight:600; margin-bottom:6px;">Cookies</div>
+      <div style="opacity:.9; font-size:14px; line-height:1.4;">
+        Essential cookies are required for the website to function correctly. With your permission, we use analytics cookies (Google Analytics 4) to understand how the website is used and to improve performance.
+      </div>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button type="button" id="cookie-accept" style="padding:10px 12px; border-radius:10px; border:0; cursor:pointer;">Accept all</button>
+      <button type="button" id="cookie-reject" style="padding:10px 12px; border-radius:10px; border:0; cursor:pointer;">Reject non-essential</button>
+      <button type="button" id="cookie-manage" style="padding:10px 12px; border-radius:10px; border:0; cursor:pointer;">Manage preferences</button>
+    </div>
+  </div>
+</div>
+
+<div id="cookie-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:100000; font-family:system-ui;">
+  <div style="max-width:520px; margin:10vh auto; background:#fff; border-radius:14px; padding:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+      <div style="font-weight:700;">Cookie preferences</div>
+      <button type="button" id="cookie-close" style="border:0; background:transparent; cursor:pointer; font-size:18px;">✕</button>
+    </div>
+
+    <div style="margin-top:14px; font-size:14px; line-height:1.4; color:#222;">
+      <div style="margin-bottom:10px;">
+        <strong>Essential cookies</strong> — Always on (required for site functions like cart and checkout).
+      </div>
+
+      <label style="display:flex; justify-content:space-between; align-items:center; padding:12px; border:1px solid #eee; border-radius:12px;">
+        <span>
+          <strong>Analytics cookies (GA4)</strong><br>
+          <span style="color:#555;">Help us understand site usage and improve performance.</span>
+        </span>
+        <input id="cookie-analytics-toggle" type="checkbox" />
+      </label>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+        <button type="button" id="cookie-save" style="padding:10px 12px; border-radius:10px; border:0; cursor:pointer;">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const STORAGE_KEY = "cookie_consent_v2_ga4";
+  const banner = document.getElementById("cookie-banner");
+  const modal  = document.getElementById("cookie-modal");
+  const toggle = document.getElementById("cookie-analytics-toggle");
+
+  function getConsent() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); }
+    catch(e){ return null; }
+  }
+  function setConsent(consent) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(consent)); }
+    catch(e){}
+  }
+
+  function show(el){ if (el) el.style.display = "block"; }
+  function hide(el){ if (el) el.style.display = "none"; }
+
+  function applyConsent(analyticsGranted) {
+    gtag('consent', 'update', {
+      analytics_storage: analyticsGranted ? 'granted' : 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied'
+    });
+  }
+
+  function save(analytics) {
+    setConsent({ analytics: analytics, ts: Date.now() });
+    applyConsent(analytics);
+    hide(modal);
+    hide(banner);
+  }
+
+  document.getElementById("cookie-accept").addEventListener("click", function () { save(true); });
+  document.getElementById("cookie-reject").addEventListener("click", function () { save(false); });
+  document.getElementById("cookie-save").addEventListener("click", function () { save(!!(toggle && toggle.checked)); });
+  document.getElementById("cookie-close").addEventListener("click", function () { hide(modal); });
+
+  window.openCookieSettings = function () {
+    const c = getConsent() || { analytics: false };
+    if (toggle) toggle.checked = !!c.analytics;
+    show(modal);
+  };
+  document.getElementById("cookie-manage").addEventListener("click", window.openCookieSettings);
+
+  const footerLink = document.getElementById("link-cookie-settings");
+  if (footerLink) footerLink.addEventListener("click", function (event) {
+    event.preventDefault();
+    window.openCookieSettings();
+  });
+
+  // A stored choice was already applied in <head>; only ask if there is none
+  if (getConsent() === null) show(banner);
+})();
+</script>
