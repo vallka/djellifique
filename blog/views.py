@@ -408,12 +408,11 @@ Input text below:
 """
 
     data = {
-        'model': 'gpt-3.5-turbo-1106',
-        #'model': 'gpt-4-1106-preview',
+        # gpt-6-luna and other new models only accept the default temperature
+        'model': os.getenv('OPENAI_MODEL', 'gpt-6-luna'),
         'messages': [
             {'role': 'user', 'content': prompt}
         ],
-        'temperature': 0,
         'response_format': { 'type': 'json_object' }
     }
 
